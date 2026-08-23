@@ -1,0 +1,451 @@
+// ============================================================
+// Cathedis - Schéma de la Base de Données
+// Plateforme de Gestion du Parc Informatique
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum Role {
+  ADMIN       // Responsable IT
+  TECHNICIAN  // Technicien IT
+  EMPLOYEE    // Employé
+}
+
+enum EquipmentStatus {
+  AVAILABLE     // Disponible
+  ASSIGNED      // Affecté
+  MAINTENANCE   // En maintenance
+  DECOMMISSIONED // Réformé
+}
+
+enum AssignmentStatus {
+  ACTIVE    // En cours
+  RETURNED  // Restitué
+  TRANSFERRED // Transféré
+}
+
+enum MovementType {
+  PURCHASE      // Achat
+  ASSIGNMENT    // Affectation
+  RETURN        // Restitution
+  TRANSFER      // Transfert
+  MAINTENANCE   // Maintenance
+  DECOMMISSION  // Réforme
+}
+
+enum MaintenanceStatus {
+  REPORTED    // Déclarée
+  ASSIGNED    // Affectée à un technicien
+  IN_PROGRESS // En cours
+  COMPLETED   // Terminée
+  CANCELLED   // Annulée
+}
+
+enum MaintenancePriority {
+  LOW       // Basse
+  MEDIUM    // Moyenne
+  HIGH      // Haute
+  CRITICAL  // Critique
+}
+
+enum RequestStatus {
+  PENDING   // En attente
+  APPROVED  // Approuvée
+  REJECTED  // Refusée
+  FULFILLED // Livrée
+}
+
+enum MaintenanceType {
+  CORRECTIVE  // Corrective (panne)
+  PREVENTIVE  // Préventive
+}
+
+enum InventoryStatus {
+  PLANNED     // Planifié
+  IN_PROGRESS // En cours
+  COMPLETED   // Terminé
+  CANCELLED   // Annulé
+}
+
+enum InventoryItemStatus {
+  FOUND       // Trouvé (conforme)
+  NOT_FOUND   // Non trouvé (manquant)
+  SURPLUS     // Surplus (non dans la base)
+  DAMAGED     // Endommagé
+}
+
+enum NotificationType {
+  WARRANTY_EXPIRING   // Garantie expirant
+  MAINTENANCE_UPDATE  // Mise à jour maintenance
+  ASSIGNMENT          // Nouvelle affectation
+  RETURN              // Restitution
+  INVENTORY           // Inventaire
+  SYSTEM              // Système
+}
+
+// ============================================================
+// MODÈLES
+// ============================================================
+
+/// Utilisateurs de la plateforme
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique @db.VarChar(191)
+  password      String   @db.VarChar(255)
+  firstName     String   @db.VarChar(100)
+  lastName      String   @db.VarChar(100)
+  phone         String?  @db.VarChar(20)
+  role          Role     @default(EMPLOYEE)
+  isActive      Boolean  @default(true)
+  avatar        String?  @db.VarChar(500)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  department    Department? @relation(fields: [departmentId], references: [id])
+  departmentId  String?
+
+  // Relations inverses
+  assignmentsReceived   Assignment[]  @relation("AssignedTo")
+  assignmentsGiven      Assignment[]  @relation("AssignedBy")
+  maintenancesReported  Maintenance[] @relation("ReportedBy")
+  maintenancesHandled   Maintenance[] @relation("TechnicianAssigned")
+  movementsPerformed    Movement[]    @relation("PerformedBy")
+  inventoriesCreated    Inventory[]   @relation("CreatedBy")
+  signatures            Signature[]
+  notifications         Notification[]
+  auditLogs             AuditLog[]
+  equipmentRequests     EquipmentRequest[] @relation("RequestedBy")
+  equipmentRequestsHandled EquipmentRequest[] @relation("HandledBy")
+
+  @@map("users")
+}
+
+/// Départements de l'entreprise
+model Department {
+  id          String   @id @default(cuid())
+  name        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  location    String?  @db.VarChar(200)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations inverses
+  users               User[]
+  equipments           Equipment[]
+  movementsFrom        Movement[]    @relation("FromDepartment")
+  movementsTo          Movement[]    @relation("ToDepartment")
+
+  @@map("departments")
+}
+
+/// Catégories d'équipements
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  icon        String?  @db.VarChar(50) // Nom de l'icône MUI
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations inverses
+  equipments  Equipment[]
+  equipmentRequests EquipmentRequest[]
+
+  @@map("categories")
+}
+
+/// Fournisseurs
+model Supplier {
+  id          String   @id @default(cuid())
+  name        String   @unique @db.VarChar(200)
+  contactName String?  @db.VarChar(100)
+  email       String?  @db.VarChar(191)
+  phone       String?  @db.VarChar(20)
+  address     String?  @db.Text
+  website     String?  @db.VarChar(300)
+  notes       String?  @db.Text
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations inverses
+  equipments  Equipment[]
+
+  @@map("suppliers")
+}
+
+/// Équipements informatiques
+model Equipment {
+  id              String          @id @default(cuid())
+  inventoryNumber String          @unique @db.VarChar(50)
+  name            String          @db.VarChar(200)
+  description     String?         @db.Text
+  brand           String?         @db.VarChar(100)
+  model           String?         @db.VarChar(100)
+  serialNumber    String?         @unique @db.VarChar(100)
+  status          EquipmentStatus @default(AVAILABLE)
+  purchaseDate    DateTime?
+  purchasePrice   Decimal?        @db.Decimal(10, 2)
+  photo           String?         @db.VarChar(500)
+  qrCode          String?         @db.Text // Données du QR Code
+  notes           String?         @db.Text
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  category        Category   @relation(fields: [categoryId], references: [id])
+  categoryId      String
+  supplier        Supplier?  @relation(fields: [supplierId], references: [id])
+  supplierId      String?
+  department      Department? @relation(fields: [departmentId], references: [id])
+  departmentId    String?
+
+  // Relations inverses
+  assignments     Assignment[]
+  movements       Movement[]
+  maintenances    Maintenance[]
+  warranties      Warranty[]
+  documents       Document[]
+  inventoryItems  InventoryItem[]
+
+  @@map("equipments")
+}
+
+/// Affectations d'équipements aux utilisateurs
+model Assignment {
+  id            String           @id @default(cuid())
+  startDate     DateTime         @default(now())
+  endDate       DateTime?
+  status        AssignmentStatus @default(ACTIVE)
+  notes         String?          @db.Text
+  pdfUrl        String?          @db.VarChar(500)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  // Relations
+  equipment     Equipment @relation(fields: [equipmentId], references: [id])
+  equipmentId   String
+  assignedTo    User      @relation("AssignedTo", fields: [assignedToId], references: [id])
+  assignedToId  String
+  assignedBy    User      @relation("AssignedBy", fields: [assignedById], references: [id])
+  assignedById  String
+
+  // Relations inverses
+  signatures    Signature[]
+  movements     Movement[]
+
+  @@map("assignments")
+}
+
+/// Mouvements / Traçabilité des équipements
+model Movement {
+  id          String       @id @default(cuid())
+  type        MovementType
+  date        DateTime     @default(now())
+  notes       String?      @db.Text
+  createdAt   DateTime     @default(now())
+
+  // Relations
+  equipment       Equipment   @relation(fields: [equipmentId], references: [id])
+  equipmentId     String
+  performedBy     User        @relation("PerformedBy", fields: [performedById], references: [id])
+  performedById   String
+  assignment      Assignment? @relation(fields: [assignmentId], references: [id])
+  assignmentId    String?
+  fromDepartment  Department? @relation("FromDepartment", fields: [fromDepartmentId], references: [id])
+  fromDepartmentId String?
+  toDepartment    Department? @relation("ToDepartment", fields: [toDepartmentId], references: [id])
+  toDepartmentId  String?
+
+  @@map("movements")
+}
+
+/// Maintenances
+model Maintenance {
+  id            String              @id @default(cuid())
+  type          MaintenanceType     @default(CORRECTIVE)
+  status        MaintenanceStatus   @default(REPORTED)
+  priority      MaintenancePriority @default(MEDIUM)
+  description   String              @db.Text
+  diagnosis     String?             @db.Text
+  solution      String?             @db.Text
+  cost          Decimal?            @db.Decimal(10, 2)
+  reportedDate  DateTime            @default(now())
+  startDate     DateTime?
+  endDate       DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  // Relations
+  equipment     Equipment @relation(fields: [equipmentId], references: [id])
+  equipmentId   String
+  reportedBy    User      @relation("ReportedBy", fields: [reportedById], references: [id])
+  reportedById  String
+  technician    User?     @relation("TechnicianAssigned", fields: [technicianId], references: [id])
+  technicianId  String?
+
+  @@map("maintenances")
+}
+
+/// Garanties
+model Warranty {
+  id          String   @id @default(cuid())
+  startDate   DateTime
+  endDate     DateTime
+  provider    String?  @db.VarChar(200)
+  terms       String?  @db.Text
+  documentUrl String?  @db.VarChar(500)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  equipmentId String
+
+  @@map("warranties")
+}
+
+/// Sessions d'inventaire
+model Inventory {
+  id          String          @id @default(cuid())
+  name        String          @db.VarChar(200)
+  description String?         @db.Text
+  status      InventoryStatus @default(PLANNED)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // Relations
+  createdBy   User   @relation("CreatedBy", fields: [createdById], references: [id])
+  createdById String
+
+  // Relations inverses
+  items       InventoryItem[]
+
+  @@map("inventories")
+}
+
+/// Items vérifiés dans un inventaire
+model InventoryItem {
+  id          String              @id @default(cuid())
+  status      InventoryItemStatus @default(FOUND)
+  scannedAt   DateTime?
+  notes       String?             @db.Text
+  createdAt   DateTime            @default(now())
+
+  // Relations
+  inventory   Inventory @relation(fields: [inventoryId], references: [id])
+  inventoryId String
+  equipment   Equipment? @relation(fields: [equipmentId], references: [id])
+  equipmentId String?
+
+  @@map("inventory_items")
+}
+
+/// Documents attachés aux équipements
+model Document {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(200)
+  type        String   @db.VarChar(50) // facture, manuel, photo, etc.
+  url         String   @db.VarChar(500)
+  size        Int?     // Taille en octets
+  createdAt   DateTime @default(now())
+
+  // Relations
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  equipmentId String
+
+  @@map("documents")
+}
+
+/// Signatures numériques
+model Signature {
+  id             String   @id @default(cuid())
+  signatureData  String   @db.LongText // Base64 de l'image de signature
+  signedAt       DateTime @default(now())
+
+  // Relations
+  assignment     Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId   String
+  user           User       @relation(fields: [userId], references: [id])
+  userId         String
+
+  @@map("signatures")
+}
+
+/// Notifications
+model Notification {
+  id        String           @id @default(cuid())
+  title     String           @db.VarChar(200)
+  message   String           @db.Text
+  type      NotificationType @default(SYSTEM)
+  read      Boolean          @default(false)
+  link      String?          @db.VarChar(500)
+  createdAt DateTime         @default(now())
+
+  // Relations
+  user      User   @relation(fields: [userId], references: [id])
+  userId    String
+
+  @@index([userId, read])
+  @@map("notifications")
+}
+
+/// Journal d'audit
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String   @db.VarChar(100)  // CREATE, UPDATE, DELETE, LOGIN, etc.
+  entity    String   @db.VarChar(100)  // Equipment, Assignment, etc.
+  entityId  String?  @db.VarChar(100)
+  details   String?  @db.Text         // JSON des détails
+  ipAddress String?  @db.VarChar(45)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User   @relation(fields: [userId], references: [id])
+  userId    String
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+/// Demandes d'équipement par les employés
+model EquipmentRequest {
+  id            String         @id @default(cuid())
+  title         String         @db.VarChar(200)
+  description   String         @db.Text
+  priority      MaintenancePriority @default(MEDIUM)
+  status        RequestStatus  @default(PENDING)
+  quantity      Int            @default(1)
+  reason        String?        @db.Text
+  adminResponse String?        @db.Text
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  handledAt     DateTime?
+
+  // Relations
+  requestedBy   User    @relation("RequestedBy", fields: [requestedById], references: [id])
+  requestedById String
+  handledBy     User?   @relation("HandledBy", fields: [handledById], references: [id])
+  handledById   String?
+  category      Category? @relation(fields: [categoryId], references: [id])
+  categoryId    String?
+
+  @@index([requestedById])
+  @@index([status])
+  @@map("equipment_requests")
+}

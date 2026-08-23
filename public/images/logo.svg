@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" fill="none">
+  <!-- CATHEDIS Text -->
+  <text x="0" y="55" font-family="'Arial Black', 'Impact', sans-serif" font-weight="900" font-size="52" font-style="italic" fill="currentColor" letter-spacing="-1">
+    CATHEDIS
+  </text>
+  <!-- Red Arrow/Chevron Mark -->
+  <g transform="translate(262, 0)">
+    <path d="M10 5 L45 5 L55 25 L35 25 L50 55 L15 55 L5 35 L25 35 Z" fill="#E31E24"/>
+    <path d="M20 0 L55 0 L65 20 L45 20 L60 50 L25 50 L15 30 L35 30 Z" fill="#C41018" opacity="0.8"/>
+  </g>
+</svg>
