@@ -20,15 +20,37 @@ export async function GET(request: Request) {
         OR: [
           { equipment: { name: { contains: search } } },
           { equipment: { inventoryNumber: { contains: search } } },
+          { equipment: { serialNumber: { contains: search } } },
+          { notes: { contains: search } },
         ]
       } : {}),
     },
     include: {
-      equipment: { select: { id: true, name: true, inventoryNumber: true } },
-      performedBy: { select: { id: true, firstName: true, lastName: true } },
-      fromDepartment: { select: { id: true, name: true } },
-      toDepartment: { select: { id: true, name: true } },
-      assignment: true,
+      equipment: {
+        select: {
+          id: true,
+          name: true,
+          inventoryNumber: true,
+          serialNumber: true,
+          brand: true,
+          model: true,
+          status: true,
+          purchasePrice: true,
+          purchaseDate: true,
+          category: { select: { id: true, name: true } },
+          department: { select: { id: true, name: true, location: true } },
+          supplier: { select: { id: true, name: true } },
+        }
+      },
+      performedBy: { select: { id: true, firstName: true, lastName: true, email: true } },
+      fromDepartment: { select: { id: true, name: true, location: true } },
+      toDepartment: { select: { id: true, name: true, location: true } },
+      assignment: {
+        include: {
+          assignedTo: { select: { id: true, firstName: true, lastName: true, email: true } },
+          signatures: true,
+        }
+      },
     },
     orderBy: { date: 'desc' },
   });

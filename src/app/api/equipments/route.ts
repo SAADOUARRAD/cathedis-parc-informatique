@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    let { name, serialNumber, inventoryNumber, categoryId, departmentId, supplierId, status, purchasePrice, purchaseDate, description } = body;
+    let { name, brand, model, serialNumber, inventoryNumber, categoryId, departmentId, supplierId, status, purchasePrice, purchaseDate, description } = body;
 
     if (!name || !categoryId || !status) {
       return NextResponse.json({ error: "Informations requises manquantes" }, { status: 400 });
@@ -67,6 +67,8 @@ export async function POST(request: Request) {
     const equipment = await prisma.equipment.create({
       data: {
         name,
+        brand,
+        model,
         serialNumber,
         inventoryNumber,
         categoryId,

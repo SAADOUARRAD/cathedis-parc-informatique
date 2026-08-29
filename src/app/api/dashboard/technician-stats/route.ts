@@ -9,6 +9,8 @@ export async function GET() {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
+    const technicianId = session.user.id;
+
     const [
       assignedMaintenances,
       completedMaintenances,
@@ -18,11 +20,12 @@ export async function GET() {
       completedThisMonth,
       equipmentInMaintenance,
     ] = await Promise.all([
-      // Maintenances actives / assignées
+      // Maintenances assignées au technicien connecté par l'Admin (Statut ASSIGNED ou IN_PROGRESS)
       prisma.maintenance.findMany({
         where: {
+          technicianId,
           status: {
-            in: ['REPORTED', 'ASSIGNED', 'IN_PROGRESS'],
+            in: ['ASSIGNED', 'IN_PROGRESS'],
           },
         },
         orderBy: {
@@ -34,9 +37,10 @@ export async function GET() {
         },
       }),
 
-      // Maintenances terminées
+      // Maintenances terminées par ce technicien
       prisma.maintenance.findMany({
         where: {
+          technicianId,
           status: 'COMPLETED',
         },
         orderBy: {
@@ -49,11 +53,12 @@ export async function GET() {
         },
       }),
 
-      // Stats: totalAssigned
+      // Stats: totalAssigned pour ce technicien
       prisma.maintenance.count({
         where: {
+          technicianId,
           status: {
-            in: ['REPORTED', 'ASSIGNED', 'IN_PROGRESS'],
+            in: ['ASSIGNED', 'IN_PROGRESS'],
           },
         },
       }),
@@ -61,13 +66,15 @@ export async function GET() {
       // Stats: inProgressCount
       prisma.maintenance.count({
         where: {
+          technicianId,
           status: 'IN_PROGRESS',
         },
       }),
 
-      // Stats: criticalCount
+      // Stats: criticalCount assignés à ce technicien
       prisma.maintenance.count({
         where: {
+          technicianId,
           priority: {
             in: ['HIGH', 'CRITICAL'],
           },
@@ -77,9 +84,10 @@ export async function GET() {
         },
       }),
 
-      // Stats: completedThisMonth
+      // Stats: completedThisMonth pour ce technicien
       prisma.maintenance.count({
         where: {
+          technicianId,
           status: 'COMPLETED',
         },
       }),

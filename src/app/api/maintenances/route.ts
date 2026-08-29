@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
       return newMaintenance;
     });
 
-    await logAudit('MAINTENANCE_CREATE', "Nouvelle maintenance déclarée", session.user.id, maintenance.id);
+    await logAudit(session.user.id, 'CREATE', 'Maintenance', maintenance.id, { description });
 
     return NextResponse.json(maintenance, { status: 201 });
   } catch (error) {

@@ -52,12 +52,14 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { name, serialNumber, inventoryNumber, categoryId, departmentId, supplierId, status, purchasePrice, purchaseDate, description } = body;
+    const { name, brand, model, serialNumber, inventoryNumber, categoryId, departmentId, supplierId, status, purchasePrice, purchaseDate, description } = body;
 
     const equipment = await prisma.equipment.update({
       where: { id },
       data: {
         name,
+        brand,
+        model,
         serialNumber,
         inventoryNumber,
         categoryId,

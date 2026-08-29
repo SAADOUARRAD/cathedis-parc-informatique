@@ -22,7 +22,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         items: {
           include: {
             equipment: {
-              select: { name: true, inventoryNumber: true, status: true },
+              include: {
+                category: true,
+                department: true,
+              }
             },
           },
           orderBy: { scannedAt: 'desc' },
@@ -75,13 +78,29 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     let updatedInventory;
 
     switch (action) {
-      case 'start':
+      case 'start': {
         updatedInventory = await prisma.inventory.update({
           where: { id },
           data: { status: 'IN_PROGRESS' as InventoryStatus, startDate: new Date() },
         });
+
+        const existingCount = await prisma.inventoryItem.count({ where: { inventoryId: id } });
+        if (existingCount === 0) {
+          const equipments = await prisma.equipment.findMany({ select: { id: true } });
+          if (equipments.length > 0) {
+            await prisma.inventoryItem.createMany({
+              data: equipments.map((eq) => ({
+                inventoryId: id,
+                equipmentId: eq.id,
+                status: 'NOT_FOUND' as InventoryItemStatus,
+                scannedAt: new Date(),
+              })),
+            });
+          }
+        }
         await logAudit(session.user.id, "UPDATE", "Inventory");
         break;
+      }
 
       case 'complete':
         updatedInventory = await prisma.inventory.update({

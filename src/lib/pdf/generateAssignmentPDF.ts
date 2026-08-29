@@ -14,7 +14,25 @@ export interface AssignmentPDFData {
   signatureBase64?: string;
 }
 
-export function generateAssignmentPDF(data: AssignmentPDFData) {
+async function loadLogoBase64(): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  try {
+    const res = await fetch('/images/logo2.png');
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch (err) {
+    console.error('Failed to load logo:', err);
+    return null;
+  }
+}
+
+export async function generateAssignmentPDF(data: AssignmentPDFData) {
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -29,17 +47,29 @@ export function generateAssignmentPDF(data: AssignmentPDFData) {
   doc.setFillColor(primaryRed[0], primaryRed[1], primaryRed[2]);
   doc.rect(0, 0, pageWidth, 6, 'F');
 
-  // Brand Name
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(22);
-  doc.setTextColor(primaryRed[0], primaryRed[1], primaryRed[2]);
-  doc.text('CATHEDIS', 15, 20);
+  // Load Logo2 (Aspect ratio 3:1 -> 45mm x 15mm)
+  const logoBase64 = await loadLogoBase64();
+  if (logoBase64) {
+    try {
+      doc.addImage(logoBase64, 'PNG', 15, 10, 45, 15);
+    } catch (e) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(22);
+      doc.setTextColor(primaryRed[0], primaryRed[1], primaryRed[2]);
+      doc.text('CATHEDIS', 15, 20);
+    }
+  } else {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.setTextColor(primaryRed[0], primaryRed[1], primaryRed[2]);
+    doc.text('CATHEDIS', 15, 20);
+  }
 
-  doc.setFontSize(9);
+  doc.setFontSize(8.5);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(100, 100, 100);
-  doc.text('LIVRAISON EXPRESS & LOGISTIQUE', 15, 25);
-  doc.text('Gestion du Parc Informatique', 15, 29);
+  doc.text('LIVRAISON EXPRESS & LOGISTIQUE', 15, 29);
+  doc.text('Gestion du Parc Informatique', 15, 33);
 
   // Document Title Badge Right
   doc.setFillColor(248, 250, 252);

@@ -113,13 +113,13 @@ export default function LoginPage() {
         <Box sx={{
           width: '100%',
           maxWidth: 400,
-          bgcolor: 'rgba(255, 255, 255, 0.12)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          bgcolor: 'rgba(0, 0, 0, 0.22)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
           borderRadius: '24px',
           overflow: 'hidden',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
-          border: '1px solid rgba(255,255,255,0.2)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3)',
+          border: '1px solid rgba(255,255,255,0.25)',
           position: 'relative',
           animation: 'fadeUp 0.6s ease-out',
         }}>
@@ -140,8 +140,8 @@ export default function LoginPage() {
               width: 70,
               height: 70,
               borderRadius: '50%',
-              background: 'rgba(227,30,36,0.15)',
-              border: '3px solid rgba(227,30,36,0.4)',
+              background: 'rgba(227,30,36,0.2)',
+              border: '2px solid rgba(227,30,36,0.6)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -188,17 +188,17 @@ export default function LoginPage() {
                     input: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <EmailOutlinedIcon sx={{ color: 'rgba(255,255,255,0.6)', fontSize: 20 }} />
+                          <EmailOutlinedIcon sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 20 }} />
                         </InputAdornment>
                       ),
                       sx: {
                         borderRadius: '12px',
-                        bgcolor: 'rgba(255,255,255,0.12)',
+                        bgcolor: 'rgba(0, 0, 0, 0.25)',
                         color: '#fff',
                         '& input': { color: '#fff' },
                         '& input::placeholder': { color: 'rgba(255,255,255,0.6)' },
-                        '& fieldset': { borderColor: 'rgba(255,255,255,0.25)' },
-                        '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.4) !important' },
+                        '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' },
+                        '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.5) !important' },
                         '&.Mui-focused fieldset': { borderColor: '#E31E24 !important' },
                         '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active': {
                           WebkitBoxShadow: '0 0 0 1000px transparent inset !important',
@@ -231,7 +231,7 @@ export default function LoginPage() {
                     input: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <LockOutlinedIcon sx={{ color: 'rgba(255,255,255,0.6)', fontSize: 20 }} />
+                          <LockOutlinedIcon sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 20 }} />
                         </InputAdornment>
                       ),
                       endAdornment: (
@@ -242,18 +242,18 @@ export default function LoginPage() {
                             size="small"
                             disabled={isLoading}
                           >
-                            {showPassword ? <VisibilityOff sx={{ fontSize: 20, color: 'rgba(255,255,255,0.6)' }} /> : <Visibility sx={{ fontSize: 20, color: 'rgba(255,255,255,0.6)' }} />}
+                            {showPassword ? <VisibilityOff sx={{ fontSize: 20, color: 'rgba(255,255,255,0.7)' }} /> : <Visibility sx={{ fontSize: 20, color: 'rgba(255,255,255,0.7)' }} />}
                           </IconButton>
                         </InputAdornment>
                       ),
                       sx: {
                         borderRadius: '12px',
-                        bgcolor: 'rgba(255,255,255,0.12)',
+                        bgcolor: 'rgba(0, 0, 0, 0.25)',
                         color: '#fff',
                         '& input': { color: '#fff' },
                         '& input::placeholder': { color: 'rgba(255,255,255,0.6)' },
-                        '& fieldset': { borderColor: 'rgba(255,255,255,0.25)' },
-                        '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.4) !important' },
+                        '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' },
+                        '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.5) !important' },
                         '&.Mui-focused fieldset': { borderColor: '#E31E24 !important' },
                         '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active': {
                           WebkitBoxShadow: '0 0 0 1000px transparent inset !important',

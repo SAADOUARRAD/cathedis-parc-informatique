@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
+import { sendTicketAssignmentEmail } from '@/lib/email';
 import { MaintenanceStatus, MaintenancePriority, MaintenanceType } from '@prisma/client';
 
 export async function GET(
@@ -41,55 +42,85 @@ export async function PUT(
 
     const { id } = await params;
     const body = await req.json();
-    const { action, ...data } = body;
+    const { action, status, ...data } = body;
 
-    const existing = await prisma.maintenance.findUnique({ where: { id } });
+    const existing = await prisma.maintenance.findUnique({
+      where: { id },
+      include: {
+        equipment: true,
+        reportedBy: true,
+      }
+    });
+
     if (!existing) {
       return NextResponse.json({ error: "Maintenance introuvable" }, { status: 404 });
     }
 
-    let updated;
+    let updated: any;
+    let newlyAssignedTechId: string | null = null;
+
     await prisma.$transaction(async (tx) => {
-      if (action === 'assign') {
+      if (action === 'assign' || status === 'ASSIGNED' || (data.technicianId && data.technicianId !== existing.technicianId)) {
+        const targetTechId = data.technicianId || session.user.id;
+        newlyAssignedTechId = targetTechId;
+
         updated = await tx.maintenance.update({
           where: { id },
           data: {
-            technicianId: data.technicianId,
+            technicianId: targetTechId,
             status: 'ASSIGNED',
             startDate: new Date(),
           },
+          include: {
+            equipment: true,
+            reportedBy: true,
+            technician: true,
+          }
         });
-      } else if (action === 'start') {
+      } else if (action === 'start' || status === 'IN_PROGRESS') {
         updated = await tx.maintenance.update({
           where: { id },
           data: {
             status: 'IN_PROGRESS',
+            technicianId: existing.technicianId || session.user.id,
             startDate: existing.startDate || new Date(),
           },
         });
-      } else if (action === 'complete') {
+      } else if (action === 'complete' || status === 'COMPLETED') {
         updated = await tx.maintenance.update({
           where: { id },
           data: {
             status: 'COMPLETED',
+            technicianId: existing.technicianId || session.user.id,
             endDate: new Date(),
             diagnosis: data.diagnosis,
             solution: data.solution,
             cost: data.cost ? parseFloat(data.cost) : null,
           },
         });
+
+        // Check if equipment has an active assignment
+        const activeAssignment = await tx.assignment.findFirst({
+          where: { equipmentId: existing.equipmentId, status: 'ACTIVE' },
+        });
+
         await tx.equipment.update({
           where: { id: existing.equipmentId },
-          data: { status: 'AVAILABLE' },
+          data: { status: activeAssignment ? 'ASSIGNED' : 'AVAILABLE' },
         });
-      } else if (action === 'cancel') {
+      } else if (action === 'cancel' || status === 'CANCELLED') {
         updated = await tx.maintenance.update({
           where: { id },
           data: { status: 'CANCELLED' },
         });
+
+        const activeAssignment = await tx.assignment.findFirst({
+          where: { equipmentId: existing.equipmentId, status: 'ACTIVE' },
+        });
+
         await tx.equipment.update({
           where: { id: existing.equipmentId },
-          data: { status: 'AVAILABLE' },
+          data: { status: activeAssignment ? 'ASSIGNED' : 'AVAILABLE' },
         });
       } else {
         updated = await tx.maintenance.update({
@@ -101,18 +132,57 @@ export async function PUT(
             diagnosis: data.diagnosis,
             solution: data.solution,
             cost: data.cost ? parseFloat(data.cost) : undefined,
+            technicianId: data.technicianId || undefined,
           },
         });
       }
     });
 
-    await logAudit(`MAINTENANCE_UPDATE_${action || 'UPDATE'}`, `Maintenance mise à jour: ${action || 'Champs'}`, session.user.id, id);
+    // Send email notification to technician if assigned
+    if (newlyAssignedTechId) {
+      try {
+        const technician = await prisma.user.findUnique({
+          where: { id: newlyAssignedTechId },
+        });
+
+        if (technician && technician.email) {
+          const adminUser = await prisma.user.findUnique({
+            where: { id: session.user.id }
+          });
+
+          await sendTicketAssignmentEmail({
+            to: technician.email,
+            technicianName: `${technician.firstName} ${technician.lastName}`,
+            ticketId: existing.id,
+            equipmentName: existing.equipment?.name || 'Équipement',
+            serialNumber: existing.equipment?.serialNumber || undefined,
+            priority: existing.priority,
+            description: existing.description,
+            reportedByName: existing.reportedBy ? `${existing.reportedBy.firstName} ${existing.reportedBy.lastName}` : 'Collaborateur',
+            assignedByName: adminUser ? `${adminUser.firstName} ${adminUser.lastName}` : 'Administrateur IT'
+          });
+        }
+      } catch (emailErr) {
+        console.error('Erreur lors de l\'envoi de l\'email de notification au technicien:', emailErr);
+      }
+    }
+
+    await logAudit(
+      session.user.id,
+      'UPDATE',
+      'Maintenance',
+      id,
+      { status: status || action || 'UPDATE', technicianId: newlyAssignedTechId || undefined }
+    );
 
     return NextResponse.json(updated);
   } catch (error) {
+    console.error('Maintenance update error:', error);
     return NextResponse.json({ error: "Erreur lors de la mise à jour" }, { status: 500 });
   }
 }
+
+export const PATCH = PUT;
 
 export async function DELETE(
   req: NextRequest,
@@ -136,7 +206,7 @@ export async function DELETE(
     }
 
     await prisma.maintenance.delete({ where: { id } });
-    await logAudit('MAINTENANCE_DELETE', "Maintenance supprimée", session.user.id, id);
+    await logAudit(session.user.id, 'DELETE', 'Maintenance', id, { status: existing.status });
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -21,25 +21,49 @@ import {
   Skeleton,
   Avatar,
   IconButton,
-  InputBase,
+  InputAdornment,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  SelectChangeEvent
+  TablePagination,
+  ButtonGroup,
+  Card,
+  CardContent,
+  CardActions,
+  Divider,
+  Tooltip,
+  CircularProgress
 } from '@mui/material';
 import {
-  Build,
-  Search,
-  FilterList,
-  Edit,
-  AttachMoney,
-  Close as CloseIcon
+  Build as BuildIcon,
+  Search as SearchIcon,
+  FilterList as FilterIcon,
+  Edit as EditIcon,
+  AttachMoney as MoneyIcon,
+  Close as CloseIcon,
+  CheckCircle as SuccessIcon,
+  Warning as WarningIcon,
+  Error as CriticalIcon,
+  Schedule as ScheduleIcon,
+  PlayArrow as StartIcon,
+  DoneAll as DoneIcon,
+  FileDownload as ExportIcon,
+  ViewList as TableViewIcon,
+  ViewModule as GridViewIcon,
+  Visibility as ViewIcon,
+  Computer as ComputerIcon,
+  Person as PersonIcon,
+  Engineering as TechIcon,
+  Psychology as BrainIcon,
+  AutoAwesome as SparklesIcon,
+  Speed as SpeedIcon,
+  ReceiptLong as ReceiptIcon,
+  Layers as LayersIcon
 } from '@mui/icons-material';
-// Ensure next-auth or similar is used for session in your app if you use useSession.
-import { useSession } from 'next-auth/react'; 
+import { useSession } from 'next-auth/react';
 
 enum MaintenanceStatus {
   REPORTED = 'REPORTED',
@@ -61,83 +85,107 @@ enum MaintenanceType {
   PREVENTIVE = 'PREVENTIVE'
 }
 
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-}
-
-interface Equipment {
-  id: string;
-  name: string;
-  serialNumber: string;
-}
-
-interface Maintenance {
-  id: string;
-  type: MaintenanceType;
-  status: MaintenanceStatus;
-  priority: MaintenancePriority;
-  description: string;
-  diagnosis?: string;
-  solution?: string;
-  cost?: number;
-  reportedDate: string;
-  startDate?: string;
-  endDate?: string;
-  equipment: Equipment;
-  reportedBy: User;
-  technician?: User;
-}
-
-const statusColors: Record<MaintenanceStatus, "default" | "error" | "info" | "success" | "warning"> = {
-  REPORTED: 'error',
-  ASSIGNED: 'info',
-  IN_PROGRESS: 'warning',
-  COMPLETED: 'success',
-  CANCELLED: 'default'
+const statusConfig: Record<string, { label: string; color: string; bgColor: string; borderColor: string; icon: React.ReactNode }> = {
+  REPORTED: {
+    label: 'En Attente',
+    color: '#D97706',
+    bgColor: '#FEF3C7',
+    borderColor: '#FDE68A',
+    icon: <ScheduleIcon sx={{ fontSize: 16, color: '#D97706' }} />
+  },
+  ASSIGNED: {
+    label: 'Assignée',
+    color: '#2563EB',
+    bgColor: '#DBEAFE',
+    borderColor: '#BFDBFE',
+    icon: <PersonIcon sx={{ fontSize: 16, color: '#2563EB' }} />
+  },
+  IN_PROGRESS: {
+    label: 'En Réparation',
+    color: '#0284C7',
+    bgColor: '#E0F2FE',
+    borderColor: '#BAE6FD',
+    icon: <TechIcon sx={{ fontSize: 16, color: '#0284C7' }} />
+  },
+  COMPLETED: {
+    label: 'Résolue & Clôturée',
+    color: '#059669',
+    bgColor: '#D1FAE5',
+    borderColor: '#A7F3D0',
+    icon: <SuccessIcon sx={{ fontSize: 16, color: '#059669' }} />
+  },
+  CANCELLED: {
+    label: 'Annulée',
+    color: '#64748B',
+    bgColor: '#F1F5F9',
+    borderColor: '#E2E8F0',
+    icon: <CloseIcon sx={{ fontSize: 16, color: '#64748B' }} />
+  }
 };
 
-const statusLabels: Record<MaintenanceStatus, string> = {
-  REPORTED: 'En Attente',
-  ASSIGNED: 'Assignée',
-  IN_PROGRESS: 'En Cours',
-  COMPLETED: 'Terminée',
-  CANCELLED: 'Annulée'
-};
-
-const priorityColors: Record<MaintenancePriority, "default" | "error" | "info" | "success" | "warning"> = {
-  LOW: 'info',
-  MEDIUM: 'success',
-  HIGH: 'warning',
-  CRITICAL: 'error'
+const priorityConfig: Record<string, { label: string; color: string; bgColor: string; borderColor: string; icon: React.ReactNode }> = {
+  LOW: {
+    label: 'Basse',
+    color: '#0284C7',
+    bgColor: '#E0F2FE',
+    borderColor: '#BAE6FD',
+    icon: <SpeedIcon sx={{ fontSize: 14, color: '#0284C7' }} />
+  },
+  MEDIUM: {
+    label: 'Moyenne',
+    color: '#D97706',
+    bgColor: '#FEF3C7',
+    borderColor: '#FDE68A',
+    icon: <WarningIcon sx={{ fontSize: 14, color: '#D97706' }} />
+  },
+  HIGH: {
+    label: 'Haute Priorité',
+    color: '#EA580C',
+    bgColor: '#FFEDD5',
+    borderColor: '#FED7AA',
+    icon: <WarningIcon sx={{ fontSize: 14, color: '#EA580C' }} />
+  },
+  CRITICAL: {
+    label: 'URGENCE CRITIQUE',
+    color: '#DC2626',
+    bgColor: '#FEE2E2',
+    borderColor: '#FECACA',
+    icon: <CriticalIcon sx={{ fontSize: 14, color: '#DC2626' }} />
+  }
 };
 
 export default function TechnicianMaintenancesPage() {
   const { data: session } = useSession();
-  const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
+  const [maintenances, setMaintenances] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // View Mode: 'CARDS' or 'TABLE'
+  const [viewMode, setViewMode] = useState<'CARDS' | 'TABLE'>('CARDS');
+
   // Filters
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<MaintenanceStatus | 'ALL'>('ALL');
-  const [priorityFilter, setPriorityFilter] = useState<MaintenancePriority | 'ALL'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [priorityFilter, setPriorityFilter] = useState<string>('ALL');
 
-  // Dialog State
+  // Pagination for table
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  // Dialogs
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [selectedMaintenance, setSelectedMaintenance] = useState<Maintenance | null>(null);
+  const [selectedMaintenance, setSelectedMaintenance] = useState<any>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   
-  // Edit Form State
-  const [editStatus, setEditStatus] = useState<MaintenanceStatus>(MaintenanceStatus.REPORTED);
-  const [editPriority, setEditPriority] = useState<MaintenancePriority>(MaintenancePriority.LOW);
+  // Edit / Resolve Form State
+  const [editStatus, setEditStatus] = useState<string>('IN_PROGRESS');
+  const [editPriority, setEditPriority] = useState<string>('MEDIUM');
   const [editDiagnosis, setEditDiagnosis] = useState('');
   const [editSolution, setEditSolution] = useState('');
   const [editCost, setEditCost] = useState<number | ''>('');
   const [saving, setSaving] = useState(false);
 
   // Snackbar State
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
     severity: 'success'
@@ -149,12 +197,12 @@ export default function TechnicianMaintenancesPage() {
       const res = await fetch('/api/maintenances');
       if (res.ok) {
         const data = await res.json();
-        setMaintenances(data);
+        setMaintenances(data || []);
       } else {
         throw new Error('Erreur lors du chargement des maintenances');
       }
     } catch (error) {
-      setSnackbar({ open: true, message: 'Erreur lors du chargement', severity: 'error' });
+      setSnackbar({ open: true, message: 'Erreur lors du chargement des données', severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -164,19 +212,45 @@ export default function TechnicianMaintenancesPage() {
     fetchMaintenances();
   }, []);
 
-  const handleOpenEdit = (maintenance: Maintenance) => {
-    setSelectedMaintenance(maintenance);
-    setEditStatus(maintenance.status);
-    setEditPriority(maintenance.priority);
-    setEditDiagnosis(maintenance.diagnosis || '');
-    setEditSolution(maintenance.solution || '');
-    setEditCost(maintenance.cost || '');
+  const handleOpenEdit = (m: any) => {
+    setSelectedMaintenance(m);
+    setEditStatus(m.status || 'IN_PROGRESS');
+    setEditPriority(m.priority || 'MEDIUM');
+    setEditDiagnosis(m.diagnosis || '');
+    setEditSolution(m.solution || '');
+    setEditCost(m.cost !== undefined && m.cost !== null ? m.cost : '');
     setEditDialogOpen(true);
   };
 
   const handleCloseEdit = () => {
     setEditDialogOpen(false);
     setSelectedMaintenance(null);
+  };
+
+  const openDetails = (m: any) => {
+    setSelectedMaintenance(m);
+    setDetailsOpen(true);
+  };
+
+  const handleQuickStart = async (m: any) => {
+    try {
+      const res = await fetch(`/api/maintenances/${m.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'IN_PROGRESS',
+          technicianId: session?.user?.id
+        })
+      });
+      if (res.ok) {
+        setSnackbar({ open: true, message: `Intervention sur "${m.equipment?.name}" prise en charge !`, severity: 'success' });
+        fetchMaintenances();
+      } else {
+        throw new Error("Erreur de mise à jour");
+      }
+    } catch (err: any) {
+      setSnackbar({ open: true, message: err.message || "Erreur de mise à jour", severity: 'error' });
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -188,7 +262,8 @@ export default function TechnicianMaintenancesPage() {
         priority: editPriority,
         diagnosis: editDiagnosis,
         solution: editSolution,
-        cost: editCost === '' ? undefined : Number(editCost)
+        cost: editCost === '' ? 0 : Number(editCost),
+        technicianId: session?.user?.id
       };
 
       const res = await fetch(`/api/maintenances/${selectedMaintenance.id}`, {
@@ -198,24 +273,57 @@ export default function TechnicianMaintenancesPage() {
       });
 
       if (res.ok) {
-        setSnackbar({ open: true, message: 'Maintenance mise à jour avec succès', severity: 'success' });
+        setSnackbar({ open: true, message: 'Ticket technique mis à jour avec succès !', severity: 'success' });
         handleCloseEdit();
         fetchMaintenances();
       } else {
         throw new Error('Erreur lors de la mise à jour');
       }
-    } catch (error) {
-      setSnackbar({ open: true, message: 'Erreur lors de la mise à jour', severity: 'error' });
+    } catch (error: any) {
+      setSnackbar({ open: true, message: error.message || 'Erreur lors de la mise à jour', severity: 'error' });
     } finally {
       setSaving(false);
     }
   };
 
+  const handleExportCSV = () => {
+    if (maintenances.length === 0) return;
+    const headers = ["ID", "Équipement", "N° Série", "Demandeur", "Priorité", "Statut", "Description", "Diagnostic", "Solution", "Coût (DH)"];
+    const rows = maintenances.map(m => [
+      m.id,
+      `"${(m.equipment?.name || '').replace(/"/g, '""')}"`,
+      `"${(m.equipment?.serialNumber || '').replace(/"/g, '""')}"`,
+      `"${(m.reportedBy ? `${m.reportedBy.firstName} ${m.reportedBy.lastName}` : '').replace(/"/g, '""')}"`,
+      m.priority || 'MEDIUM',
+      m.status || 'REPORTED',
+      `"${(m.description || '').replace(/"/g, '""')}"`,
+      `"${(m.diagnosis || '').replace(/"/g, '""')}"`,
+      `"${(m.solution || '').replace(/"/g, '""')}"`,
+      m.cost || 0
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `maintenances_techniques_cathedis_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setSnackbar({ open: true, message: "Exportation des tickets de maintenance réussie !", severity: 'success' });
+  };
+
   const filteredMaintenances = maintenances.filter((m) => {
-    const matchesSearch = 
-      m.equipment.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.description.toLowerCase().includes(search.toLowerCase()) ||
-      (m.technician ? `${m.technician.firstName} ${m.technician.lastName}`.toLowerCase().includes(search.toLowerCase()) : false);
+    const eqName = m.equipment?.name || '';
+    const desc = m.description || '';
+    const reporter = m.reportedBy ? `${m.reportedBy.firstName} ${m.reportedBy.lastName}` : '';
+    const s = search.toLowerCase();
+
+    const matchesSearch = !s ||
+      eqName.toLowerCase().includes(s) ||
+      desc.toLowerCase().includes(s) ||
+      reporter.toLowerCase().includes(s);
     
     const matchesStatus = statusFilter === 'ALL' || m.status === statusFilter;
     const matchesPriority = priorityFilter === 'ALL' || m.priority === priorityFilter;
@@ -223,243 +331,792 @@ export default function TechnicianMaintenancesPage() {
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
+  // KPI Metrics
+  const totalTickets = maintenances.length;
+  const pendingCount = maintenances.filter(m => m.status === 'REPORTED' || m.status === 'ASSIGNED').length;
+  const inProgressCount = maintenances.filter(m => m.status === 'IN_PROGRESS').length;
+  const criticalCount = maintenances.filter(m => (m.priority === 'HIGH' || m.priority === 'CRITICAL') && m.status !== 'COMPLETED').length;
+  const completedCount = maintenances.filter(m => m.status === 'COMPLETED').length;
+
+  const paginatedData = filteredMaintenances.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+  const formatDate = (d?: string) => {
+    if (!d) return '-';
+    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+
   return (
-    <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 3, bgcolor: '#f8fafc', minHeight: '100vh' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar sx={{ bgcolor: '#E31E24' }}>
-            <Build />
-          </Avatar>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography sx={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1E293B' }}>
-              Gestion des Maintenances
-            </Typography>
-            <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
-              Interface Technicien
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3.5, p: { xs: 1.5, md: 3 } }}>
+      
+      {/* 🌟 1. HERO BANNER TECHNIQUE 🌟 */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 4,
+          p: { xs: 2.5, md: 3.5 },
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #FFF1F1 50%, #FFE2E2 100%)',
+          color: '#1A1A2E',
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 10px 30px rgba(227, 30, 36, 0.08)',
+          border: '1px solid rgba(227, 30, 36, 0.2)',
+          borderLeft: '6px solid #E31E24',
+        }}
+      >
+        {/* Glow Spheres */}
+        <Box sx={{ position: 'absolute', top: -50, right: -40, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(227,30,36,0.15) 0%, rgba(227,30,36,0) 70%)', pointerEvents: 'none' }} />
+        <Box sx={{ position: 'absolute', bottom: -50, right: 200, width: 160, height: 160, borderRadius: '50%', background: 'radial-gradient(circle, rgba(227,30,36,0.08) 0%, rgba(227,30,36,0) 70%)', pointerEvents: 'none' }} />
+        
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, flexWrap: 'wrap', gap: 2.5, position: 'relative', zIndex: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+            <Avatar sx={{ width: 62, height: 62, bgcolor: '#E31E24', color: '#FFFFFF', boxShadow: '0 8px 24px rgba(227,30,36,0.35)' }}>
+              <BuildIcon sx={{ fontSize: 32, color: '#FFFFFF' }} />
+            </Avatar>
+            <Box>
+              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, px: 1.8, py: 0.6, borderRadius: 10, bgcolor: 'rgba(227, 30, 36, 0.1)', border: '1px solid rgba(227, 30, 36, 0.25)', mb: 1 }}>
+                <TechIcon sx={{ fontSize: 16, color: '#E31E24' }} />
+                <Typography sx={{ fontSize: '0.75rem', fontWeight: 800, color: '#C41018', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                  Atelier Technique & Maintenances • Cathedis
+                </Typography>
+              </Box>
 
-      <Paper elevation={0} sx={{ p: 2, borderRadius: 2, display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', border: '1px solid #e2e8f0' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#f1f5f9', borderRadius: 1, px: 2, py: 0.5, flexGrow: 1, maxWidth: '400px' }}>
-          <Search sx={{ color: 'text.secondary', mr: 1 }} />
-          <InputBase
-            placeholder="Rechercher équipement, description..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            sx={{ flex: 1 }}
-          />
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <FilterList sx={{ color: 'text.secondary' }} />
-          <Chip 
-            label="Toutes" 
-            onClick={() => setStatusFilter('ALL')}
-            color={statusFilter === 'ALL' ? 'primary' : 'default'}
-            sx={{ bgcolor: statusFilter === 'ALL' ? '#E31E24' : undefined, color: statusFilter === 'ALL' ? 'white' : undefined }}
-          />
-          <Chip 
-            label="En Attente" 
-            onClick={() => setStatusFilter(MaintenanceStatus.REPORTED)}
-            color={statusFilter === MaintenanceStatus.REPORTED ? 'primary' : 'default'}
-          />
-          <Chip 
-            label="En Cours" 
-            onClick={() => setStatusFilter(MaintenanceStatus.IN_PROGRESS)}
-            color={statusFilter === MaintenanceStatus.IN_PROGRESS ? 'primary' : 'default'}
-          />
-          <Chip 
-            label="Terminées" 
-            onClick={() => setStatusFilter(MaintenanceStatus.COMPLETED)}
-            color={statusFilter === MaintenanceStatus.COMPLETED ? 'primary' : 'default'}
-          />
-        </Box>
-
-        <FormControl size="small" sx={{ minWidth: 150 }}>
-          <InputLabel>Priorité</InputLabel>
-          <Select
-            value={priorityFilter}
-            label="Priorité"
-            onChange={(e: SelectChangeEvent) => setPriorityFilter(e.target.value as MaintenancePriority | 'ALL')}
-          >
-            <MenuItem value="ALL">Toutes</MenuItem>
-            <MenuItem value={MaintenancePriority.LOW}>Basse</MenuItem>
-            <MenuItem value={MaintenancePriority.MEDIUM}>Moyenne</MenuItem>
-            <MenuItem value={MaintenancePriority.HIGH}>Haute</MenuItem>
-            <MenuItem value={MaintenancePriority.CRITICAL}>Critique</MenuItem>
-          </Select>
-        </FormControl>
-      </Paper>
-
-      <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 2 }}>
-        <Table>
-          <TableHead sx={{ bgcolor: '#f8fafc' }}>
-            <TableRow>
-              <TableCell><Typography sx={{ fontWeight: 'bold', color: '#1E293B' }}>Équipement</Typography></TableCell>
-              <TableCell><Typography sx={{ fontWeight: 'bold', color: '#1E293B' }}>Type</Typography></TableCell>
-              <TableCell><Typography sx={{ fontWeight: 'bold', color: '#1E293B' }}>Statut</Typography></TableCell>
-              <TableCell><Typography sx={{ fontWeight: 'bold', color: '#1E293B' }}>Priorité</Typography></TableCell>
-              <TableCell><Typography sx={{ fontWeight: 'bold', color: '#1E293B' }}>Signalé le</Typography></TableCell>
-              <TableCell align="right"><Typography sx={{ fontWeight: 'bold', color: '#1E293B' }}>Actions</Typography></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              Array.from(new Array(5)).map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell><Skeleton variant="text" /></TableCell>
-                  <TableCell><Skeleton variant="text" /></TableCell>
-                  <TableCell><Skeleton variant="rounded" width={80} height={24} /></TableCell>
-                  <TableCell><Skeleton variant="rounded" width={80} height={24} /></TableCell>
-                  <TableCell><Skeleton variant="text" /></TableCell>
-                  <TableCell align="right"><Skeleton variant="circular" width={40} height={40} sx={{ ml: 'auto' }} /></TableCell>
-                </TableRow>
-              ))
-            ) : filteredMaintenances.length > 0 ? (
-              filteredMaintenances.map((m) => (
-                <TableRow key={m.id} hover>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Typography sx={{ fontWeight: 'medium' }}>{m.equipment.name}</Typography>
-                      <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>SN: {m.equipment.serialNumber}</Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Typography sx={{ fontSize: '0.875rem' }}>
-                      {m.type === MaintenanceType.CORRECTIVE ? 'Corrective' : 'Préventive'}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Chip size="small" label={statusLabels[m.status]} color={statusColors[m.status]} />
-                  </TableCell>
-                  <TableCell>
-                    <Chip size="small" label={m.priority} color={priorityColors[m.priority]} variant="outlined" />
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Typography sx={{ fontSize: '0.875rem' }}>{new Date(m.reportedDate).toLocaleDateString('fr-FR')}</Typography>
-                      <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>par {m.reportedBy.firstName} {m.reportedBy.lastName}</Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell align="right">
-                    <IconButton size="small" color="primary" onClick={() => handleOpenEdit(m)}>
-                      <Edit fontSize="small" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                  <Typography sx={{ color: 'text.secondary' }}>Aucune maintenance trouvée.</Typography>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      <Dialog open={editDialogOpen} onClose={handleCloseEdit} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography sx={{ fontWeight: 'bold' }}>Mettre à jour la maintenance</Typography>
-          <IconButton onClick={handleCloseEdit} size="small"><CloseIcon /></IconButton>
-        </DialogTitle>
-        <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-          {selectedMaintenance && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1 }}>
-              <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>Description initiale :</Typography>
-              <Typography sx={{ fontSize: '0.875rem', bgcolor: '#f1f5f9', p: 1, borderRadius: 1 }}>
-                {selectedMaintenance.description}
+              <Typography variant="h4" sx={{ fontWeight: 900, color: '#1A1A2E', letterSpacing: '-0.5px' }}>
+                Centre des Maintenances & Réparations
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#475569', mt: 0.6, maxWidth: 680, fontWeight: 500 }}>
+                Diagnostic des incidents signalés, qualification des rapports d'Auto-Diagnostic IA, dépannage matériel et suivi des coûts de réparation.
               </Typography>
             </Box>
-          )}
+          </Box>
 
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <FormControl fullWidth size="small">
+          {/* Action Hub */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+            <Button
+              variant="outlined"
+              onClick={handleExportCSV}
+              startIcon={<ExportIcon />}
+              sx={{
+                color: '#E31E24',
+                borderColor: 'rgba(227, 30, 36, 0.3)',
+                borderRadius: 2.5,
+                fontWeight: 800,
+                textTransform: 'none',
+                px: 2.2,
+                bgcolor: '#FFFFFF',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                '&:hover': { bgcolor: '#FFF5F5', borderColor: '#E31E24' }
+              }}
+            >
+              Exporter CSV
+            </Button>
+            <Button
+              variant="contained"
+              onClick={fetchMaintenances}
+              startIcon={<SparklesIcon />}
+              sx={{
+                background: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
+                color: '#FFFFFF',
+                borderRadius: 2.5,
+                fontWeight: 800,
+                textTransform: 'none',
+                px: 2.5,
+                boxShadow: '0 4px 14px rgba(227, 30, 36, 0.35)',
+                '&:hover': { background: 'linear-gradient(90deg, #C41018 0%, #E31E24 100%)' }
+              }}
+            >
+              Actualiser les Tickets
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+
+      {/* 📊 2. FOUR GLASSMORPHIС KPI CARDS 📊 */}
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: 'repeat(4, 1fr)' }, gap: 2.5 }}>
+        {[
+          { label: "À Traiter / En Attente", number: pendingCount, sub: "Nouveaux signalements", icon: <ScheduleIcon />, color: '#D97706', filter: 'REPORTED' },
+          { label: "En Cours de Réparation", number: inProgressCount, sub: "Interventions actives", icon: <TechIcon />, color: '#0284C7', filter: 'IN_PROGRESS' },
+          { label: "Urgences & SLA", number: criticalCount, sub: "Priorité Haute / Critique", icon: <CriticalIcon />, color: '#DC2626', priority: 'CRITICAL' },
+          { label: "Résolues & Clôturées", number: completedCount, sub: "Réparations terminées", icon: <SuccessIcon />, color: '#059669', filter: 'COMPLETED' },
+        ].map((stat, i) => (
+          <Paper
+            key={i}
+            elevation={0}
+            onClick={() => {
+              if (stat.filter) setStatusFilter(stat.filter);
+              if (stat.priority) setPriorityFilter('CRITICAL');
+            }}
+            sx={{
+              p: 2.5,
+              borderRadius: 3.5,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              cursor: 'pointer',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 10px 25px rgba(0,0,0,0.06)' }
+            }}
+          >
+            <Box sx={{ width: 50, height: 50, borderRadius: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: `${stat.color}15`, color: stat.color }}>
+              {stat.icon}
+            </Box>
+            <Box>
+              <Typography sx={{ fontWeight: 900, color: '#1A1A2E', fontSize: '1.65rem', lineHeight: 1.1 }}>
+                {loading ? <Skeleton width={50} /> : stat.number}
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, mt: 0.3, display: 'block' }}>
+                {stat.label}
+              </Typography>
+              <Typography variant="caption" sx={{ color: stat.color, fontWeight: 800, fontSize: '0.72rem' }}>
+                {stat.sub}
+              </Typography>
+            </Box>
+          </Paper>
+        ))}
+      </Box>
+
+      {/* 🔍 3. SEARCH, FILTERS & VIEW CONTROLLER 🔍 */}
+      <Paper elevation={0} sx={{ borderRadius: 3.5, border: '1px solid #E2E8F0', overflow: 'hidden', p: 2.5, bgcolor: '#FFFFFF' }}>
+        <Box sx={{ mb: 3, display: 'flex', gap: 2, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+          
+          <Box sx={{ display: 'flex', gap: 1.5, flex: '1 1 450px', flexWrap: 'wrap' }}>
+            <TextField
+              size="small"
+              placeholder="Rechercher équipement, panne, collaborateur..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: '#94A3B8' }} /></InputAdornment> } }}
+              sx={{ flex: '1 1 240px' }}
+            />
+
+            <FormControl size="small" sx={{ minWidth: 160 }}>
               <InputLabel>Statut</InputLabel>
               <Select
-                value={editStatus}
+                value={statusFilter}
                 label="Statut"
-                onChange={(e: SelectChangeEvent) => setEditStatus(e.target.value as MaintenanceStatus)}
+                onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <MenuItem value={MaintenanceStatus.REPORTED}>{statusLabels[MaintenanceStatus.REPORTED]}</MenuItem>
-                <MenuItem value={MaintenanceStatus.ASSIGNED}>{statusLabels[MaintenanceStatus.ASSIGNED]}</MenuItem>
-                <MenuItem value={MaintenanceStatus.IN_PROGRESS}>{statusLabels[MaintenanceStatus.IN_PROGRESS]}</MenuItem>
-                <MenuItem value={MaintenanceStatus.COMPLETED}>{statusLabels[MaintenanceStatus.COMPLETED]}</MenuItem>
-                <MenuItem value={MaintenanceStatus.CANCELLED}>{statusLabels[MaintenanceStatus.CANCELLED]}</MenuItem>
+                <MenuItem value="ALL">Tous les statuts ({totalTickets})</MenuItem>
+                <MenuItem value="REPORTED">En Attente ({pendingCount})</MenuItem>
+                <MenuItem value="IN_PROGRESS">En Réparation ({inProgressCount})</MenuItem>
+                <MenuItem value="COMPLETED">Résolues ({completedCount})</MenuItem>
               </Select>
             </FormControl>
 
-            <FormControl fullWidth size="small">
+            <FormControl size="small" sx={{ minWidth: 160 }}>
               <InputLabel>Priorité</InputLabel>
               <Select
-                value={editPriority}
+                value={priorityFilter}
                 label="Priorité"
-                onChange={(e: SelectChangeEvent) => setEditPriority(e.target.value as MaintenancePriority)}
+                onChange={(e) => setPriorityFilter(e.target.value)}
               >
-                <MenuItem value={MaintenancePriority.LOW}>Basse</MenuItem>
-                <MenuItem value={MaintenancePriority.MEDIUM}>Moyenne</MenuItem>
-                <MenuItem value={MaintenancePriority.HIGH}>Haute</MenuItem>
-                <MenuItem value={MaintenancePriority.CRITICAL}>Critique</MenuItem>
+                <MenuItem value="ALL">Toutes les priorités</MenuItem>
+                <MenuItem value="CRITICAL">⚡ Urgences Critiques</MenuItem>
+                <MenuItem value="HIGH">🔴 Haute Priorité</MenuItem>
+                <MenuItem value="MEDIUM">🟠 Moyenne</MenuItem>
+                <MenuItem value="LOW">🟢 Basse</MenuItem>
               </Select>
             </FormControl>
           </Box>
 
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
+              {filteredMaintenances.length} ticket(s)
+            </Typography>
+            <ButtonGroup size="small" sx={{ borderRadius: 2 }}>
+              <Button
+                variant={viewMode === 'CARDS' ? 'contained' : 'outlined'}
+                onClick={() => setViewMode('CARDS')}
+                startIcon={<GridViewIcon />}
+                sx={{
+                  fontWeight: 800,
+                  textTransform: 'none',
+                  bgcolor: viewMode === 'CARDS' ? '#0F172A' : 'transparent',
+                  color: viewMode === 'CARDS' ? '#FFFFFF' : '#64748B',
+                  borderColor: '#CBD5E1',
+                  '&:hover': { bgcolor: viewMode === 'CARDS' ? '#0F172A' : '#F1F5F9' }
+                }}
+              >
+                Cartes d'Atelier
+              </Button>
+              <Button
+                variant={viewMode === 'TABLE' ? 'contained' : 'outlined'}
+                onClick={() => setViewMode('TABLE')}
+                startIcon={<TableViewIcon />}
+                sx={{
+                  fontWeight: 800,
+                  textTransform: 'none',
+                  bgcolor: viewMode === 'TABLE' ? '#0F172A' : 'transparent',
+                  color: viewMode === 'TABLE' ? '#FFFFFF' : '#64748B',
+                  borderColor: '#CBD5E1',
+                  '&:hover': { bgcolor: viewMode === 'TABLE' ? '#0F172A' : '#F1F5F9' }
+                }}
+              >
+                Tableau
+              </Button>
+            </ButtonGroup>
+          </Box>
+        </Box>
+
+        {/* 🔲 VIEW 1: MODERN TECHNICIAN CARDS 🔲 */}
+        {viewMode === 'CARDS' ? (
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: 'repeat(3, 1fr)' }, gap: 2.5 }}>
+            {loading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <Paper key={i} elevation={0} sx={{ p: 3, borderRadius: 3.5, border: '1px solid #E2E8F0' }}>
+                  <Skeleton width="50%" height={30} />
+                  <Skeleton width="100%" height={60} sx={{ my: 1.5 }} />
+                  <Skeleton width="70%" height={25} />
+                </Paper>
+              ))
+            ) : filteredMaintenances.length === 0 ? (
+              <Box sx={{ gridColumn: '1 / -1', textAlign: 'center', py: 6 }}>
+                <BuildIcon sx={{ fontSize: 50, color: '#CBD5E1', mb: 1 }} />
+                <Typography sx={{ fontWeight: 800, color: '#64748B' }}>
+                  Aucun ticket de maintenance ne correspond aux critères sélectionnés.
+                </Typography>
+              </Box>
+            ) : (
+              filteredMaintenances.map((m) => {
+                const sc = statusConfig[m.status] || statusConfig.REPORTED;
+                const pc = priorityConfig[m.priority] || priorityConfig.MEDIUM;
+                const hasAI = (m.description || '').includes('AUTO-DIAGNOSTIC IA');
+
+                return (
+                  <Card
+                    key={m.id}
+                    elevation={0}
+                    sx={{
+                      borderRadius: 3.5,
+                      border: '1px solid #E2E8F0',
+                      borderTop: `5px solid ${sc.color}`,
+                      bgcolor: '#FFFFFF',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      transition: 'all 0.2s ease-in-out',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 12px 30px rgba(0,0,0,0.08)',
+                        borderColor: sc.color
+                      }
+                    }}
+                  >
+                    <CardContent sx={{ p: 2.5 }}>
+                      {/* Equipment Header */}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          <Avatar sx={{ width: 44, height: 44, bgcolor: `${sc.color}15`, color: sc.color, border: `1px solid ${sc.borderColor}` }}>
+                            <ComputerIcon />
+                          </Avatar>
+                          <Box>
+                            <Typography sx={{ fontWeight: 900, color: '#1A1A2E', fontSize: '1.05rem', lineHeight: 1.2 }}>
+                              {m.equipment?.name || 'Matériel'}
+                            </Typography>
+                            <Typography variant="caption" sx={{ fontFamily: 'monospace', color: '#64748B', display: 'block' }}>
+                              SN: {m.equipment?.serialNumber || '-'}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+
+                      {/* Chips: Status & Priority */}
+                      <Box sx={{ display: 'flex', gap: 0.8, flexWrap: 'wrap', mb: 2 }}>
+                        <Chip
+                          icon={sc.icon as any}
+                          label={sc.label}
+                          size="small"
+                          sx={{ fontWeight: 800, fontSize: '0.72rem', bgcolor: sc.bgColor, color: sc.color, border: `1px solid ${sc.borderColor}` }}
+                        />
+                        <Chip
+                          icon={pc.icon as any}
+                          label={pc.label}
+                          size="small"
+                          sx={{ fontWeight: 800, fontSize: '0.72rem', bgcolor: pc.bgColor, color: pc.color, border: `1px solid ${pc.borderColor}` }}
+                        />
+                        {hasAI && (
+                          <Chip
+                            icon={<BrainIcon sx={{ fontSize: 13, color: '#1D4ED8 !important' }} />}
+                            label="Rapport IA Joint"
+                            size="small"
+                            sx={{ fontWeight: 800, fontSize: '0.68rem', bgcolor: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE' }}
+                          />
+                        )}
+                      </Box>
+
+                      {/* Symptom Description */}
+                      <Typography sx={{ fontSize: '0.85rem', color: '#475569', mb: 2, minHeight: 44, lineHeight: 1.4 }}>
+                        {m.description ? m.description.split('--- AUTO-DIAGNOSTIC')[0] : 'Aucune description détaillée.'}
+                      </Typography>
+
+                      {/* Reporter & Cost Details */}
+                      <Box sx={{ bgcolor: '#F8FAFC', p: 1.5, borderRadius: 2.5, border: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <PersonIcon sx={{ fontSize: 16, color: '#64748B' }} />
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#1E293B' }}>
+                            {m.reportedBy ? `${m.reportedBy.firstName} ${m.reportedBy.lastName}` : 'Collaborateur'}
+                          </Typography>
+                        </Box>
+
+                        {m.cost !== undefined && m.cost !== null && m.cost > 0 && (
+                          <Chip
+                            label={`${m.cost} DH`}
+                            size="small"
+                            sx={{ fontWeight: 900, bgcolor: '#ECFDF5', color: '#047857', fontSize: '0.72rem' }}
+                          />
+                        )}
+                      </Box>
+                    </CardContent>
+
+                    {/* Actions Footer */}
+                    <CardActions sx={{ p: 2, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+                      <Button
+                        size="small"
+                        onClick={() => openDetails(m)}
+                        startIcon={<ViewIcon />}
+                        sx={{ textTransform: 'none', fontWeight: 800, color: '#1A1A2E', fontSize: '0.78rem' }}
+                      >
+                        Fiche 360°
+                      </Button>
+
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        {m.status === 'REPORTED' || m.status === 'ASSIGNED' ? (
+                          <Button
+                            size="small"
+                            variant="contained"
+                            onClick={() => handleQuickStart(m)}
+                            startIcon={<StartIcon />}
+                            sx={{
+                              background: 'linear-gradient(90deg, #0284C7 0%, #0369A1 100%)',
+                              color: '#FFFFFF',
+                              borderRadius: 2,
+                              fontWeight: 800,
+                              fontSize: '0.75rem',
+                              textTransform: 'none'
+                            }}
+                          >
+                            Prendre en charge
+                          </Button>
+                        ) : null}
+
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => handleOpenEdit(m)}
+                          startIcon={<EditIcon />}
+                          sx={{
+                            borderRadius: 2,
+                            fontWeight: 800,
+                            fontSize: '0.75rem',
+                            textTransform: 'none',
+                            color: '#0284C7',
+                            borderColor: '#BAE6FD'
+                          }}
+                        >
+                          Diagnostiquer
+                        </Button>
+                      </Box>
+                    </CardActions>
+                  </Card>
+                );
+              })
+            )}
+          </Box>
+        ) : (
+          /* 📋 VIEW 2: HIGH-DENSITY DATA TABLE 📋 */
+          <>
+            <TableContainer>
+              <Table size="medium">
+                <TableHead sx={{ bgcolor: '#F8FAFC' }}>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 800, color: '#1E293B' }}>Équipement / Matériel</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#1E293B' }}>Collaborateur</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#1E293B' }}>Priorité</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#1E293B' }}>Statut</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#1E293B' }}>Date de Signalement</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 800, color: '#1E293B' }}>Coût</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 800, color: '#1E293B' }}>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {loading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell><Skeleton width={160} /></TableCell>
+                        <TableCell><Skeleton width={140} /></TableCell>
+                        <TableCell><Skeleton width={80} /></TableCell>
+                        <TableCell><Skeleton width={100} /></TableCell>
+                        <TableCell><Skeleton width={120} /></TableCell>
+                        <TableCell align="center"><Skeleton width={60} /></TableCell>
+                        <TableCell align="center"><Skeleton width={100} /></TableCell>
+                      </TableRow>
+                    ))
+                  ) : paginatedData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} sx={{ py: 6, textAlign: 'center' }}>
+                        <BuildIcon sx={{ fontSize: 48, color: '#CBD5E1', mb: 1 }} />
+                        <Typography sx={{ fontWeight: 700, color: '#64748B' }}>
+                          Aucun ticket de maintenance trouvé.
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedData.map((row) => {
+                      const sc = statusConfig[row.status] || statusConfig.REPORTED;
+                      const pc = priorityConfig[row.priority] || priorityConfig.MEDIUM;
+
+                      return (
+                        <TableRow key={row.id} hover sx={{ '&:hover': { bgcolor: '#F8FAFC' } }}>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                              <Avatar sx={{ width: 34, height: 34, bgcolor: `${sc.color}15`, color: sc.color }}>
+                                <ComputerIcon sx={{ fontSize: 18 }} />
+                              </Avatar>
+                              <Box>
+                                <Typography
+                                  onClick={() => openDetails(row)}
+                                  sx={{ fontWeight: 800, color: '#1A1A2E', cursor: 'pointer', '&:hover': { color: '#0284C7', textDecoration: 'underline' } }}
+                                >
+                                  {row.equipment?.name || 'Matériel'}
+                                </Typography>
+                                <Typography variant="caption" sx={{ fontFamily: 'monospace', color: '#64748B', display: 'block' }}>
+                                  SN: {row.equipment?.serialNumber || '-'}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </TableCell>
+
+                          <TableCell sx={{ fontSize: '0.85rem', color: '#475569' }}>
+                            {row.reportedBy ? `${row.reportedBy.firstName} ${row.reportedBy.lastName}` : 'Collaborateur'}
+                          </TableCell>
+
+                          <TableCell>
+                            <Chip
+                              icon={pc.icon as any}
+                              label={pc.label}
+                              size="small"
+                              sx={{ fontWeight: 800, fontSize: '0.7rem', bgcolor: pc.bgColor, color: pc.color, border: `1px solid ${pc.borderColor}` }}
+                            />
+                          </TableCell>
+
+                          <TableCell>
+                            <Chip
+                              icon={sc.icon as any}
+                              label={sc.label}
+                              size="small"
+                              sx={{ fontWeight: 800, fontSize: '0.7rem', bgcolor: sc.bgColor, color: sc.color, border: `1px solid ${sc.borderColor}` }}
+                            />
+                          </TableCell>
+
+                          <TableCell sx={{ fontSize: '0.82rem', color: '#64748B' }}>
+                            {formatDate(row.createdAt || row.reportedDate)}
+                          </TableCell>
+
+                          <TableCell align="center">
+                            {row.cost ? (
+                              <Typography sx={{ fontWeight: 800, color: '#047857', fontSize: '0.85rem' }}>
+                                {row.cost} DH
+                              </Typography>
+                            ) : (
+                              <Typography variant="caption" sx={{ color: '#94A3B8' }}>—</Typography>
+                            )}
+                          </TableCell>
+
+                          <TableCell align="center">
+                            <Box sx={{ display: 'flex', gap: 0.8, justifyContent: 'center' }}>
+                              <Tooltip title="Fiche 360°">
+                                <IconButton size="small" onClick={() => openDetails(row)} sx={{ color: '#1A1A2E', bgcolor: '#F1F5F9' }}>
+                                  <ViewIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Diagnostiquer / Modifier">
+                                <IconButton size="small" onClick={() => handleOpenEdit(row)} sx={{ color: '#0284C7', bgcolor: '#E0F2FE' }}>
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            <TablePagination
+              component="div"
+              count={filteredMaintenances.length}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(e) => {
+                setRowsPerPage(parseInt(e.target.value, 10));
+                setPage(0);
+              }}
+              labelRowsPerPage="Lignes par page :"
+              labelDisplayedRows={({ from, to, count }) => `${from}–${to} sur ${count !== -1 ? count : `plus de ${to}`}`}
+              sx={{ borderTop: '1px solid #E2E8F0', px: 2 }}
+            />
+          </>
+        )}
+      </Paper>
+
+      {/* 🛠️ 4. MODALE DE DIAGNOSTIC & CLÔTURE D'INTERVENTION 🛠️ */}
+      <Dialog
+        open={editDialogOpen}
+        onClose={handleCloseEdit}
+        maxWidth="md"
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 4, overflow: 'hidden' } } }}
+      >
+        <DialogTitle sx={{
+          background: 'linear-gradient(135deg, #0F172A 0%, #0369A1 50%, #0284C7 100%)',
+          color: '#FFFFFF',
+          p: 2.5,
+          px: 3,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: '#FFFFFF', color: '#0284C7' }}>
+              <BuildIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2 }}>
+                Diagnostic & Clôture d'Intervention
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                {selectedMaintenance?.equipment?.name} (SN: {selectedMaintenance?.equipment?.serialNumber})
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton onClick={handleCloseEdit} sx={{ color: '#FFFFFF' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2.5, bgcolor: '#FAFAFA' }}>
+          
+          {/* Status & Priority Selectors */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+            <FormControl fullWidth sx={{ bgcolor: '#FFFFFF' }}>
+              <InputLabel>Statut de l'Intervention *</InputLabel>
+              <Select
+                value={editStatus}
+                label="Statut de l'Intervention *"
+                onChange={(e) => setEditStatus(e.target.value)}
+              >
+                <MenuItem value="REPORTED">🟠 En Attente (Nouveau)</MenuItem>
+                <MenuItem value="IN_PROGRESS">🔵 En Cours de Réparation (Atelier)</MenuItem>
+                <MenuItem value="COMPLETED">🟢 Résolue & Réparée (Clôture)</MenuItem>
+                <MenuItem value="CANCELLED">⚪ Annulée / Non Reproductible</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth sx={{ bgcolor: '#FFFFFF' }}>
+              <InputLabel>Niveau de Priorité</InputLabel>
+              <Select
+                value={editPriority}
+                label="Niveau de Priorité"
+                onChange={(e) => setEditPriority(e.target.value)}
+              >
+                <MenuItem value="LOW">🟢 Basse Priorité</MenuItem>
+                <MenuItem value="MEDIUM">🟠 Priorité Standard (Moyenne)</MenuItem>
+                <MenuItem value="HIGH">🔴 Haute Priorité</MenuItem>
+                <MenuItem value="CRITICAL">⚡ Urgence Critique</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
+          {/* Diagnosis */}
           <TextField
-            label="Diagnostic"
+            label="Diagnostic Technique de la Panne"
+            placeholder="ex: Court-circuit connecteur d'alimentation, barrette RAM défectueuse, dalle LCD fissurée..."
+            fullWidth
             multiline
-            rows={3}
+            rows={2}
             value={editDiagnosis}
             onChange={(e) => setEditDiagnosis(e.target.value)}
-            fullWidth
-            slotProps={{
-              inputLabel: { shrink: true }
-            }}
+            sx={{ bgcolor: '#FFFFFF' }}
           />
 
+          {/* Solution */}
           <TextField
-            label="Solution / Intervention"
+            label="Solution Appliquée & Pièces Remplacées"
+            placeholder="ex: Remplacement adaptateur 65W d'origine, dépoussiérage ventilation et réinstallation pilote d'affichage..."
+            fullWidth
             multiline
             rows={3}
             value={editSolution}
             onChange={(e) => setEditSolution(e.target.value)}
-            fullWidth
-            slotProps={{
-              inputLabel: { shrink: true }
-            }}
+            sx={{ bgcolor: '#FFFFFF' }}
           />
 
+          {/* Repair Cost in MAD */}
           <TextField
-            label="Coût estimé (€)"
+            label="Coût Total de l'Intervention (Pièces + Main d'œuvre)"
+            placeholder="ex: 450"
             type="number"
             value={editCost}
-            onChange={(e) => setEditCost(e.target.value ? Number(e.target.value) : '')}
-            fullWidth
+            onChange={(e) => setEditCost(e.target.value === '' ? '' : Number(e.target.value))}
             slotProps={{
-              input: { startAdornment: <AttachMoney sx={{ mr: 1, color: 'text.secondary' }} /> }
+              input: {
+                endAdornment: <InputAdornment position="end"><Typography sx={{ fontWeight: 800, color: '#047857' }}>MAD (DH)</Typography></InputAdornment>
+              }
             }}
+            sx={{ bgcolor: '#FFFFFF' }}
           />
+
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={handleCloseEdit} color="inherit">Annuler</Button>
-          <Button 
-            onClick={handleSaveEdit} 
-            variant="contained" 
+
+        <DialogActions sx={{ p: 2.5, px: 3, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+          <Button onClick={handleCloseEdit} variant="outlined" sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 700, color: '#64748B' }}>
+            Annuler
+          </Button>
+          <Button
+            onClick={handleSaveEdit}
+            variant="contained"
             disabled={saving}
-            sx={{ bgcolor: '#E31E24', '&:hover': { bgcolor: '#C41018' } }}
+            sx={{
+              background: 'linear-gradient(90deg, #0284C7 0%, #0369A1 100%)',
+              color: '#FFFFFF',
+              fontWeight: 800,
+              borderRadius: 2.5,
+              px: 3.5,
+              textTransform: 'none',
+              boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)'
+            }}
           >
-            {saving ? 'Enregistrement...' : 'Enregistrer'}
+            {saving ? 'Enregistrement...' : 'Enregistrer le Rapport Technique'}
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+      {/* 🔍 5. FICHE 360° DU TICKET TECHNIQUE 🔍 */}
+      <Dialog
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        maxWidth="md"
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 4, overflow: 'hidden' } } }}
+      >
+        {selectedMaintenance && (
+          <>
+            <DialogTitle sx={{
+              background: 'linear-gradient(135deg, #0F172A 0%, #0369A1 50%, #0284C7 100%)',
+              color: '#FFFFFF',
+              p: 2.5,
+              px: 3,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.8 }}>
+                <Avatar sx={{ bgcolor: '#FFFFFF', color: '#0284C7', width: 48, height: 48 }}>
+                  <ReceiptIcon />
+                </Avatar>
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2 }}>
+                    Ticket d'Intervention #{selectedMaintenance.id.slice(0, 8)}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                    Fiche Technique Complète & Historique
+                  </Typography>
+                </Box>
+              </Box>
+              <IconButton onClick={() => setDetailsOpen(false)} sx={{ color: '#FFFFFF' }}>
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+
+            <DialogContent dividers sx={{ p: 3, bgcolor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+              
+              {/* Equipment & Reporter */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase' }}>Équipement Concerné</Typography>
+                  <Typography sx={{ fontWeight: 900, color: '#1A1A2E', mt: 0.5, fontSize: '1.05rem' }}>
+                    {selectedMaintenance.equipment?.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ fontFamily: 'monospace', color: '#64748B', display: 'block' }}>
+                    SN: {selectedMaintenance.equipment?.serialNumber || '-'}
+                  </Typography>
+                </Paper>
+
+                <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase' }}>Demandeur / Collaborateur</Typography>
+                  <Typography sx={{ fontWeight: 800, color: '#1A1A2E', mt: 0.5 }}>
+                    {selectedMaintenance.reportedBy ? `${selectedMaintenance.reportedBy.firstName} ${selectedMaintenance.reportedBy.lastName}` : 'Collaborateur Cathedis'}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                    {selectedMaintenance.reportedBy?.email || '-'}
+                  </Typography>
+                </Paper>
+              </Box>
+
+              {/* Description */}
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase' }}>Description du Problème</Typography>
+                <Typography sx={{ fontSize: '0.9rem', color: '#334155', mt: 0.8, lineHeight: 1.5, whiteSpace: 'pre-line' }}>
+                  {selectedMaintenance.description || 'Aucune description.'}
+                </Typography>
+              </Paper>
+
+              {/* Diagnostic & Solution */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: '1px solid #BFDBFE', bgcolor: '#EFF6FF' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#1E40AF', textTransform: 'uppercase' }}>Diagnostic Technique</Typography>
+                  <Typography sx={{ fontSize: '0.88rem', color: '#1E3A8A', mt: 0.5 }}>
+                    {selectedMaintenance.diagnosis || 'En attente de diagnostic.'}
+                  </Typography>
+                </Paper>
+
+                <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: '1px solid #A7F3D0', bgcolor: '#ECFDF5' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#065F46', textTransform: 'uppercase' }}>Solution Appliquée</Typography>
+                  <Typography sx={{ fontSize: '0.88rem', color: '#047857', mt: 0.5 }}>
+                    {selectedMaintenance.solution || 'En cours d\'intervention.'}
+                  </Typography>
+                </Paper>
+              </Box>
+
+            </DialogContent>
+
+            <DialogActions sx={{ p: 2, px: 3, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+              <Button onClick={() => setDetailsOpen(false)} variant="outlined" sx={{ borderRadius: 2, fontWeight: 700, color: '#64748B' }}>
+                Fermer
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setDetailsOpen(false);
+                  handleOpenEdit(selectedMaintenance);
+                }}
+                startIcon={<EditIcon />}
+                sx={{
+                  background: 'linear-gradient(90deg, #0284C7 0%, #0369A1 100%)',
+                  color: '#FFFFFF',
+                  borderRadius: 2,
+                  fontWeight: 800,
+                  textTransform: 'none'
+                }}
+              >
+                Mettre à jour le Rapport
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
+
+      {/* Snackbar */}
+      <Snackbar open={snackbar.open} autoHideDuration={5000} onClose={() => setSnackbar(s => ({ ...s, open: false }))}>
+        <Alert severity={snackbar.severity} sx={{ width: '100%', borderRadius: 2.5, fontWeight: 700 }}>
           {snackbar.message}
         </Alert>
       </Snackbar>
+
     </Box>
   );
 }
