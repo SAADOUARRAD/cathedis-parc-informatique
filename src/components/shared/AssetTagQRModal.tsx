@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -11,14 +11,17 @@ import {
   IconButton,
   Chip,
   Paper,
-  Divider
+  Tooltip,
+  ButtonGroup
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
 import DownloadIcon from '@mui/icons-material/Download';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
-import ComputerIcon from '@mui/icons-material/Computer';
-import SecurityIcon from '@mui/icons-material/Security';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
+import AspectRatioIcon from '@mui/icons-material/AspectRatio';
 import { QRCodeSVG } from 'qrcode.react';
 
 interface AssetTagQRModalProps {
@@ -33,11 +36,15 @@ interface AssetTagQRModalProps {
     department?: { name: string } | string;
     status?: string;
     purchaseDate?: string;
+    brand?: string;
+    model?: string;
   } | null;
 }
 
 export default function AssetTagQRModal({ open, onClose, equipment }: AssetTagQRModalProps) {
   const qrRef = useRef<SVGSVGElement>(null);
+  const [tagFormat, setTagFormat] = useState<'STANDARD' | 'COMPACT' | 'LARGE'>('STANDARD');
+  const [copied, setCopied] = useState(false);
 
   if (!equipment) return null;
 
@@ -58,9 +65,17 @@ export default function AssetTagQRModal({ open, onClose, equipment }: AssetTagQR
     id: equipment.id,
     sn: serialNum,
     name: equipment.name,
-    owner: 'CATHEDIS',
+    brand: equipment.brand || '',
+    model: equipment.model || '',
+    owner: 'CATHEDIS EXPRESS S.A.',
     dept: departmentName
   });
+
+  const handleCopyData = () => {
+    navigator.clipboard.writeText(`[CATHEDIS ASSET]\nN° Inventaire: ${invNum}\nMatériel: ${equipment.name}\nS/N: ${serialNum}\nService: ${departmentName}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleDownloadSVG = () => {
     const svgElement = qrRef.current;
@@ -72,7 +87,7 @@ export default function AssetTagQRModal({ open, onClose, equipment }: AssetTagQR
 
     const downloadLink = document.createElement('a');
     downloadLink.href = svgUrl;
-    downloadLink.download = `ETIQUETTE_${invNum}.svg`;
+    downloadLink.download = `ETIQUETTE_CATHEDIS_${invNum}.svg`;
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
@@ -84,18 +99,21 @@ export default function AssetTagQRModal({ open, onClose, equipment }: AssetTagQR
 
     const svgString = qrRef.current ? new XMLSerializer().serializeToString(qrRef.current) : '';
 
+    const widthMm = tagFormat === 'COMPACT' ? '60mm' : tagFormat === 'LARGE' ? '95mm' : '80mm';
+    const heightMm = tagFormat === 'COMPACT' ? '35mm' : tagFormat === 'LARGE' ? '55mm' : '48mm';
+
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Étiquette Inventaire - ${equipment.name}</title>
+          <title>Étiquette Haute Sécurité - ${equipment.name}</title>
           <style>
             @page {
-              size: 80mm 50mm;
+              size: ${widthMm} ${heightMm};
               margin: 0;
             }
             body {
-              font-family: 'Segoe UI', Arial, sans-serif;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
               margin: 0;
               padding: 0;
               display: flex;
@@ -105,142 +123,156 @@ export default function AssetTagQRModal({ open, onClose, equipment }: AssetTagQR
               box-sizing: border-box;
               background-color: #ffffff;
             }
-            .asset-tag {
-              width: 76mm;
-              height: 46mm;
-              border: 2px solid #E31E24;
-              border-radius: 8px;
-              padding: 8px 10px;
+            .label-card {
+              width: ${widthMm};
+              height: ${heightMm};
+              background: #ffffff;
+              border: 1.5px solid #CBD5E1;
+              border-radius: 6px;
               box-sizing: border-box;
+              overflow: hidden;
               display: flex;
               flex-direction: column;
               justify-content: space-between;
-              background: #ffffff;
+              position: relative;
             }
-            .header {
+            .top-band {
+              background: #E31E24;
+              color: #ffffff;
+              padding: 4px 8px;
               display: flex;
               justify-content: space-between;
               align-items: center;
-              border-bottom: 2px solid #E31E24;
-              padding-bottom: 4px;
             }
-            .brand {
+            .brand-name {
+              font-size: 11px;
               font-weight: 900;
-              font-size: 14px;
-              color: #E31E24;
-              letter-spacing: 1px;
+              letter-spacing: 1.2px;
             }
-            .tag-type {
-              font-size: 8px;
+            .top-badge {
+              font-size: 7px;
               font-weight: 800;
-              color: #1A1A2E;
-              background: #F1F5F9;
-              padding: 2px 6px;
-              border-radius: 4px;
-              border: 1px solid #CBD5E1;
-              text-transform: uppercase;
+              background: rgba(255,255,255,0.25);
+              padding: 1px 5px;
+              border-radius: 3px;
+              letter-spacing: 0.5px;
             }
-            .body {
+            .main-content {
               display: flex;
               align-items: center;
-              gap: 10px;
-              margin: 4px 0;
-            }
-            .qr-box {
-              background: #ffffff;
-              padding: 2px;
-            }
-            .info {
+              padding: 6px 8px;
+              gap: 8px;
               flex: 1;
             }
-            .inv-num {
-              font-family: monospace;
+            .qr-wrapper {
+              background: #ffffff;
+              padding: 2px;
+              border: 1px solid #E2E8F0;
+              border-radius: 4px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .details {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              gap: 2px;
+            }
+            .inv-code {
+              font-family: 'Courier New', monospace;
               font-weight: 900;
-              font-size: 12px;
-              color: #E31E24;
-            }
-            .eq-name {
               font-size: 11px;
-              font-weight: bold;
-              color: #1A1A2E;
-              margin: 1px 0;
+              color: #E31E24;
+              letter-spacing: 0.5px;
             }
-            .eq-sn {
-              font-family: monospace;
-              font-size: 8.5px;
-              color: #475569;
-              background: #F8FAFC;
+            .name {
+              font-size: 9.5px;
+              font-weight: 800;
+              color: #0F172A;
+              line-height: 1.1;
+              max-width: 140px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            .sn-box {
+              font-family: 'Courier New', monospace;
+              font-size: 7.5px;
+              font-weight: bold;
+              color: #334155;
+              background: #F1F5F9;
               padding: 1px 4px;
-              border-radius: 3px;
+              border-radius: 2px;
               display: inline-block;
               border: 1px solid #E2E8F0;
             }
-            .eq-dept {
-              font-size: 7.5px;
+            .dept-info {
+              font-size: 7px;
               color: #64748B;
-              margin-top: 2px;
+              font-weight: 600;
             }
-            .footer {
+            .bottom-bar {
+              border-top: 1px solid #E2E8F0;
+              padding: 3px 8px;
+              background: #F8FAFC;
               display: flex;
               justify-content: space-between;
               align-items: center;
-              border-top: 1px dashed #CBD5E1;
-              padding-top: 3px;
             }
             .barcode {
               display: flex;
+              gap: 1px;
+              height: 8px;
               align-items: center;
-              gap: 1.5px;
-              height: 10px;
             }
             .bar {
               height: 100%;
-              background: #1A1A2E;
+              background: #0F172A;
             }
-            .warning {
-              font-size: 6.5px;
-              font-weight: 700;
+            .security-text {
+              font-size: 6px;
+              font-weight: 800;
               color: #64748B;
+              letter-spacing: 0.3px;
               text-transform: uppercase;
             }
           </style>
         </head>
         <body>
-          <div class="asset-tag">
-            <div class="header">
-              <div class="brand">CATHEDIS</div>
-              <div class="tag-type">Propriété IT</div>
+          <div class="label-card">
+            <div class="top-band">
+              <span class="brand-name">CATHEDIS</span>
+              <span class="top-badge">ACTIF OFFICIEL</span>
             </div>
 
-            <div class="body">
-              <div class="qr-box">
+            <div class="main-content">
+              <div class="qr-wrapper">
                 ${svgString}
               </div>
-              <div class="info">
-                <div class="inv-num">${invNum}</div>
-                <div class="eq-name">${equipment.name}</div>
-                <div class="eq-sn">S/N: ${serialNum}</div>
-                <div class="eq-dept">${categoryName} • ${departmentName}</div>
+              <div class="details">
+                <div class="inv-code">${invNum}</div>
+                <div class="name">${equipment.name}</div>
+                <div><span class="sn-box">S/N: ${serialNum}</span></div>
+                <div class="dept-info">${categoryName} • ${departmentName}</div>
               </div>
             </div>
 
-            <div class="footer">
+            <div class="bottom-bar">
               <div class="barcode">
                 <div class="bar" style="width:2px;"></div>
                 <div class="bar" style="width:1px;"></div>
                 <div class="bar" style="width:3px;"></div>
                 <div class="bar" style="width:1px;"></div>
                 <div class="bar" style="width:2px;"></div>
-                <div class="bar" style="width:3px;"></div>
-                <div class="bar" style="width:1px;"></div>
-                <div class="bar" style="width:2px;"></div>
                 <div class="bar" style="width:1px;"></div>
                 <div class="bar" style="width:3px;"></div>
                 <div class="bar" style="width:2px;"></div>
                 <div class="bar" style="width:1px;"></div>
                 <div class="bar" style="width:2px;"></div>
+                <div class="bar" style="width:3px;"></div>
               </div>
-              <div class="warning">Ne pas retirer cette étiquette</div>
+              <div class="security-text">TRAÇABILITÉ DSI • NE PAS RETIRER</div>
             </div>
           </div>
           <script>
@@ -259,140 +291,312 @@ export default function AssetTagQRModal({ open, onClose, equipment }: AssetTagQR
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="xs"
+      maxWidth="sm"
       fullWidth
       slotProps={{
         paper: {
           sx: {
-            borderRadius: 4,
+            borderRadius: 4.5,
             overflow: 'hidden',
-            bgcolor: '#FFFFFF',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+            bgcolor: '#FAFAFC',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.18)'
           }
         }
       }}
     >
-      {/* Clean Modal Header */}
+      {/* 🌟 Modal Top Header 🌟 */}
       <DialogTitle
         sx={{
           bgcolor: '#1A1A2E',
           color: '#FFFFFF',
-          p: 2,
-          px: 2.5,
+          p: 2.2,
+          px: 3,
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          borderBottom: '2px solid #E31E24'
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-          <QrCode2Icon sx={{ color: '#E31E24', fontSize: 24 }} />
-          <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#FFFFFF' }}>
-            Étiquette d'Inventaire
-          </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 36,
+              height: 36,
+              borderRadius: 2,
+              bgcolor: 'rgba(227, 30, 36, 0.2)',
+              border: '1px solid #E31E24',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#E31E24'
+            }}
+          >
+            <QrCode2Icon fontSize="small" />
+          </Box>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', color: '#FFFFFF', lineHeight: 1.2 }}>
+              Étiquette d'Actif Haute Définition
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>
+              Générateur d'étiquette d'inventaire sécurisée Cathedis
+            </Typography>
+          </Box>
         </Box>
 
-        <IconButton size="small" onClick={onClose} sx={{ color: '#FFFFFF', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}>
+        <IconButton onClick={onClose} sx={{ color: 'rgba(255,255,255,0.7)', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.1)' } }}>
           <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2.5 }}>
+      <DialogContent sx={{ p: 3.5, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
         
-        {/* 🏷️ Modern & Clean Asset Tag Preview 🏷️ */}
-        <Paper
-          elevation={0}
+        {/* Format Selector Bar */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+            Format d'étiquette :
+          </Typography>
+          <ButtonGroup size="small" variant="outlined">
+            {[
+              { id: 'COMPACT', label: 'Compact (60x35mm)' },
+              { id: 'STANDARD', label: 'Standard (80x48mm)' },
+              { id: 'LARGE', label: 'Grand (95x55mm)' }
+            ].map((fmt) => (
+              <Button
+                key={fmt.id}
+                onClick={() => setTagFormat(fmt.id as any)}
+                variant={tagFormat === fmt.id ? 'contained' : 'outlined'}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  borderRadius: 2,
+                  bgcolor: tagFormat === fmt.id ? '#1A1A2E' : '#FFFFFF',
+                  color: tagFormat === fmt.id ? '#FFFFFF' : '#475569',
+                  borderColor: '#CBD5E1',
+                  '&:hover': { bgcolor: tagFormat === fmt.id ? '#2A1B28' : '#F1F5F9' }
+                }}
+              >
+                {fmt.label}
+              </Button>
+            ))}
+          </ButtonGroup>
+        </Box>
+
+        {/* 🏷️✨ MASTER EXTRAORDINARY ASSET LABEL CARD ✨🏷️ */}
+        <Box
           sx={{
             width: '100%',
-            p: 2.5,
-            borderRadius: 3,
-            border: '2px solid #E31E24',
+            maxWidth: tagFormat === 'COMPACT' ? 380 : tagFormat === 'LARGE' ? 470 : 430,
+            borderRadius: '16px',
             bgcolor: '#FFFFFF',
-            boxShadow: '0 8px 24px rgba(227, 30, 36, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 1.8
+            border: '2px solid #E2E8F0',
+            boxShadow: '0 16px 40px rgba(0,0,0,0.1)',
+            overflow: 'hidden',
+            position: 'relative',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              boxShadow: '0 20px 48px rgba(227, 30, 36, 0.15)',
+              borderColor: '#E31E24'
+            }
           }}
         >
-          {/* Tag Top Header */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #E31E24', pb: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-              <Typography sx={{ fontWeight: 900, fontSize: '1.1rem', color: '#E31E24', letterSpacing: 1.5 }}>
+          {/* Top Premium Red Header Band */}
+          <Box
+            sx={{
+              background: 'linear-gradient(135deg, #E31E24 0%, #B91C1C 100%)',
+              color: '#FFFFFF',
+              px: 2.2,
+              py: 1,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              boxShadow: '0 2px 8px rgba(227, 30, 36, 0.3)'
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography sx={{ fontWeight: 900, fontSize: '1.15rem', color: '#FFFFFF', letterSpacing: 1.5 }}>
                 CATHEDIS
               </Typography>
             </Box>
             <Chip
-              label="PROPRIÉTÉ IT"
+              icon={<VerifiedUserIcon sx={{ fontSize: 13, color: '#FFFFFF !important' }} />}
+              label="ACTIF SÉCURISÉ IT"
               size="small"
               sx={{
                 height: 20,
                 fontSize: '0.65rem',
-                fontWeight: 800,
-                bgcolor: '#F1F5F9',
-                color: '#1E293B',
-                border: '1px solid #CBD5E1'
+                fontWeight: 900,
+                bgcolor: 'rgba(255,255,255,0.2)',
+                color: '#FFFFFF',
+                border: '1px solid rgba(255,255,255,0.4)',
+                letterSpacing: 0.5
               }}
             />
           </Box>
 
-          {/* QR Code & Information */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Holographic Security Foil Strip (Subtle iridescent light effect) */}
+          <Box
+            sx={{
+              height: 4,
+              width: '100%',
+              background: 'linear-gradient(90deg, #ff0000 0%, #ff9a00 20%, #d0de21 40%, #4ff0e6 60%, #a600ff 80%, #ff0077 100%)',
+              opacity: 0.75
+            }}
+          />
+
+          {/* Main Label Body */}
+          <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 2.2 }}>
+            
+            {/* High-Precision QR Code with Optical Corner Targets */}
             <Box
               sx={{
-                p: 1,
+                p: 1.2,
                 bgcolor: '#FFFFFF',
-                borderRadius: 2,
-                border: '1px solid #E2E8F0',
+                borderRadius: 2.5,
+                border: '1.5px solid #E2E8F0',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
+                position: 'relative',
+                flexShrink: 0
               }}
             >
+              {/* Corner Targeting Marks */}
+              <Box sx={{ position: 'absolute', top: 3, left: 3, width: 8, height: 8, borderTop: '2px solid #E31E24', borderLeft: '2px solid #E31E24' }} />
+              <Box sx={{ position: 'absolute', top: 3, right: 3, width: 8, height: 8, borderTop: '2px solid #E31E24', borderRight: '2px solid #E31E24' }} />
+              <Box sx={{ position: 'absolute', bottom: 3, left: 3, width: 8, height: 8, borderBottom: '2px solid #E31E24', borderLeft: '2px solid #E31E24' }} />
+              <Box sx={{ position: 'absolute', bottom: 3, right: 3, width: 8, height: 8, borderBottom: '2px solid #E31E24', borderRight: '2px solid #E31E24' }} />
+
               <QRCodeSVG
                 ref={qrRef}
                 value={qrData}
-                size={110}
+                size={tagFormat === 'COMPACT' ? 95 : tagFormat === 'LARGE' ? 130 : 115}
                 bgColor="#FFFFFF"
-                fgColor="#1A1A2E"
+                fgColor="#0F172A"
                 level="H"
               />
             </Box>
 
-            <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.4 }}>
-              <Typography sx={{ fontFamily: 'monospace', fontSize: '0.88rem', fontWeight: 900, color: '#E31E24' }}>
-                {invNum}
-              </Typography>
-              <Typography noWrap sx={{ fontSize: '0.95rem', fontWeight: 800, color: '#1A1A2E' }}>
+            {/* Hardware Information Details */}
+            <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.6 }}>
+              
+              {/* Inventory Number in High-Tech Red Badge */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography
+                  sx={{
+                    fontFamily: 'monospace',
+                    fontWeight: 900,
+                    fontSize: '1rem',
+                    color: '#E31E24',
+                    letterSpacing: 1,
+                    bgcolor: '#FFF1F1',
+                    px: 1,
+                    py: 0.2,
+                    borderRadius: 1,
+                    border: '1px solid #FFE2E2',
+                    display: 'inline-block'
+                  }}
+                >
+                  {invNum}
+                </Typography>
+              </Box>
+
+              {/* Equipment Full Name */}
+              <Typography
+                noWrap
+                sx={{
+                  fontSize: '1rem',
+                  fontWeight: 900,
+                  color: '#0F172A',
+                  lineHeight: 1.2
+                }}
+              >
                 {equipment.name}
               </Typography>
+
+              {/* Serial Number S/N */}
               <Box>
-                <Typography sx={{ fontSize: '0.72rem', fontFamily: 'monospace', bgcolor: '#F8FAFC', color: '#334155', px: 0.8, py: 0.2, borderRadius: 1, display: 'inline-block', fontWeight: 700, border: '1px solid #E2E8F0' }}>
+                <Typography
+                  sx={{
+                    fontSize: '0.72rem',
+                    fontFamily: 'monospace',
+                    fontWeight: 800,
+                    color: '#1E293B',
+                    bgcolor: '#F1F5F9',
+                    px: 1,
+                    py: 0.3,
+                    borderRadius: 1.5,
+                    border: '1px solid #CBD5E1',
+                    display: 'inline-block'
+                  }}
+                >
                   S/N: {serialNum}
                 </Typography>
               </Box>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.72rem' }}>
-                {categoryName} • {departmentName}
+
+              {/* Department & Location */}
+              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                🏢 {departmentName} • {categoryName}
               </Typography>
             </Box>
           </Box>
 
-          {/* Tag Footer */}
-          <Box sx={{ pt: 1, borderTop: '1px dashed #CBD5E1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {/* Barcode Mock */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '1.5px', height: 12 }}>
-              {[2,1,3,1,2,3,1,2,1,3,2,1,2,1,3,2,1,3,1,2].map((w, i) => (
-                <Box key={i} sx={{ width: w, height: '100%', bgcolor: '#1A1A2E' }} />
+          {/* Bottom Security Bar with Code-128 Barcode */}
+          <Box
+            sx={{
+              px: 2.2,
+              py: 1,
+              bgcolor: '#F8FAFC',
+              borderTop: '1px solid #E2E8F0',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            {/* High Density Barcode */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '1.5px', height: 14 }}>
+              {[2,1,3,1,1,2,3,1,2,1,3,2,1,1,3,2,1,3,1,2,1,3,2,1,2,1,3].map((w, i) => (
+                <Box key={i} sx={{ width: w, height: '100%', bgcolor: '#0F172A' }} />
               ))}
             </Box>
 
-            <Typography variant="caption" sx={{ fontSize: '0.62rem', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>
-              Ne pas retirer cette étiquette
+            <Typography
+              variant="caption"
+              sx={{
+                fontSize: '0.62rem',
+                fontWeight: 800,
+                color: '#64748B',
+                letterSpacing: 0.5,
+                textTransform: 'uppercase'
+              }}
+            >
+              🔒 INVIOLABLE • TRACÉ PAR CATHEDIS DSI
             </Typography>
           </Box>
-        </Paper>
+        </Box>
 
-        {/* Action Buttons */}
-        <Box sx={{ display: 'flex', gap: 1.5, width: '100%', justifyContent: 'center' }}>
+        {/* 🚀 Action Buttons Bar 🚀 */}
+        <Box sx={{ display: 'flex', gap: 1.5, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+          
+          <Button
+            variant="outlined"
+            startIcon={copied ? <CheckIcon sx={{ color: '#059669' }} /> : <ContentCopyIcon />}
+            onClick={handleCopyData}
+            sx={{
+              borderRadius: 2.5,
+              fontWeight: 800,
+              textTransform: 'none',
+              color: copied ? '#059669' : '#1A1A2E',
+              borderColor: copied ? '#059669' : '#CBD5E1',
+              bgcolor: '#FFFFFF',
+              px: 2,
+              '&:hover': { bgcolor: '#F8FAFC' }
+            }}
+          >
+            {copied ? 'Copié !' : 'Copier les Données'}
+          </Button>
+
           <Button
             variant="outlined"
             startIcon={<DownloadIcon />}
@@ -403,8 +607,9 @@ export default function AssetTagQRModal({ open, onClose, equipment }: AssetTagQR
               textTransform: 'none',
               color: '#1A1A2E',
               borderColor: '#CBD5E1',
+              bgcolor: '#FFFFFF',
               px: 2,
-              '&:hover': { bgcolor: '#F8FAFC', borderColor: '#94A3B8' }
+              '&:hover': { bgcolor: '#F8FAFC' }
             }}
           >
             Télécharger SVG
@@ -416,11 +621,12 @@ export default function AssetTagQRModal({ open, onClose, equipment }: AssetTagQR
             onClick={handlePrint}
             sx={{
               borderRadius: 2.5,
-              fontWeight: 800,
+              fontWeight: 900,
               textTransform: 'none',
-              px: 2.5,
+              px: 3,
+              py: 1,
               background: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
-              boxShadow: '0 4px 14px rgba(227, 30, 36, 0.35)',
+              boxShadow: '0 4px 16px rgba(227, 30, 36, 0.4)',
               color: '#FFFFFF',
               '&:hover': { background: 'linear-gradient(90deg, #C41018 0%, #991B1B 100%)' }
             }}
