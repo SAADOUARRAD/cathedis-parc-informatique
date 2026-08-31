@@ -260,7 +260,7 @@ export default function DashboardLayout({
         <Box sx={{ p: 2.5, display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', borderBottom: `1px solid ${roleTheme.borderColor}` }}>
           <Box
             component="img"
-            src="/images/logo1.png"
+            src={isTechnician ? "/images/logo2.png" : "/images/logo1.png"}
             alt="Cathedis"
             sx={{ maxWidth: '170px', height: 'auto', display: 'block' }}
           />
@@ -273,9 +273,9 @@ export default function DashboardLayout({
                 right: 12,
                 top: '50%',
                 transform: 'translateY(-50%)',
-                color: 'rgba(255, 255, 255, 0.7)',
-                bgcolor: 'rgba(255, 255, 255, 0.05)',
-                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF' }
+                color: isTechnician ? '#475569' : 'rgba(255, 255, 255, 0.7)',
+                bgcolor: isTechnician ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)',
+                '&:hover': { bgcolor: isTechnician ? 'rgba(227, 30, 36, 0.1)' : 'rgba(255, 255, 255, 0.15)', color: '#E31E24' }
               }}
             >
               <ChevronLeftIcon fontSize="small" />
@@ -302,8 +302,8 @@ export default function DashboardLayout({
               size="small"
               onClick={() => setIsCollapsed(false)}
               sx={{
-                color: 'rgba(255, 255, 255, 0.85)',
-                bgcolor: 'rgba(255, 255, 255, 0.08)',
+                color: isTechnician ? '#475569' : 'rgba(255, 255, 255, 0.85)',
+                bgcolor: isTechnician ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.08)',
                 '&:hover': { bgcolor: '#E31E24', color: '#FFFFFF' }
               }}
             >
@@ -334,7 +334,7 @@ export default function DashboardLayout({
                   {section.label}
                 </Typography>
               ) : (
-                index > 0 && <Divider sx={{ my: 1.5, borderColor: 'rgba(255,255,255,0.08)', mx: 1.5 }} />
+                index > 0 && <Divider sx={{ my: 1.5, borderColor: isTechnician ? 'rgba(227,30,36,0.15)' : 'rgba(255,255,255,0.08)', mx: 1.5 }} />
               )}
 
               {section.items.map((item) => {
@@ -352,25 +352,24 @@ export default function DashboardLayout({
                       position: 'relative',
                       overflow: 'hidden',
                       background: isActive
-                        ? 'linear-gradient(90deg, rgba(227, 30, 36, 0.28) 0%, rgba(196, 16, 24, 0.15) 60%, rgba(255, 255, 255, 0.04) 100%)'
+                        ? 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)'
                         : 'transparent',
-                      color: isActive ? '#FFFFFF' : roleTheme.inactiveItemColor,
-                      backdropFilter: isActive ? 'blur(12px)' : 'none',
-                      border: isActive ? '1px solid rgba(227, 30, 36, 0.35)' : '1px solid transparent',
-                      borderLeft: isActive ? '4px solid #E31E24' : '4px solid transparent',
+                      color: isActive ? '#FFFFFF !important' : roleTheme.inactiveItemColor,
+                      border: isActive ? '1px solid #E31E24' : '1px solid transparent',
+                      borderLeft: isActive ? '4px solid #991B1B' : '4px solid transparent',
                       boxShadow: isActive
-                        ? '0 6px 20px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(227, 30, 36, 0.2)'
+                        ? '0 6px 18px rgba(227, 30, 36, 0.45)'
                         : 'none',
                       transition: 'all 0.22s cubic-bezier(0.4, 0, 0.2, 1)',
                       '&:hover': {
                         transform: isCollapsed ? 'scale(1.08)' : 'translateX(4px)',
                         background: isActive
-                          ? 'linear-gradient(90deg, rgba(227, 30, 36, 0.35) 0%, rgba(196, 16, 24, 0.2) 60%, rgba(255, 255, 255, 0.06) 100%)'
-                          : 'rgba(255, 255, 255, 0.08)',
-                        borderColor: isActive ? 'rgba(227, 30, 36, 0.5)' : 'rgba(255, 255, 255, 0.06)',
-                        color: '#FFFFFF',
+                          ? 'linear-gradient(90deg, #C41018 0%, #991B1B 100%)'
+                          : isTechnician ? 'rgba(227, 30, 36, 0.08)' : 'rgba(255, 255, 255, 0.08)',
+                        borderColor: isActive ? '#991B1B' : isTechnician ? 'rgba(227, 30, 36, 0.2)' : 'rgba(255, 255, 255, 0.06)',
+                        color: isActive ? '#FFFFFF !important' : isTechnician ? '#E31E24' : '#FFFFFF',
                         '& .MuiListItemIcon-root': {
-                          color: '#FF6B6B',
+                          color: isActive ? '#FFFFFF !important' : '#E31E24',
                           transform: 'scale(1.1)',
                         }
                       },
@@ -378,11 +377,11 @@ export default function DashboardLayout({
                   >
                     <ListItemIcon
                       sx={{
-                        color: isActive ? '#FF6B6B' : 'inherit',
+                        color: isActive ? '#FFFFFF !important' : isTechnician ? '#334155' : 'inherit',
                         minWidth: isCollapsed ? 0 : 38,
                         justifyContent: 'center',
                         transition: 'all 0.2s',
-                        filter: isActive ? 'drop-shadow(0 0 6px rgba(227, 30, 36, 0.6))' : 'none'
+                        filter: isActive ? 'drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))' : 'none'
                       }}
                     >
                       {item.icon}
@@ -394,8 +393,9 @@ export default function DashboardLayout({
                           primary: {
                             sx: {
                               fontSize: '0.92rem',
-                              fontWeight: isActive ? 800 : 500,
+                              fontWeight: isActive ? 800 : 600,
                               letterSpacing: isActive ? '0.02em' : 'normal',
+                              color: isActive ? '#FFFFFF !important' : 'inherit',
                             }
                           }
                         }} 
@@ -450,13 +450,13 @@ export default function DashboardLayout({
               gap: 1.8,
               p: 1.5,
               borderRadius: 3,
-              bgcolor: 'rgba(255, 255, 255, 0.06)',
+              bgcolor: isTechnician ? 'rgba(227, 30, 36, 0.06)' : 'rgba(255, 255, 255, 0.06)',
               backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)',
+              border: isTechnician ? '1px solid rgba(227, 30, 36, 0.15)' : '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
               transition: 'all 0.2s',
               '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                bgcolor: isTechnician ? 'rgba(227, 30, 36, 0.1)' : 'rgba(255, 255, 255, 0.1)',
                 borderColor: 'rgba(227, 30, 36, 0.3)'
               }
             }}
@@ -475,7 +475,7 @@ export default function DashboardLayout({
               {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'U'}
             </Avatar>
             <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-              <Typography noWrap sx={{ fontSize: '0.92rem', color: '#FFFFFF', fontWeight: 800 }}>
+              <Typography noWrap sx={{ fontSize: '0.92rem', color: isTechnician ? '#0F172A' : '#FFFFFF', fontWeight: 800 }}>
                 {session?.user?.name || 'Utilisateur'}
               </Typography>
               <Chip
@@ -485,9 +485,9 @@ export default function DashboardLayout({
                   height: 20,
                   fontSize: '0.65rem',
                   fontWeight: 800,
-                  bgcolor: 'rgba(227, 30, 36, 0.35)',
-                  color: '#FFCDD2',
-                  border: '1px solid rgba(255, 205, 210, 0.3)',
+                  bgcolor: isTechnician ? 'rgba(227, 30, 36, 0.15)' : 'rgba(227, 30, 36, 0.35)',
+                  color: isTechnician ? '#E31E24' : '#FFCDD2',
+                  border: isTechnician ? '1px solid rgba(227, 30, 36, 0.3)' : '1px solid rgba(255, 205, 210, 0.3)',
                   mt: 0.3,
                 }}
               />
@@ -497,13 +497,8 @@ export default function DashboardLayout({
                 size="small"
                 onClick={handleLogout}
                 sx={{
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  bgcolor: 'rgba(255, 255, 255, 0.05)',
-                  '&:hover': {
-                    color: '#FFFFFF',
-                    bgcolor: '#E31E24',
-                    boxShadow: '0 0 10px rgba(227, 30, 36, 0.6)'
-                  }
+                  color: isTechnician ? '#E31E24' : 'rgba(255, 255, 255, 0.7)',
+                  '&:hover': { color: '#E31E24', bgcolor: isTechnician ? 'rgba(227, 30, 36, 0.12)' : 'rgba(255, 255, 255, 0.1)' }
                 }}
               >
                 <LogoutIcon fontSize="small" />
@@ -518,10 +513,9 @@ export default function DashboardLayout({
                   bgcolor: '#E31E24',
                   color: '#FFFFFF',
                   fontWeight: 800,
-                  width: 38,
-                  height: 38,
-                  boxShadow: '0 4px 12px rgba(227, 30, 36, 0.4)',
-                  cursor: 'pointer'
+                  width: 40,
+                  height: 40,
+                  boxShadow: '0 4px 12px rgba(227, 30, 36, 0.4)'
                 }}
               >
                 {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'U'}
@@ -532,8 +526,8 @@ export default function DashboardLayout({
                 size="small"
                 onClick={handleLogout}
                 sx={{
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  '&:hover': { color: '#FFFFFF', bgcolor: '#E31E24' }
+                  color: isTechnician ? '#E31E24' : 'rgba(255, 255, 255, 0.7)',
+                  '&:hover': { color: '#E31E24', bgcolor: isTechnician ? 'rgba(227, 30, 36, 0.12)' : 'rgba(255, 255, 255, 0.1)' }
                 }}
               >
                 <LogoutIcon fontSize="small" />
