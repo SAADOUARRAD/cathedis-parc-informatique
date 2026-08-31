@@ -871,11 +871,6 @@ export default function EquipmentsPage() {
                                 <QrCodeIcon fontSize="small" />
                               </IconButton>
                             </Tooltip>
-                            <Tooltip title="Historique">
-                              <IconButton onClick={() => fetchHistory(row.id, row.name)} size="small" sx={{ color: '#1A1A2E', bgcolor: '#F1F5F9', '&:hover': { bgcolor: '#E2E8F0' } }}>
-                                <HistoryIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
                             <Tooltip title="Modifier">
                               <IconButton onClick={() => openForm(row)} size="small" color="primary">
                                 <EditIcon fontSize="small" />
