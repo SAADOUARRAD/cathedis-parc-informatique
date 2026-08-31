@@ -493,24 +493,6 @@ export default function AssignmentsPage() {
 
             <Button
               variant="contained"
-              onClick={() => handleOpenWizard(true)}
-              startIcon={<SparklesIcon />}
-              sx={{
-                background: 'linear-gradient(90deg, #2563EB 0%, #1D4ED8 100%)',
-                color: '#FFFFFF',
-                borderRadius: 2.5,
-                fontWeight: 800,
-                textTransform: 'none',
-                px: 2.2,
-                boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
-                '&:hover': { background: 'linear-gradient(90deg, #1D4ED8 0%, #2563EB 100%)' }
-              }}
-            >
-              🎒 Pack Onboarding
-            </Button>
-
-            <Button
-              variant="contained"
               onClick={() => handleOpenWizard(false)}
               startIcon={<AddIcon />}
               sx={{
@@ -524,7 +506,7 @@ export default function AssignmentsPage() {
                 '&:hover': { background: 'linear-gradient(90deg, #C41018 0%, #E31E24 100%)' }
               }}
             >
-              + Nouvelle Affectation
+              Nouvelle Affectation
             </Button>
           </Box>
         </Box>
