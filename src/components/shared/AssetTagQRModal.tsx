@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -13,10 +13,9 @@ import {
   Paper
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import PrintIcon from '@mui/icons-material/Print';
 import DownloadIcon from '@mui/icons-material/Download';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CheckIcon from '@mui/icons-material/Check';
 import { QRCodeSVG } from 'qrcode.react';
 
 interface AssetTagQRModalProps {
@@ -31,14 +30,11 @@ interface AssetTagQRModalProps {
     department?: { name: string } | string;
     status?: string;
     purchaseDate?: string;
-    brand?: string;
-    model?: string;
   } | null;
 }
 
 export default function AssetTagQRModal({ open, onClose, equipment }: AssetTagQRModalProps) {
   const qrRef = useRef<SVGSVGElement>(null);
-  const [copied, setCopied] = useState(false);
 
   if (!equipment) return null;
 
@@ -48,28 +44,18 @@ export default function AssetTagQRModal({ open, onClose, equipment }: AssetTagQR
 
   const departmentName = typeof equipment.department === 'string'
     ? equipment.department
-    : equipment.department?.name || 'Direction IT Cathedis';
+    : equipment.department?.name;
 
   const invNum = equipment.inventoryNumber || 'CAT-' + equipment.id.slice(0, 8).toUpperCase();
-  const serialNum = equipment.serialNumber || 'SN-' + equipment.id.slice(-6).toUpperCase();
+  const serialNum = equipment.serialNumber || 'N/A';
 
-  // Payload encoded in the QR Code
+  // The payload encoded into the QR Code
   const qrData = JSON.stringify({
-    inv: invNum,
     id: equipment.id,
+    inv: invNum,
     sn: serialNum,
     name: equipment.name,
-    brand: equipment.brand || '',
-    model: equipment.model || '',
-    owner: 'CATHEDIS',
-    dept: departmentName
   });
-
-  const handleCopyData = () => {
-    navigator.clipboard.writeText(`[CATHEDIS ASSET]\nN° Inventaire: ${invNum}\nMatériel: ${equipment.name}\nS/N: ${serialNum}\nService: ${departmentName}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const handleDownloadSVG = () => {
     const svgElement = qrRef.current;
@@ -81,10 +67,138 @@ export default function AssetTagQRModal({ open, onClose, equipment }: AssetTagQR
 
     const downloadLink = document.createElement('a');
     downloadLink.href = svgUrl;
-    downloadLink.download = `QR_CATHEDIS_${invNum}.svg`;
+    downloadLink.download = `QR_${serialNum !== 'N/A' ? serialNum : equipment.name}.svg`;
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
+  };
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const svgString = qrRef.current ? new XMLSerializer().serializeToString(qrRef.current) : '';
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Étiquette Équipement - ${equipment.name}</title>
+          <style>
+            @page {
+              size: 80mm 50mm;
+              margin: 0;
+            }
+            body {
+              font-family: 'Arial', sans-serif;
+              margin: 0;
+              padding: 10px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              box-sizing: border-box;
+              background-color: #fff;
+            }
+            .asset-tag {
+              width: 75mm;
+              height: 45mm;
+              border: 2px solid #E31E24;
+              border-radius: 8px;
+              padding: 8px;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              background: #ffffff;
+            }
+            .header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              border-bottom: 2px solid #E31E24;
+              padding-bottom: 4px;
+            }
+            .brand {
+              font-weight: 900;
+              font-size: 14px;
+              color: #E31E24;
+              letter-spacing: 1px;
+            }
+            .tag-title {
+              font-size: 9px;
+              color: #555;
+              text-transform: uppercase;
+              font-weight: bold;
+            }
+            .content {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-top: 4px;
+            }
+            .info {
+              flex: 1;
+            }
+            .eq-name {
+              font-size: 13px;
+              font-weight: bold;
+              color: #1A1A2E;
+              margin-bottom: 3px;
+            }
+            .eq-sn {
+              font-family: monospace;
+              font-size: 10px;
+              color: #444;
+              background: #f0f0f0;
+              padding: 2px 4px;
+              border-radius: 4px;
+              display: inline-block;
+            }
+            .eq-cat {
+              font-size: 9px;
+              color: #666;
+              margin-top: 4px;
+            }
+            .footer {
+              font-size: 8px;
+              color: #888;
+              text-align: center;
+              border-top: 1px dashed #ccc;
+              padding-top: 2px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="asset-tag">
+            <div class="header">
+              <div class="brand">CATHEDIS</div>
+              <div class="tag-title">Propriété Cathedis</div>
+            </div>
+            <div class="content">
+              <div class="qr-code">
+                ${svgString}
+              </div>
+              <div class="info">
+                <div class="eq-name">${equipment.name}</div>
+                <div class="eq-sn">S/N: ${serialNum}</div>
+                <div class="eq-cat">${categoryName}</div>
+              </div>
+            </div>
+            <div class="footer">
+              Ne pas retirer cette étiquette — Contact Support IT
+            </div>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   return (
@@ -93,224 +207,154 @@ export default function AssetTagQRModal({ open, onClose, equipment }: AssetTagQR
       onClose={onClose}
       maxWidth="xs"
       fullWidth
-      slotProps={{
-        paper: {
-          sx: {
-            borderRadius: 4,
-            overflow: 'hidden',
-            bgcolor: '#FAFAFA',
-            boxShadow: '0 20px 48px rgba(0,0,0,0.12)'
-          }
-        }
-      }}
+      slotProps={{ paper: { sx: { borderRadius: 4, overflow: 'hidden' } } }}
     >
-      {/* Clean Modal Header */}
       <DialogTitle
         sx={{
           bgcolor: '#1A1A2E',
-          color: '#FFFFFF',
-          py: 2,
-          px: 2.5,
+          color: '#fff',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          py: 2,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-          <QrCode2Icon sx={{ color: '#E31E24', fontSize: 22 }} />
-          <Typography sx={{ fontWeight: 800, fontSize: '0.98rem', color: '#FFFFFF' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <QrCode2Icon sx={{ color: '#E31E24' }} />
+          <Typography sx={{ fontWeight: 700, fontSize: '1.05rem', color: '#FFFFFF' }}>
             Étiquette QR Code
           </Typography>
         </Box>
-
-        <IconButton
-          size="small"
-          onClick={onClose}
-          sx={{ color: 'rgba(255,255,255,0.7)', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.1)' } }}
-        >
+        <IconButton size="small" onClick={onClose} sx={{ color: '#fff' }}>
           <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2.5 }}>
-        
-        {/* 🏷️✨ Sleek Modern Asset Tag Card ✨🏷️ */}
+      <DialogContent sx={{ pt: 3, pb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2.5 }}>
+        {/* Physical Tag Preview Card (Premier Style d'origine) */}
         <Paper
           elevation={0}
           sx={{
             width: '100%',
-            p: 3,
-            borderRadius: 3.5,
+            p: 2.5,
+            borderRadius: 3,
+            border: '2px solid #E31E24',
             bgcolor: '#FFFFFF',
-            border: '1px solid #E2E8F0',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 2,
             position: 'relative',
             overflow: 'hidden',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              borderColor: '#CBD5E1',
-              boxShadow: '0 14px 36px rgba(0,0,0,0.09)'
-            }
+            boxShadow: '0 8px 24px rgba(227, 30, 36, 0.08)',
           }}
         >
-          {/* Subtle Top Red Accent Line */}
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 4,
-              bgcolor: '#E31E24'
-            }}
-          />
-
-          {/* Logo & Category Header */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', pt: 0.5 }}>
-            <Box
-              component="img"
-              src="/images/logo1.png"
-              alt="Cathedis"
-              sx={{ height: 26, width: 'auto', display: 'block' }}
-            />
+          {/* Tag Top Header */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #E31E24', pb: 1, mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+              <Box component="span" sx={{ fontWeight: 900, fontSize: '1rem', color: '#E31E24', letterSpacing: 1 }}>
+                CATHEDIS
+              </Box>
+            </Box>
             <Chip
-              label={categoryName}
+              label="ACTIF INFORMATIQUE"
               size="small"
-              sx={{
-                height: 22,
-                fontSize: '0.68rem',
-                fontWeight: 700,
-                bgcolor: '#F1F5F9',
-                color: '#334155',
-                border: '1px solid #E2E8F0'
-              }}
+              sx={{ height: 20, fontSize: '0.65rem', fontWeight: 800, bgcolor: '#FFEBEE', color: '#C62828' }}
             />
           </Box>
 
-          {/* Center QR Code */}
-          <Box
-            sx={{
-              p: 1.5,
-              bgcolor: '#FFFFFF',
-              borderRadius: 3,
-              border: '1px solid #E2E8F0',
-              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04), 0 4px 14px rgba(0,0,0,0.04)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              my: 0.5
-            }}
-          >
-            <QRCodeSVG
-              ref={qrRef}
-              value={qrData}
-              size={135}
-              bgColor="#FFFFFF"
-              fgColor="#1A1A2E"
-              level="H"
-            />
-          </Box>
-
-          {/* Asset Information Summary */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.8, width: '100%', textAlign: 'center' }}>
-            
-            {/* Inventory Number Pill */}
-            <Typography
+          {/* QR Code & Information */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box
               sx={{
-                fontFamily: 'monospace',
-                fontWeight: 900,
-                fontSize: '0.92rem',
-                color: '#E31E24',
-                letterSpacing: 1,
-                bgcolor: '#FFF1F1',
-                px: 1.5,
-                py: 0.3,
-                borderRadius: 1.5,
-                border: '1px solid #FFE2E2',
-                display: 'inline-block'
+                p: 1,
+                bgcolor: '#fff',
+                borderRadius: 2,
+                border: '1px solid #eee',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              {invNum}
-            </Typography>
+              <QRCodeSVG
+                ref={qrRef}
+                value={qrData}
+                size={110}
+                bgColor="#FFFFFF"
+                fgColor="#1A1A2E"
+                level="H"
+              />
+            </Box>
 
-            {/* Equipment Name */}
-            <Typography
-              sx={{
-                fontSize: '1.05rem',
-                fontWeight: 800,
-                color: '#0F172A',
-                lineHeight: 1.2
-              }}
-            >
-              {equipment.name}
-            </Typography>
-
-            {/* Serial Number & Department */}
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, flexWrap: 'wrap', mt: 0.2 }}>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography noWrap sx={{ fontSize: '1rem', fontWeight: 800, color: '#1A1A2E' }}>
+                {equipment.name}
+              </Typography>
               <Typography
-                variant="caption"
                 sx={{
+                  fontSize: '0.75rem',
                   fontFamily: 'monospace',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  color: '#475569',
-                  bgcolor: '#F8FAFC',
-                  px: 0.8,
-                  py: 0.2,
+                  bgcolor: '#F1F5F9',
+                  color: '#334155',
+                  px: 1,
+                  py: 0.3,
                   borderRadius: 1,
-                  border: '1px solid #E2E8F0'
+                  display: 'inline-block',
+                  mt: 0.5,
+                  fontWeight: 700
                 }}
               >
                 S/N: {serialNum}
               </Typography>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.72rem' }}>
-                • {departmentName}
-              </Typography>
+              {categoryName && (
+                <Typography sx={{ fontSize: '0.75rem', color: '#64748B', mt: 0.8 }}>
+                  Catégorie : <strong>{categoryName}</strong>
+                </Typography>
+              )}
+              {departmentName && (
+                <Typography sx={{ fontSize: '0.75rem', color: '#64748B' }}>
+                  Dépt : <strong>{departmentName}</strong>
+                </Typography>
+              )}
             </Box>
           </Box>
+
+          {/* Tag Footer Notice */}
+          <Typography sx={{ fontSize: '0.65rem', color: '#94A3B8', textAlign: 'center', borderTop: '1px dashed #E2E8F0', pt: 1, mt: 2 }}>
+            Propriété exclusive de Cathedis • Ne pas retirer
+          </Typography>
         </Paper>
 
-        {/* Clean Action Buttons (Copier + Télécharger SVG) */}
-        <Box sx={{ display: 'flex', gap: 1.5, width: '100%', justifyContent: 'center' }}>
+        {/* Action Buttons */}
+        <Box sx={{ display: 'flex', gap: 1.5, width: '100%', mt: 1 }}>
           <Button
-            variant="outlined"
-            startIcon={copied ? <CheckIcon sx={{ color: '#059669' }} /> : <ContentCopyIcon />}
-            onClick={handleCopyData}
+            fullWidth
+            variant="contained"
+            startIcon={<PrintIcon />}
+            onClick={handlePrint}
             sx={{
-              flex: 1,
+              background: 'linear-gradient(90deg, #E31E24, #C41018)',
               borderRadius: 2.5,
-              fontWeight: 800,
               textTransform: 'none',
-              fontSize: '0.82rem',
-              color: copied ? '#059669' : '#1A1A2E',
-              borderColor: copied ? '#059669' : '#CBD5E1',
-              bgcolor: '#FFFFFF',
-              py: 1,
-              '&:hover': { bgcolor: '#F8FAFC', borderColor: '#94A3B8' }
+              fontWeight: 700,
+              py: 1.2,
+              boxShadow: '0 4px 14px rgba(227, 30, 36, 0.3)',
+              color: '#FFFFFF',
+              '&:hover': { boxShadow: '0 6px 20px rgba(227, 30, 36, 0.45)' },
             }}
           >
-            {copied ? 'Copié !' : 'Copier Infos'}
+            Imprimer l'étiquette
           </Button>
 
           <Button
-            variant="contained"
+            fullWidth
+            variant="outlined"
             startIcon={<DownloadIcon />}
             onClick={handleDownloadSVG}
             sx={{
-              flex: 1,
+              borderColor: '#1A1A2E',
+              color: '#1A1A2E',
               borderRadius: 2.5,
-              fontWeight: 800,
               textTransform: 'none',
-              fontSize: '0.82rem',
-              py: 1,
-              background: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
-              boxShadow: '0 4px 14px rgba(227, 30, 36, 0.3)',
-              color: '#FFFFFF',
-              '&:hover': { background: 'linear-gradient(90deg, #C41018 0%, #991B1B 100%)' }
+              fontWeight: 700,
+              py: 1.2,
+              '&:hover': { bgcolor: '#F1F5F9', borderColor: '#1A1A2E' },
             }}
           >
             Télécharger SVG
