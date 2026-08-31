@@ -869,7 +869,18 @@ export default function TechnicianMaintenancesPage() {
         onClose={handleCloseEdit}
         maxWidth="md"
         fullWidth
-        slotProps={{ paper: { sx: { borderRadius: 4, overflow: 'hidden' } } }}
+        scroll="paper"
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 4,
+              overflow: 'hidden',
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column'
+            }
+          }
+        }}
       >
         <DialogTitle sx={{
           background: 'linear-gradient(135deg, #0F172A 0%, #0369A1 50%, #0284C7 100%)',
@@ -878,7 +889,8 @@ export default function TechnicianMaintenancesPage() {
           px: 3,
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          flexShrink: 0
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Avatar sx={{ bgcolor: '#FFFFFF', color: '#0284C7' }}>
@@ -898,7 +910,7 @@ export default function TechnicianMaintenancesPage() {
           </IconButton>
         </DialogTitle>
 
-        <DialogContent sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2.5, bgcolor: '#FAFAFA' }}>
+        <DialogContent dividers sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2.5, bgcolor: '#FAFAFA', overflowY: 'auto' }}>
           
           {/* Status & Priority Selectors */}
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>

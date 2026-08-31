@@ -690,9 +690,17 @@ export default function TechnicianDashboard() {
         onClose={() => setOpenDialog(false)}
         maxWidth="sm"
         fullWidth
+        scroll="paper"
         slotProps={{
           paper: {
-            sx: { borderRadius: 3.5, overflow: 'hidden', boxShadow: '0 24px 60px rgba(0,0,0,0.15)' }
+            sx: {
+              borderRadius: 3.5,
+              overflow: 'hidden',
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 24px 60px rgba(0,0,0,0.15)'
+            }
           }
         }}
       >
@@ -702,7 +710,8 @@ export default function TechnicianDashboard() {
           display: 'flex',
           alignItems: 'center',
           gap: 1.5,
-          p: 2.5
+          p: 2.5,
+          flexShrink: 0
         }}>
           <DoneIcon sx={{ color: '#A7F3D0' }} />
           <Box>
@@ -716,7 +725,7 @@ export default function TechnicianDashboard() {
         </DialogTitle>
 
         <form onSubmit={handleFinalizeSubmit}>
-          <DialogContent sx={{ p: 3, pt: 3.5, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <DialogContent dividers sx={{ p: 3, pt: 3.5, display: 'flex', flexDirection: 'column', gap: 2.5, overflowY: 'auto' }}>
             <TextField
               label="Diagnostic Technique Constaté *"
               placeholder="ex: Câble nappe écran sectionné, RAM défectueuse, poussière ventilateur..."
