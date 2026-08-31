@@ -82,6 +82,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
 import StatusChip from '@/components/shared/StatusChip';
 import AssetTagQRModal from '@/components/shared/AssetTagQRModal';
+import RealisticHardwareBlueprint from '@/components/shared/RealisticHardwareBlueprint';
 
 export default function EquipmentsPage() {
   const [data, setData] = useState<any[]>([]);
@@ -910,87 +911,108 @@ export default function EquipmentsPage() {
             />
           </>
         ) : (
-          /* 🔲 VIEW 2: VISUAL GRID CARDS VIEW */
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: 'repeat(3, 1fr)' }, gap: 2.5, pt: 1 }}>
+          /* 🔲 VIEW 2: VISUAL GRID CARDS VIEW WITH REALISTIC HARDWARE BLUEPRINTS */
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: 'repeat(3, 1fr)' }, gap: 3, pt: 1 }}>
             {paginatedData.map((row) => (
               <Card
                 key={row.id}
                 elevation={0}
                 sx={{
-                  borderRadius: 3.5,
+                  borderRadius: 4,
                   border: '1px solid #E2E8F0',
-                  borderTop: '5px solid',
-                  borderTopColor: row.status === 'AVAILABLE' ? '#059669' : row.status === 'ASSIGNED' ? '#2563EB' : row.status === 'MAINTENANCE' ? '#D97706' : '#DC2626',
                   bgcolor: '#FFFFFF',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 12px 30px rgba(0,0,0,0.08)' }
+                  overflow: 'hidden',
+                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: '0 16px 36px rgba(0,0,0,0.1)',
+                    borderColor: '#CBD5E1'
+                  }
                 }}
               >
-                <CardContent sx={{ p: 2.5 }}>
+                {/* 🌟 1. Real Hardware Isometric Blueprint Visualizer 🌟 */}
+                <Box sx={{ p: 1.5, pb: 0 }}>
+                  <RealisticHardwareBlueprint
+                    categoryName={row.category?.name}
+                    equipmentName={row.name}
+                    brand={row.brand}
+                    model={row.model}
+                    status={row.status}
+                    height={155}
+                  />
+                </Box>
+
+                <CardContent sx={{ p: 2.5, pt: 2 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Avatar sx={{ width: 44, height: 44, bgcolor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-                        {getCategoryIcon(row.category?.name, 24)}
-                      </Avatar>
-                      <Box>
-                        <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 900, color: '#E31E24' }}>
-                          {row.inventoryNumber}
-                        </Typography>
-                        <Typography sx={{ fontWeight: 900, color: '#1A1A2E', fontSize: '1rem', lineHeight: 1.2 }}>
-                          {row.name}
-                        </Typography>
-                      </Box>
+                    <Box>
+                      <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 900, color: '#E31E24', display: 'block' }}>
+                        {row.inventoryNumber}
+                      </Typography>
+                      <Typography
+                        onClick={() => handleOpenDetails(row)}
+                        sx={{
+                          fontWeight: 900,
+                          color: '#1A1A2E',
+                          fontSize: '1.05rem',
+                          lineHeight: 1.3,
+                          cursor: 'pointer',
+                          '&:hover': { color: '#E31E24', textDecoration: 'underline' }
+                        }}
+                      >
+                        {row.name}
+                      </Typography>
                     </Box>
                     <StatusChip status={row.status} />
                   </Box>
 
-                  <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: '#F8FAFC', border: '1px solid #E2E8F0', mb: 1.5 }}>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
-                      Catégorie : <strong>{row.category?.name || '-'}</strong>
-                    </Typography>
-                    {row.brand && (
-                      <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
-                        Marque / Modèle : <strong>{row.brand} {row.model}</strong>
-                      </Typography>
-                    )}
+                  <Box sx={{ p: 1.5, borderRadius: 2.5, bgcolor: '#F8FAFC', border: '1px solid #E2E8F0', mb: 1.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>Catégorie</Typography>
+                      <Typography variant="caption" sx={{ color: '#1E293B', fontWeight: 800 }}>{row.category?.name || 'Général'}</Typography>
+                    </Box>
                     {row.serialNumber && (
-                      <Typography variant="caption" sx={{ color: '#64748B', fontFamily: 'monospace', display: 'block' }}>
-                        S/N : <strong>{row.serialNumber}</strong>
-                      </Typography>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>S/N</Typography>
+                        <Typography variant="caption" sx={{ color: '#2563EB', fontFamily: 'monospace', fontWeight: 800 }}>{row.serialNumber}</Typography>
+                      </Box>
                     )}
                   </Box>
 
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       📍 {row.department?.name || 'Stock Général'}
                     </Typography>
                     {row.purchasePrice && (
-                      <Typography sx={{ fontWeight: 900, color: '#047857', fontSize: '0.92rem' }}>
+                      <Typography sx={{ fontWeight: 900, color: '#047857', fontSize: '0.95rem' }}>
                         {Number(row.purchasePrice).toLocaleString('fr-FR')} DH
                       </Typography>
                     )}
                   </Box>
                 </CardContent>
 
-                <CardActions sx={{ p: 2, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+                <CardActions sx={{ p: 1.5, px: 2, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
                   <Button
                     size="small"
                     startIcon={<InspectIcon />}
                     onClick={() => handleOpenDetails(row)}
-                    sx={{ textTransform: 'none', fontWeight: 800, color: '#2563EB' }}
+                    sx={{ textTransform: 'none', fontWeight: 800, color: '#2563EB', borderRadius: 2 }}
                   >
                     Détails 360°
                   </Button>
                   <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    <IconButton size="small" onClick={() => { setSelectedQrEquipment(row); setQrModalOpen(true); }} sx={{ color: '#E31E24' }}>
-                      <QrCodeIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => openForm(row)} color="primary">
-                      <EditIcon fontSize="small" />
-                    </IconButton>
+                    <Tooltip title="Macaron & QR Code">
+                      <IconButton size="small" onClick={() => { setSelectedQrEquipment(row); setQrModalOpen(true); }} sx={{ color: '#E31E24', bgcolor: '#FFF1F1', '&:hover': { bgcolor: '#FFE2E2' } }}>
+                        <QrCodeIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Modifier">
+                      <IconButton size="small" onClick={() => openForm(row)} color="primary" sx={{ bgcolor: '#EFF6FF', '&:hover': { bgcolor: '#DBEAFE' } }}>
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                   </Box>
                 </CardActions>
               </Card>
@@ -1170,7 +1192,18 @@ export default function EquipmentsPage() {
             </DialogTitle>
 
             <DialogContent dividers sx={{ p: 3, bgcolor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: 3 }}>
-              
+              {/* 🌟 Master Hardware Interactive Blueprint Showcase 🌟 */}
+              <Box sx={{ width: '100%', borderRadius: 3, overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}>
+                <RealisticHardwareBlueprint
+                  categoryName={selectedDetailsEquipment.category?.name}
+                  equipmentName={selectedDetailsEquipment.name}
+                  brand={selectedDetailsEquipment.brand}
+                  model={selectedDetailsEquipment.model}
+                  status={selectedDetailsEquipment.status}
+                  height={190}
+                />
+              </Box>
+
               {/* Specs Breakdown Grid */}
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2.5 }}>
                 

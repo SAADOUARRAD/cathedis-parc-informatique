@@ -257,18 +257,22 @@ export default function DashboardLayout({
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', background: roleTheme.sidebarBg, color: 'white', transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)' }}>
       {/* 🏢 Logo Header & Collapse Toggle 🏢 */}
       {!isCollapsed ? (
-        <Box sx={{ p: 2.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${roleTheme.borderColor}` }}>
+        <Box sx={{ p: 2.5, display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', borderBottom: `1px solid ${roleTheme.borderColor}` }}>
           <Box
             component="img"
-            src={isTechnician ? "/images/logo2.png" : "/images/logo_cathedis.png"}
+            src="/images/logo1.png"
             alt="Cathedis"
-            sx={{ maxWidth: isTechnician ? '160px' : '150px', height: 'auto' }}
+            sx={{ maxWidth: '170px', height: 'auto', display: 'block' }}
           />
           <Tooltip title="Réduire la barre (Mode Compact)" placement="bottom" arrow>
             <IconButton
               size="small"
               onClick={() => setIsCollapsed(true)}
               sx={{
+                position: 'absolute',
+                right: 12,
+                top: '50%',
+                transform: 'translateY(-50%)',
                 color: 'rgba(255, 255, 255, 0.7)',
                 bgcolor: 'rgba(255, 255, 255, 0.05)',
                 '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF' }
