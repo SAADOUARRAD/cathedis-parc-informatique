@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
@@ -24,6 +24,7 @@ import {
   Divider,
   Chip,
   Tooltip,
+  Button,
 } from '@mui/material';
 
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -209,6 +210,53 @@ export default function DashboardLayout({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [notifAnchorEl, setNotifAnchorEl] = useState<null | HTMLElement>(null);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications');
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data.notifications || []);
+        setUnreadCount(data.unreadCount || 0);
+      }
+    } catch (err) {
+      console.error('Erreur chargement notifications:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleNotifOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setNotifAnchorEl(event.currentTarget);
+  };
+
+  const handleNotifClose = () => {
+    setNotifAnchorEl(null);
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await fetch('/api/notifications', { method: 'PATCH' });
+      setUnreadCount(0);
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleNotificationClick = (notif: any) => {
+    handleNotifClose();
+    if (notif.link) {
+      router.push(notif.link);
+    }
+  };
 
   const currentDrawerWidth = isCollapsed ? 80 : drawerWidth;
 
@@ -589,11 +637,110 @@ export default function DashboardLayout({
               />
             </Box>
 
-            <IconButton size="large" sx={{ color: '#4B5563' }}>
-              <Badge badgeContent={3} sx={{ '& .MuiBadge-badge': { backgroundColor: roleTheme.appBarAccent, color: 'white' } }}>
+            {/* 🔔 Dynamic Notifications Bell & Dropdown Menu 🔔 */}
+            <IconButton size="large" onClick={handleNotifOpen} sx={{ color: '#4B5563', '&:hover': { bgcolor: 'rgba(227, 30, 36, 0.08)', color: '#E31E24' } }}>
+              <Badge badgeContent={unreadCount} sx={{ '& .MuiBadge-badge': { backgroundColor: '#E31E24', color: 'white', fontWeight: 800 } }}>
                 <NotificationsIcon />
               </Badge>
             </IconButton>
+
+            <Menu
+              anchorEl={notifAnchorEl}
+              open={Boolean(notifAnchorEl)}
+              onClose={handleNotifClose}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              slotProps={{
+                paper: {
+                  elevation: 6,
+                  sx: {
+                    mt: 1.5,
+                    width: 360,
+                    maxWidth: '90vw',
+                    borderRadius: 3.5,
+                    overflow: 'hidden',
+                    boxShadow: '0 16px 40px rgba(0,0,0,0.18)'
+                  }
+                }
+              }}
+            >
+              {/* Notifications Header */}
+              <Box sx={{ p: 2, px: 2.5, bgcolor: '#1A1A2E', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography sx={{ fontWeight: 800, fontSize: '0.95rem' }}>
+                    Notifications
+                  </Typography>
+                  {unreadCount > 0 && (
+                    <Chip
+                      label={`${unreadCount} new`}
+                      size="small"
+                      sx={{ bgcolor: '#E31E24', color: '#FFFFFF', fontWeight: 800, height: 20, fontSize: '0.68rem' }}
+                    />
+                  )}
+                </Box>
+                {unreadCount > 0 && (
+                  <Button
+                    size="small"
+                    onClick={handleMarkAllRead}
+                    sx={{ color: '#93C5FD', textTransform: 'none', fontSize: '0.75rem', fontWeight: 700, p: 0, '&:hover': { color: '#FFFFFF' } }}
+                  >
+                    Tout marquer lu
+                  </Button>
+                )}
+              </Box>
+
+              {/* Notifications List */}
+              <Box sx={{ maxHeight: 380, overflowY: 'auto' }}>
+                {notifications.length === 0 ? (
+                  <Box sx={{ p: 4, textAlign: 'center', color: '#64748B' }}>
+                    <Typography sx={{ fontSize: '1.8rem', mb: 1 }}>🎉</Typography>
+                    <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#1E293B' }}>
+                      Aucune nouvelle notification
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#94A3B8' }}>
+                      Votre parc informatique est parfaitement à jour !
+                    </Typography>
+                  </Box>
+                ) : (
+                  notifications.map((notif, i) => (
+                    <MenuItem
+                      key={notif.id || i}
+                      onClick={() => handleNotificationClick(notif)}
+                      sx={{
+                        p: 1.8,
+                        px: 2.2,
+                        borderBottom: '1px solid #F1F5F9',
+                        bgcolor: notif.read ? '#FFFFFF' : '#FEF2F2',
+                        transition: 'all 0.15s ease',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: 1.5,
+                        '&:hover': { bgcolor: '#F8FAFC' }
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: '50%',
+                          bgcolor: notif.read ? '#CBD5E1' : '#E31E24',
+                          mt: 0.6,
+                          flexShrink: 0
+                        }}
+                      />
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography sx={{ fontWeight: notif.read ? 600 : 800, fontSize: '0.85rem', color: '#0F172A', lineHeight: 1.3 }}>
+                          {notif.title}
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.78rem', color: '#475569', mt: 0.3, lineHeight: 1.35 }}>
+                          {notif.message}
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                  ))
+                )}
+              </Box>
+            </Menu>
 
             <IconButton onClick={handleMenuOpen} sx={{ p: 0 }}>
               <Avatar sx={{ bgcolor: roleTheme.appBarAccent, color: 'white', fontWeight: 700, width: 36, height: 36 }}>
