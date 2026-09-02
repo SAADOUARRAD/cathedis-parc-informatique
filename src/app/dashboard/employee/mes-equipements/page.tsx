@@ -70,7 +70,9 @@ interface Assignment {
 
 export default function MesEquipementsPage() {
   const { data: session } = useSession();
-  const [equipments, setEquipments] = useState<Assignment[]>([]);
+  const [activeEquipments, setActiveEquipments] = useState<Assignment[]>([]);
+  const [historyEquipments, setHistoryEquipments] = useState<Assignment[]>([]);
+  const [currentTab, setCurrentTab] = useState<'ACTIVE' | 'HISTORY'>('ACTIVE');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -100,8 +102,8 @@ export default function MesEquipementsPage() {
   const handleOpenAIDiagnostic = (eq?: Equipment) => {
     if (eq) {
       setAiSelectedEqId(eq.id);
-    } else if (equipments.length > 0) {
-      const first = equipments[0].equipment || equipments[0];
+    } else if (activeEquipments.length > 0) {
+      const first = activeEquipments[0].equipment || activeEquipments[0];
       setAiSelectedEqId(first.id);
     }
     setAiModalOpen(true);
@@ -112,8 +114,10 @@ export default function MesEquipementsPage() {
       const res = await fetch('/api/dashboard/employee-stats');
       if (res.ok) {
         const data = await res.json();
-        const eqList = data.myEquipments || data.myEquipment || data.activeAssignments || data.assignments || data.equipments || [];
-        setEquipments(eqList);
+        const activeList = data.myEquipments || [];
+        const histList = data.historyEquipments || [];
+        setActiveEquipments(activeList);
+        setHistoryEquipments(histList);
       }
     } catch (err) {
       console.error(err);
@@ -247,9 +251,12 @@ export default function MesEquipementsPage() {
   };
 
   // Get unique categories for filter
+  const currentList = currentTab === 'ACTIVE' ? activeEquipments : historyEquipments;
+
+  // Get unique categories for filter
   const categoriesList = Array.from(
     new Set(
-      equipments.map((a: any) => {
+      currentList.map((a: any) => {
         const eq = a.equipment || a;
         return eq.category || 'Matériel';
       })
@@ -257,7 +264,7 @@ export default function MesEquipementsPage() {
   );
 
   // Filtered equipment list
-  const filteredEquipments = equipments.filter((assignment: any) => {
+  const filteredEquipments = currentList.filter((assignment: any) => {
     const eq = assignment.equipment || assignment;
     if (!eq) return false;
     const matchesSearch =
@@ -270,7 +277,7 @@ export default function MesEquipementsPage() {
     return matchesSearch && matchesCat;
   });
 
-  const signedCount = equipments.filter((a: any) => a.signatures && a.signatures.length > 0).length;
+  const signedCount = activeEquipments.filter((a: any) => a.signatures && a.signatures.length > 0).length;
 
   if (loading) {
     return (
@@ -293,6 +300,7 @@ export default function MesEquipementsPage() {
         background: 'linear-gradient(135deg, #1A1A2E 0%, #2A1B28 50%, #7B0000 100%)',
         borderRadius: 4,
         p: { xs: 3, md: 4 },
+        pt: { xs: 4, md: 4.5 },
         color: '#FFFFFF',
         position: 'relative',
         overflow: 'hidden',
@@ -317,7 +325,7 @@ export default function MesEquipementsPage() {
             </Typography>
 
             <Typography sx={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.95rem', lineHeight: 1.6 }}>
-              Consultez l'ensemble du matériel informatique qui vous est actuellement affecté, signez vos PV de décharge, imprimez vos étiquettes QR ou signalez une panne en direct.
+              Consultez le matériel actuellement en votre possession, signez vos PV de décharge, ou parcourez l'historique complet de vos matériels depuis votre intégration.
             </Typography>
           </Box>
 
@@ -348,15 +356,66 @@ export default function MesEquipementsPage() {
               Auto-Diagnostic IA ⚡
             </Button>
             <Paper elevation={0} sx={{ px: 2.5, py: 1.5, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', textAlign: 'center' }}>
-              <Typography sx={{ fontSize: '1.8rem', fontWeight: 900, color: '#FFFFFF', lineHeight: 1 }}>{equipments.length}</Typography>
+              <Typography sx={{ fontSize: '1.8rem', fontWeight: 900, color: '#FFFFFF', lineHeight: 1 }}>{activeEquipments.length}</Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>Matériels Actifs</Typography>
             </Paper>
             <Paper elevation={0} sx={{ px: 2.5, py: 1.5, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', textAlign: 'center' }}>
               <Typography sx={{ fontSize: '1.8rem', fontWeight: 900, color: '#4ADE80', lineHeight: 1 }}>{signedCount}</Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>PV Signés ✓</Typography>
             </Paper>
+            <Paper elevation={0} sx={{ px: 2.5, py: 1.5, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', textAlign: 'center' }}>
+              <Typography sx={{ fontSize: '1.8rem', fontWeight: 900, color: '#93C5FD', lineHeight: 1 }}>{historyEquipments.length}</Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>Historique</Typography>
+            </Paper>
           </Box>
         </Box>
+      </Box>
+
+      {/* 2. Tab Navigation: Active vs History */}
+      <Box sx={{ display: 'flex', gap: 1.5, borderBottom: '2px solid #E2E8F0', pb: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+        <Button
+          onClick={() => { setCurrentTab('ACTIVE'); setSelectedCategory('ALL'); }}
+          variant={currentTab === 'ACTIVE' ? 'contained' : 'text'}
+          startIcon={<CheckCircleIcon />}
+          sx={{
+            borderRadius: 2.5,
+            px: 2.8,
+            py: 1,
+            fontWeight: 800,
+            fontSize: '0.88rem',
+            textTransform: 'none',
+            bgcolor: currentTab === 'ACTIVE' ? '#E31E24' : 'transparent',
+            color: currentTab === 'ACTIVE' ? '#FFFFFF' : '#475569',
+            boxShadow: currentTab === 'ACTIVE' ? '0 4px 14px rgba(227,30,36,0.25)' : 'none',
+            '&:hover': {
+              bgcolor: currentTab === 'ACTIVE' ? '#B91C1C' : '#F1F5F9',
+            },
+          }}
+        >
+          Matériels en Ma Possession ({activeEquipments.length})
+        </Button>
+
+        <Button
+          onClick={() => { setCurrentTab('HISTORY'); setSelectedCategory('ALL'); }}
+          variant={currentTab === 'HISTORY' ? 'contained' : 'text'}
+          startIcon={<CalendarIcon />}
+          sx={{
+            borderRadius: 2.5,
+            px: 2.8,
+            py: 1,
+            fontWeight: 800,
+            fontSize: '0.88rem',
+            textTransform: 'none',
+            bgcolor: currentTab === 'HISTORY' ? '#1A1A2E' : 'transparent',
+            color: currentTab === 'HISTORY' ? '#FFFFFF' : '#475569',
+            boxShadow: currentTab === 'HISTORY' ? '0 4px 14px rgba(26,26,46,0.25)' : 'none',
+            '&:hover': {
+              bgcolor: currentTab === 'HISTORY' ? '#0F172A' : '#F1F5F9',
+            },
+          }}
+        >
+          Historique des Restitutions & Anciens Matériels ({historyEquipments.length})
+        </Button>
       </Box>
 
       {/* 2. Search & Category Filters */}
@@ -470,19 +529,24 @@ export default function MesEquipementsPage() {
                   transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                   '&:hover': {
                     transform: 'translateY(-5px)',
-                    boxShadow: '0 16px 32px rgba(227, 30, 36, 0.1)',
-                    borderColor: '#E31E24',
+                    boxShadow: currentTab === 'ACTIVE' ? '0 16px 32px rgba(227, 30, 36, 0.1)' : '0 16px 32px rgba(0, 0, 0, 0.08)',
+                    borderColor: currentTab === 'ACTIVE' ? '#E31E24' : '#64748B',
                   }
                 }}
               >
                 {/* Card Top Accent Bar */}
-                <Box sx={{ height: 4, background: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)' }} />
+                <Box sx={{
+                  height: 4,
+                  background: currentTab === 'ACTIVE'
+                    ? 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)'
+                    : 'linear-gradient(90deg, #64748B 0%, #475569 100%)'
+                }} />
 
                 <Box sx={{ p: 3 }}>
                   {/* Header: Icon + Category + Status */}
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Avatar sx={{ width: 46, height: 46, bgcolor: 'rgba(227, 30, 36, 0.08)', borderRadius: 2.5 }}>
+                      <Avatar sx={{ width: 46, height: 46, bgcolor: currentTab === 'ACTIVE' ? 'rgba(227, 30, 36, 0.08)' : 'rgba(100, 116, 139, 0.1)', borderRadius: 2.5 }}>
                         {getEquipmentIcon(eq.category)}
                       </Avatar>
                       <Box>
@@ -500,17 +564,31 @@ export default function MesEquipementsPage() {
 
                   {/* Status Badge */}
                   <Box sx={{ mb: 2 }}>
-                    <Chip
-                      label={st.label}
-                      size="small"
-                      sx={{
-                        fontWeight: 800,
-                        fontSize: '0.72rem',
-                        bgcolor: st.bg,
-                        color: st.color,
-                        border: `1px solid ${st.border}`,
-                      }}
-                    />
+                    {currentTab === 'ACTIVE' ? (
+                      <Chip
+                        label={st.label}
+                        size="small"
+                        sx={{
+                          fontWeight: 800,
+                          fontSize: '0.72rem',
+                          bgcolor: st.bg,
+                          color: st.color,
+                          border: `1px solid ${st.border}`,
+                        }}
+                      />
+                    ) : (
+                      <Chip
+                        label="Restitué au stock IT"
+                        size="small"
+                        sx={{
+                          fontWeight: 800,
+                          fontSize: '0.72rem',
+                          bgcolor: '#F1F5F9',
+                          color: '#475569',
+                          border: '1px solid #CBD5E1',
+                        }}
+                      />
+                    )}
                   </Box>
 
                   {/* Serial Number & Date Details */}
@@ -533,7 +611,7 @@ export default function MesEquipementsPage() {
                       </Box>
                     </Box>
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: currentTab === 'HISTORY' ? 0.8 : 0 }}>
                       <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
                         Date d'affectation :
                       </Typography>
@@ -541,121 +619,188 @@ export default function MesEquipementsPage() {
                         {assignment.assignedAt ? new Date(assignment.assignedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
                       </Typography>
                     </Box>
+
+                    {currentTab === 'HISTORY' && (
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="caption" sx={{ color: '#DC2626', fontWeight: 700 }}>
+                          Date de restitution :
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#DC2626', fontWeight: 800 }}>
+                          {assignment.returnedAt ? new Date(assignment.returnedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Restitué'}
+                        </Typography>
+                      </Box>
+                    )}
                   </Box>
 
                   {/* Action Buttons Grid */}
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
-                    {/* Row 1: Signature & PDF */}
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      {isSigned ? (
+                    {currentTab === 'ACTIVE' ? (
+                      <>
+                        {/* Row 1: Signature & PDF */}
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          {isSigned ? (
+                            <Chip
+                              label="PV Signé ✓"
+                              color="success"
+                              sx={{
+                                flex: 1,
+                                height: 38,
+                                fontWeight: 800,
+                                fontSize: '0.8rem',
+                                bgcolor: '#ECFDF5',
+                                color: '#059669',
+                                border: '1px solid #A7F3D0',
+                              }}
+                            />
+                          ) : (
+                            <Button
+                              fullWidth
+                              variant="contained"
+                              startIcon={<DrawIcon />}
+                              onClick={() => { setSigAssignment(assignment); setSigOpen(true); }}
+                              sx={{
+                                flex: 1,
+                                background: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
+                                color: '#FFFFFF',
+                                borderRadius: 2,
+                                textTransform: 'none',
+                                fontWeight: 800,
+                                fontSize: '0.78rem',
+                                boxShadow: '0 4px 12px rgba(227, 30, 36, 0.25)',
+                                '&:hover': {
+                                  boxShadow: '0 6px 16px rgba(227, 30, 36, 0.4)',
+                                  background: 'linear-gradient(90deg, #C41018 0%, #E31E24 100%)',
+                                }
+                              }}
+                            >
+                              Signer mon PV ✍️
+                            </Button>
+                          )}
+
+                          <Button
+                            variant="outlined"
+                            startIcon={<PictureAsPdfIcon />}
+                            onClick={() => handleDownloadPDF(assignment)}
+                            sx={{
+                              flex: 1,
+                              color: '#1A1A2E',
+                              borderColor: '#CBD5E1',
+                              borderRadius: 2,
+                              textTransform: 'none',
+                              fontWeight: 700,
+                              fontSize: '0.78rem',
+                              '&:hover': {
+                                bgcolor: '#F8FAFC',
+                                borderColor: '#1A1A2E'
+                              }
+                            }}
+                          >
+                            PV PDF
+                          </Button>
+                        </Box>
+
+                        {/* Row 2: QR Tag & Report Problem */}
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button
+                            fullWidth
+                            variant="outlined"
+                            startIcon={<QrCodeIcon />}
+                            onClick={() => { setQrEquipment(eq); setQrOpen(true); }}
+                            sx={{
+                              flex: 1,
+                              color: '#475569',
+                              borderColor: '#E2E8F0',
+                              borderRadius: 2,
+                              textTransform: 'none',
+                              fontWeight: 700,
+                              fontSize: '0.78rem',
+                              '&:hover': { bgcolor: '#F8FAFC', borderColor: '#CBD5E1' }
+                            }}
+                          >
+                            Étiquette QR
+                          </Button>
+
+                          <Button
+                            fullWidth
+                            variant="outlined"
+                            color="error"
+                            startIcon={<SparklesIcon sx={{ color: '#DC2626' }} />}
+                            onClick={() => handleOpenAIDiagnostic(eq)}
+                            sx={{
+                              flex: 1,
+                              borderColor: '#FECACA',
+                              bgcolor: '#FEF2F2',
+                              color: '#DC2626',
+                              borderRadius: 2,
+                              textTransform: 'none',
+                              fontWeight: 800,
+                              fontSize: '0.78rem',
+                              '&:hover': {
+                                bgcolor: '#FEE2E2',
+                                borderColor: '#DC2626',
+                              }
+                            }}
+                          >
+                            Diagnostic IA 🛠️
+                          </Button>
+                        </Box>
+                      </>
+                    ) : (
+                      <>
+                        {/* History actions */}
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button
+                            fullWidth
+                            variant="outlined"
+                            startIcon={<PictureAsPdfIcon />}
+                            onClick={() => handleDownloadPDF(assignment)}
+                            sx={{
+                              flex: 1,
+                              color: '#1E293B',
+                              borderColor: '#CBD5E1',
+                              borderRadius: 2,
+                              textTransform: 'none',
+                              fontWeight: 700,
+                              fontSize: '0.78rem',
+                              '&:hover': { bgcolor: '#F8FAFC', borderColor: '#1E293B' }
+                            }}
+                          >
+                            Attestation PDF
+                          </Button>
+
+                          <Button
+                            fullWidth
+                            variant="outlined"
+                            startIcon={<QrCodeIcon />}
+                            onClick={() => { setQrEquipment(eq); setQrOpen(true); }}
+                            sx={{
+                              flex: 1,
+                              color: '#475569',
+                              borderColor: '#E2E8F0',
+                              borderRadius: 2,
+                              textTransform: 'none',
+                              fontWeight: 700,
+                              fontSize: '0.78rem',
+                              '&:hover': { bgcolor: '#F8FAFC', borderColor: '#CBD5E1' }
+                            }}
+                          >
+                            Étiquette QR
+                          </Button>
+                        </Box>
                         <Chip
-                          label="PV Signé ✓"
-                          color="success"
+                          label="Déchargé • Restitué à la DSI Cathedis ✓"
+                          size="small"
                           sx={{
-                            flex: 1,
-                            height: 38,
-                            fontWeight: 800,
-                            fontSize: '0.8rem',
-                            bgcolor: '#ECFDF5',
-                            color: '#059669',
-                            border: '1px solid #A7F3D0',
+                            width: '100%',
+                            bgcolor: '#F8FAFC',
+                            color: '#64748B',
+                            fontWeight: 700,
+                            fontSize: '0.72rem',
+                            border: '1px dashed #CBD5E1'
                           }}
                         />
-                      ) : (
-                        <Button
-                          fullWidth
-                          variant="contained"
-                          startIcon={<DrawIcon />}
-                          onClick={() => { setSigAssignment(assignment); setSigOpen(true); }}
-                          sx={{
-                            flex: 1,
-                            background: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
-                            color: '#FFFFFF',
-                            borderRadius: 2,
-                            textTransform: 'none',
-                            fontWeight: 800,
-                            fontSize: '0.78rem',
-                            boxShadow: '0 4px 12px rgba(227, 30, 36, 0.25)',
-                            '&:hover': {
-                              boxShadow: '0 6px 16px rgba(227, 30, 36, 0.4)',
-                              background: 'linear-gradient(90deg, #C41018 0%, #E31E24 100%)',
-                            }
-                          }}
-                        >
-                          Signer mon PV ✍️
-                        </Button>
-                      )}
-
-                      <Button
-                        variant="outlined"
-                        startIcon={<PictureAsPdfIcon />}
-                        onClick={() => handleDownloadPDF(assignment)}
-                        sx={{
-                          flex: 1,
-                          color: '#1A1A2E',
-                          borderColor: '#CBD5E1',
-                          borderRadius: 2,
-                          textTransform: 'none',
-                          fontWeight: 700,
-                          fontSize: '0.78rem',
-                          '&:hover': {
-                            bgcolor: '#F8FAFC',
-                            borderColor: '#1A1A2E'
-                          }
-                        }}
-                      >
-                        PV PDF
-                      </Button>
-                    </Box>
-
-                    {/* Row 2: QR Tag & Report Problem */}
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Button
-                        fullWidth
-                        variant="outlined"
-                        startIcon={<QrCodeIcon />}
-                        onClick={() => { setQrEquipment(eq); setQrOpen(true); }}
-                        sx={{
-                          flex: 1,
-                          color: '#475569',
-                          borderColor: '#E2E8F0',
-                          borderRadius: 2,
-                          textTransform: 'none',
-                          fontWeight: 700,
-                          fontSize: '0.78rem',
-                          '&:hover': {
-                            bgcolor: '#F8FAFC',
-                            borderColor: '#64748B'
-                          }
-                        }}
-                      >
-                        Étiquette QR
-                      </Button>
-
-                      <Button
-                        fullWidth
-                        variant="outlined"
-                        color="error"
-                        startIcon={<SparklesIcon sx={{ color: '#DC2626' }} />}
-                        onClick={() => handleOpenAIDiagnostic(eq)}
-                        sx={{
-                          flex: 1,
-                          borderColor: '#FECACA',
-                          bgcolor: '#FEF2F2',
-                          color: '#DC2626',
-                          borderRadius: 2,
-                          textTransform: 'none',
-                          fontWeight: 800,
-                          fontSize: '0.78rem',
-                          '&:hover': {
-                            bgcolor: '#FEE2E2',
-                            borderColor: '#DC2626',
-                          }
-                        }}
-                      >
-                        Diagnostic IA 🛠️
-                      </Button>
-                    </Box>
+                      </>
+                    )}
                   </Box>
                 </Box>
               </Paper>
@@ -784,7 +929,7 @@ export default function MesEquipementsPage() {
       <AIDiagnosticModal
         open={aiModalOpen}
         onClose={() => setAiModalOpen(false)}
-        equipments={equipments.map((a: any) => {
+        equipments={activeEquipments.map((a: any) => {
           const eq = a.equipment || a;
           return {
             id: eq.id,

@@ -13,16 +13,21 @@ export async function GET() {
 
     const [
       myEquipments,
+      historyEquipments,
       myMaintenances,
       myMovements,
       totalMyEquipments,
       pendingMaintenances,
       completedMaintenances,
     ] = await Promise.all([
+      // 1. Actively assigned equipment currently in hands of employee
       prisma.assignment.findMany({
         where: {
           assignedToId: userId,
           status: 'ACTIVE',
+          equipment: {
+            status: 'ASSIGNED',
+          },
         },
         include: {
           signatures: true,
@@ -34,6 +39,27 @@ export async function GET() {
         },
         orderBy: {
           createdAt: 'desc',
+        },
+      }),
+      // 2. Returned or previous equipment history since joining Cathedis
+      prisma.assignment.findMany({
+        where: {
+          assignedToId: userId,
+          OR: [
+            { status: 'RETURNED' },
+            { equipment: { status: { not: 'ASSIGNED' } } },
+          ],
+        },
+        include: {
+          signatures: true,
+          equipment: {
+            include: {
+              category: true,
+            },
+          },
+        },
+        orderBy: {
+          endDate: 'desc',
         },
       }),
       prisma.maintenance.findMany({
@@ -64,6 +90,9 @@ export async function GET() {
         where: {
           assignedToId: userId,
           status: 'ACTIVE',
+          equipment: {
+            status: 'ASSIGNED',
+          },
         },
       }),
       prisma.maintenance.count({
@@ -89,8 +118,29 @@ export async function GET() {
         name: item.equipment.name,
         serialNumber: item.equipment.serialNumber || '-',
         status: item.equipment.status,
+        assignmentStatus: item.status,
         category: item.equipment.category?.name || 'Matériel Informatique',
         assignedAt: item.startDate || item.createdAt,
+        returnedAt: item.endDate || null,
+        signatures: item.signatures || [],
+        equipment: {
+          id: item.equipment.id,
+          name: item.equipment.name,
+          serialNumber: item.equipment.serialNumber || '-',
+          status: item.equipment.status,
+          category: item.equipment.category?.name || 'Matériel Informatique',
+        },
+      })),
+      historyEquipments: historyEquipments.map((item) => ({
+        id: item.id,
+        assignmentId: item.id,
+        name: item.equipment.name,
+        serialNumber: item.equipment.serialNumber || '-',
+        status: item.equipment.status,
+        assignmentStatus: item.status,
+        category: item.equipment.category?.name || 'Matériel Informatique',
+        assignedAt: item.startDate || item.createdAt,
+        returnedAt: item.endDate || null,
         signatures: item.signatures || [],
         equipment: {
           id: item.equipment.id,
@@ -102,6 +152,7 @@ export async function GET() {
       })),
       stats: {
         totalEquipments: totalMyEquipments,
+        totalHistoryEquipments: historyEquipments.length,
         pendingMaintenances,
         completedMaintenances,
       },

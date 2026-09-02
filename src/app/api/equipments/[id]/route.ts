@@ -72,6 +72,20 @@ export async function PUT(
       }
     });
 
+    // If equipment is set to AVAILABLE or DECOMMISSIONED, close any remaining active assignments
+    if (status === 'AVAILABLE' || status === 'DECOMMISSIONED') {
+      await prisma.assignment.updateMany({
+        where: {
+          equipmentId: id,
+          status: 'ACTIVE'
+        },
+        data: {
+          status: 'RETURNED',
+          endDate: new Date()
+        }
+      });
+    }
+
     await logAudit('UPDATE_EQUIPMENT', `Équipement mis à jour: ${equipment.inventoryNumber}`, session.user.id);
 
     return NextResponse.json(equipment);
