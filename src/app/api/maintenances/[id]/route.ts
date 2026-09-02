@@ -60,7 +60,7 @@ export async function PUT(
     let newlyAssignedTechId: string | null = null;
 
     await prisma.$transaction(async (tx) => {
-      if (action === 'assign' || status === 'ASSIGNED' || (data.technicianId && data.technicianId !== existing.technicianId)) {
+      if (action === 'assign' || status === 'ASSIGNED' || data.technicianId) {
         const targetTechId = data.technicianId || session.user.id;
         newlyAssignedTechId = targetTechId;
 
@@ -146,9 +146,13 @@ export async function PUT(
         });
 
         if (technician && technician.email) {
-          const adminUser = await prisma.user.findUnique({
-            where: { id: session.user.id }
-          });
+          let adminId = session.user?.id;
+          if (!adminId && session.user?.email) {
+            const u = await prisma.user.findUnique({ where: { email: session.user.email } });
+            if (u) adminId = u.id;
+          }
+
+          const adminUser = adminId ? await prisma.user.findUnique({ where: { id: adminId } }) : null;
 
           await sendTicketAssignmentEmail({
             to: technician.email,
@@ -159,8 +163,9 @@ export async function PUT(
             priority: existing.priority,
             description: existing.description,
             reportedByName: existing.reportedBy ? `${existing.reportedBy.firstName} ${existing.reportedBy.lastName}` : 'Collaborateur',
-            assignedByName: adminUser ? `${adminUser.firstName} ${adminUser.lastName}` : 'Administrateur IT'
+            assignedByName: adminUser ? `${adminUser.firstName} ${adminUser.lastName}` : 'Administration DSI Cathedis'
           });
+          console.log(`[EMAIL DISPATCH] Email d'assignation envoyé avec succès à ${technician.email}`);
         }
       } catch (emailErr) {
         console.error('Erreur lors de l\'envoi de l\'email de notification au technicien:', emailErr);
