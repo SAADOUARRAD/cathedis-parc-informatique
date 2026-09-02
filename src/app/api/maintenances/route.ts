@@ -48,6 +48,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(maintenances);
   } catch (error) {
+    console.error('GET /api/maintenances error:', error);
     return NextResponse.json({ error: "Erreur lors de la récupération des maintenances" }, { status: 500 });
   }
 }
