@@ -127,6 +127,8 @@ model User {
   auditLogs             AuditLog[]
   equipmentRequests     EquipmentRequest[] @relation("RequestedBy")
   equipmentRequestsHandled EquipmentRequest[] @relation("HandledBy")
+  sentMessages          Message[]          @relation("SentMessages")
+  receivedMessages      Message[]          @relation("ReceivedMessages")
 
   @@map("users")
 }
@@ -448,4 +450,22 @@ model EquipmentRequest {
   @@index([requestedById])
   @@index([status])
   @@map("equipment_requests")
+}
+
+/// Messages de discussion interne
+model Message {
+  id         String   @id @default(cuid())
+  content    String   @db.Text
+  senderId   String
+  receiverId String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  // Relations
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  @@index([senderId, receiverId])
+  @@index([receiverId, read])
+  @@map("messages")
 }

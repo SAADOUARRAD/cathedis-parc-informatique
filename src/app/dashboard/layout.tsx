@@ -49,6 +49,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CathedisLogo from '@/components/CathedisLogo';
+import FloatingChatWidget from '@/components/shared/FloatingChatWidget';
 
 const drawerWidth = 280;
 
@@ -827,6 +828,9 @@ export default function DashboardLayout({
       >
         {children}
       </Box>
+
+      {/* 💬 Floating Messaging Widget (Bottom-Right Corner) 💬 */}
+      <FloatingChatWidget />
     </Box>
   );
 }
