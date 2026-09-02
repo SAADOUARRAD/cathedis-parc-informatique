@@ -69,6 +69,7 @@ enum MaintenanceStatus {
   REPORTED = 'REPORTED',
   ASSIGNED = 'ASSIGNED',
   IN_PROGRESS = 'IN_PROGRESS',
+  RESOLVED = 'RESOLVED',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED'
 }
@@ -106,6 +107,13 @@ const statusConfig: Record<string, { label: string; color: string; bgColor: stri
     bgColor: '#E0F2FE',
     borderColor: '#BAE6FD',
     icon: <TechIcon sx={{ fontSize: 16, color: '#0284C7' }} />
+  },
+  RESOLVED: {
+    label: 'Réparé • Validation Requise',
+    color: '#D97706',
+    bgColor: '#FFFBEB',
+    borderColor: '#FDE68A',
+    icon: <ScheduleIcon sx={{ fontSize: 16, color: '#D97706' }} />
   },
   COMPLETED: {
     label: 'Résolue & Clôturée',
@@ -257,7 +265,9 @@ export default function TechnicianMaintenancesPage() {
     if (!selectedMaintenance) return;
     setSaving(true);
     try {
+      const isResolving = editStatus === 'RESOLVED';
       const payload = {
+        action: isResolving ? 'resolve' : undefined,
         status: editStatus,
         priority: editPriority,
         diagnosis: editDiagnosis,
@@ -273,7 +283,13 @@ export default function TechnicianMaintenancesPage() {
       });
 
       if (res.ok) {
-        setSnackbar({ open: true, message: 'Ticket technique mis à jour avec succès !', severity: 'success' });
+        setSnackbar({
+          open: true,
+          message: isResolving
+            ? "Réparation déclarée avec succès ! Le ticket est transmis à l'administrateur pour validation finale et clôture."
+            : "Ticket technique mis à jour avec succès !",
+          severity: 'success'
+        });
         handleCloseEdit();
         fetchMaintenances();
       } else {
@@ -752,8 +768,8 @@ export default function TechnicianMaintenancesPage() {
                         Fiche 360°
                       </Button>
 
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        {m.status === 'REPORTED' || m.status === 'ASSIGNED' ? (
+                      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        {(m.status === 'REPORTED' || m.status === 'ASSIGNED') && (
                           <Button
                             size="small"
                             variant="contained"
@@ -770,7 +786,47 @@ export default function TechnicianMaintenancesPage() {
                           >
                             Prendre en charge
                           </Button>
-                        ) : null}
+                        )}
+
+                        {m.status === 'IN_PROGRESS' && (
+                          <Button
+                            size="small"
+                            variant="contained"
+                            onClick={() => {
+                              handleOpenEdit(m);
+                              setEditStatus('RESOLVED');
+                            }}
+                            startIcon={<SuccessIcon />}
+                            sx={{
+                              background: 'linear-gradient(90deg, #059669 0%, #047857 100%)',
+                              color: '#FFFFFF',
+                              borderRadius: 2,
+                              fontWeight: 800,
+                              fontSize: '0.75rem',
+                              textTransform: 'none',
+                              boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)',
+                              '&:hover': {
+                                background: 'linear-gradient(90deg, #047857 0%, #059669 100%)'
+                              }
+                            }}
+                          >
+                            Déclarer Réparé 🛠️
+                          </Button>
+                        )}
+
+                        {m.status === 'RESOLVED' && (
+                          <Chip
+                            size="small"
+                            label="En attente validation Admin ⏳"
+                            sx={{
+                              bgcolor: '#FFFBEB',
+                              color: '#B45309',
+                              border: '1px solid #FDE68A',
+                              fontWeight: 800,
+                              fontSize: '0.72rem'
+                            }}
+                          />
+                        )}
 
                         <Button
                           size="small"
@@ -995,6 +1051,7 @@ export default function TechnicianMaintenancesPage() {
               >
                 <MenuItem value="REPORTED">🟠 En Attente (Nouveau)</MenuItem>
                 <MenuItem value="IN_PROGRESS">🔵 En Cours de Réparation (Atelier)</MenuItem>
+                <MenuItem value="RESOLVED">🛠️ Réparée (Soumettre à l'Admin pour validation)</MenuItem>
                 <MenuItem value="COMPLETED">🟢 Résolue & Réparée (Clôture)</MenuItem>
                 <MenuItem value="CANCELLED">⚪ Annulée / Non Reproductible</MenuItem>
               </Select>
@@ -1065,16 +1122,16 @@ export default function TechnicianMaintenancesPage() {
             variant="contained"
             disabled={saving}
             sx={{
-              background: 'linear-gradient(90deg, #0284C7 0%, #0369A1 100%)',
+              background: editStatus === 'RESOLVED' ? 'linear-gradient(90deg, #059669 0%, #047857 100%)' : 'linear-gradient(90deg, #0284C7 0%, #0369A1 100%)',
               color: '#FFFFFF',
               fontWeight: 800,
               borderRadius: 2.5,
               px: 3.5,
               textTransform: 'none',
-              boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)'
+              boxShadow: editStatus === 'RESOLVED' ? '0 4px 14px rgba(5, 150, 105, 0.4)' : '0 4px 14px rgba(2, 132, 199, 0.4)'
             }}
           >
-            {saving ? 'Enregistrement...' : 'Enregistrer le Rapport Technique'}
+            {saving ? 'Enregistrement...' : editStatus === 'RESOLVED' ? 'Soumettre pour Validation Admin 🚀' : 'Enregistrer les Modifications'}
           </Button>
         </DialogActions>
       </Dialog>

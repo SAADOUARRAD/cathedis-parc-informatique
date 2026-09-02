@@ -86,6 +86,22 @@ export async function PUT(
             startDate: existing.startDate || new Date(),
           },
         });
+      } else if (action === 'resolve' || status === 'RESOLVED') {
+        updated = await tx.maintenance.update({
+          where: { id },
+          data: {
+            status: 'RESOLVED',
+            technicianId: existing.technicianId || session.user.id,
+            diagnosis: data.diagnosis !== undefined ? data.diagnosis : existing.diagnosis,
+            solution: data.solution !== undefined ? data.solution : existing.solution,
+            cost: data.cost !== undefined ? (data.cost ? parseFloat(data.cost) : 0) : existing.cost,
+          },
+          include: {
+            equipment: true,
+            reportedBy: true,
+            technician: true,
+          }
+        });
       } else if (action === 'complete' || status === 'COMPLETED') {
         updated = await tx.maintenance.update({
           where: { id },
@@ -93,10 +109,15 @@ export async function PUT(
             status: 'COMPLETED',
             technicianId: existing.technicianId || session.user.id,
             endDate: new Date(),
-            diagnosis: data.diagnosis,
-            solution: data.solution,
-            cost: data.cost ? parseFloat(data.cost) : null,
+            diagnosis: data.diagnosis !== undefined ? data.diagnosis : existing.diagnosis,
+            solution: data.solution !== undefined ? data.solution : existing.solution,
+            cost: data.cost !== undefined ? (data.cost ? parseFloat(data.cost) : null) : existing.cost,
           },
+          include: {
+            equipment: true,
+            reportedBy: true,
+            technician: true,
+          }
         });
 
         // Check if equipment has an active assignment

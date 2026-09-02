@@ -49,7 +49,7 @@ import {
 interface Maintenance {
   id: string;
   description: string;
-  status: 'REPORTED' | 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  status: 'REPORTED' | 'ASSIGNED' | 'IN_PROGRESS' | 'RESOLVED' | 'COMPLETED' | 'CANCELLED';
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   type: string;
   diagnosis?: string;
@@ -74,6 +74,7 @@ const statusConfig: Record<string, { label: string; color: string; bgColor: stri
   REPORTED: { label: 'Signalé • À traiter', color: '#D97706', bgColor: '#FEF3C7', borderColor: '#FDE68A' },
   ASSIGNED: { label: 'Assigné', color: '#2563EB', bgColor: '#DBEAFE', borderColor: '#BFDBFE' },
   IN_PROGRESS: { label: 'En cours de réparation', color: '#7C3AED', bgColor: '#F5F3FF', borderColor: '#DDD6FE' },
+  RESOLVED: { label: 'Réparé • En attente validation Admin', color: '#D97706', bgColor: '#FFFBEB', borderColor: '#FDE68A' },
   COMPLETED: { label: 'Résolu & Conforme', color: '#059669', bgColor: '#D1FAE5', borderColor: '#A7F3D0' },
   CANCELLED: { label: 'Annulé', color: '#DC2626', bgColor: '#FEE2E2', borderColor: '#FECACA' },
 };
@@ -180,7 +181,8 @@ export default function TechnicianDashboard() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          status: 'COMPLETED',
+          action: 'resolve',
+          status: 'RESOLVED',
           diagnosis,
           solution,
           cost: cost ? Number(cost) : 0,
@@ -188,11 +190,15 @@ export default function TechnicianDashboard() {
       });
 
       if (res.ok) {
-        setSnackbar({ open: true, message: 'Réparation finalisée avec succès ! Matériel remis en service.', severity: 'success' });
+        setSnackbar({
+          open: true,
+          message: "Réparation déclarée avec succès ! Le ticket est transmis à l'administrateur pour validation et clôture.",
+          severity: 'success'
+        });
         setOpenDialog(false);
         fetchData();
       } else {
-        setSnackbar({ open: true, message: 'Erreur lors de la clôture', severity: 'error' });
+        setSnackbar({ open: true, message: 'Erreur lors de la déclaration', severity: 'error' });
       }
     } catch {
       setSnackbar({ open: true, message: 'Erreur réseau', severity: 'error' });
@@ -600,8 +606,23 @@ export default function TechnicianDashboard() {
                           }
                         }}
                       >
-                        Finaliser la réparation ✅
+                        Déclarer comme Réparé 🛠️
                       </Button>
+                    )}
+
+                    {maintenance.status === 'RESOLVED' && (
+                      <Chip
+                        label="Réparé • En attente validation Admin ⏳"
+                        sx={{
+                          bgcolor: '#FFFBEB',
+                          color: '#B45309',
+                          border: '1px solid #FDE68A',
+                          fontWeight: 800,
+                          fontSize: '0.78rem',
+                          py: 1.8,
+                          px: 1.5,
+                        }}
+                      />
                     )}
                   </Box>
                 </Paper>
@@ -716,10 +737,10 @@ export default function TechnicianDashboard() {
           <DoneIcon sx={{ color: '#A7F3D0' }} />
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
-              Finaliser la Réparation & Remettre en Service
+              Déclarer la Réparation • Soumettre pour Validation
             </Typography>
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.75)' }}>
-              Équipement : {selectedMaintenance?.equipmentName} (SN: {selectedMaintenance?.serialNumber || '-'})
+            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.85)' }}>
+              Équipement : {selectedMaintenance?.equipmentName} (SN: {selectedMaintenance?.serialNumber || '-'}) • Clôture validée par l'Admin
             </Typography>
           </Box>
         </DialogTitle>
@@ -791,7 +812,7 @@ export default function TechnicianDashboard() {
                 }
               }}
             >
-              {actionLoading ? 'Clôture en cours...' : 'Valider & Clôturer l\'Incident'}
+              {actionLoading ? 'Transmission en cours...' : 'Soumettre à l\'Admin pour Validation 🚀'}
             </Button>
           </DialogActions>
         </form>

@@ -20,12 +20,12 @@ export async function GET() {
       completedThisMonth,
       equipmentInMaintenance,
     ] = await Promise.all([
-      // Maintenances assignées au technicien connecté par l'Admin (Statut ASSIGNED ou IN_PROGRESS)
+      // Maintenances assignées au technicien connecté par l'Admin (Statut ASSIGNED, IN_PROGRESS ou RESOLVED)
       prisma.maintenance.findMany({
         where: {
           technicianId,
           status: {
-            in: ['ASSIGNED', 'IN_PROGRESS'],
+            in: ['ASSIGNED', 'IN_PROGRESS', 'RESOLVED'],
           },
         },
         orderBy: {
@@ -58,7 +58,7 @@ export async function GET() {
         where: {
           technicianId,
           status: {
-            in: ['ASSIGNED', 'IN_PROGRESS'],
+            in: ['ASSIGNED', 'IN_PROGRESS', 'RESOLVED'],
           },
         },
       }),
@@ -67,7 +67,9 @@ export async function GET() {
       prisma.maintenance.count({
         where: {
           technicianId,
-          status: 'IN_PROGRESS',
+          status: {
+            in: ['IN_PROGRESS', 'RESOLVED'],
+          },
         },
       }),
 

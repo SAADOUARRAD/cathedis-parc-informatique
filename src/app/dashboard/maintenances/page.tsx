@@ -100,7 +100,8 @@ const statusMap = {
   REPORTED: { label: 'Signalée / En attente', color: '#D97706', bgColor: '#FFFBEB' },
   ASSIGNED: { label: 'Assignée au Technicien', color: '#2563EB', bgColor: '#EFF6FF' },
   IN_PROGRESS: { label: 'En cours de Réparation', color: '#7C3AED', bgColor: '#F5F3FF' },
-  COMPLETED: { label: 'Résolue & Clôturée', color: '#059669', bgColor: '#ECFDF5' },
+  RESOLVED: { label: 'Réparée • Validation Requise ⏳', color: '#D97706', bgColor: '#FEF3C7' },
+  COMPLETED: { label: 'Résolue & Clôturée ✓', color: '#059669', bgColor: '#ECFDF5' },
   CANCELLED: { label: 'Annulée', color: '#64748B', bgColor: '#F1F5F9' },
 };
 
@@ -755,6 +756,27 @@ export default function MaintenancesPage() {
                               </Button>
                             )}
 
+                            {row.status === 'RESOLVED' && (
+                              <Button
+                                size="small"
+                                variant="contained"
+                                startIcon={<CompleteIcon />}
+                                onClick={() => handleOpenComplete(row)}
+                                sx={{
+                                  background: 'linear-gradient(90deg, #059669 0%, #047857 100%)',
+                                  color: '#FFFFFF',
+                                  fontWeight: 800,
+                                  fontSize: '0.74rem',
+                                  borderRadius: 2,
+                                  textTransform: 'none',
+                                  px: 1.5,
+                                  boxShadow: '0 2px 8px rgba(5, 150, 105, 0.35)'
+                                }}
+                              >
+                                Valider la Clôture ✅
+                              </Button>
+                            )}
+
                             {row.status === 'IN_PROGRESS' && (
                               <Button
                                 size="small"
@@ -868,6 +890,11 @@ export default function MaintenancesPage() {
                     {row.status === 'REPORTED' && (
                       <Button size="small" variant="contained" onClick={() => handleOpenAssign(row)} sx={{ bgcolor: '#2563EB', textTransform: 'none', fontWeight: 800 }}>
                         Assigner
+                      </Button>
+                    )}
+                    {row.status === 'RESOLVED' && (
+                      <Button size="small" variant="contained" color="success" onClick={() => handleOpenComplete(row)} sx={{ bgcolor: '#059669', textTransform: 'none', fontWeight: 800 }}>
+                        Valider la Clôture ✅
                       </Button>
                     )}
                     {row.status === 'IN_PROGRESS' && (

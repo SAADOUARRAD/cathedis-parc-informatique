@@ -47,7 +47,8 @@ enum MaintenanceStatus {
   REPORTED    // Déclarée
   ASSIGNED    // Affectée à un technicien
   IN_PROGRESS // En cours
-  COMPLETED   // Terminée
+  RESOLVED    // Réparée par le technicien (en attente de validation Admin)
+  COMPLETED   // Terminée et validée
   CANCELLED   // Annulée
 }
 
