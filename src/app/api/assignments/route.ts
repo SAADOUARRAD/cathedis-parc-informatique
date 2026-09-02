@@ -53,7 +53,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+
+  let adminId = session.user.id;
+  if (!adminId && session.user.email) {
+    const dbAdmin = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (dbAdmin) adminId = dbAdmin.id;
+  }
+  if (!adminId) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
   try {
     const body = await request.json();
@@ -89,7 +96,7 @@ export async function POST(request: Request) {
           data: {
             equipmentId: eqId,
             assignedToId,
-            assignedById: session.user.id,
+            assignedById: adminId,
             status: AssignmentStatus.ACTIVE,
             notes,
             startDate: new Date(),
@@ -103,8 +110,6 @@ export async function POST(request: Request) {
               assignmentId: assignment.id,
               userId: assignedToId,
               signatureData: signatureBase64,
-              type: 'ASSIGNMENT',
-              status: 'VALID',
             }
           });
         }
@@ -120,7 +125,7 @@ export async function POST(request: Request) {
         await tx.movement.create({
           data: {
             equipmentId: eqId,
-            performedById: session.user.id,
+            performedById: adminId,
             assignmentId: assignment.id,
             type: MovementType.ASSIGNMENT,
             date: new Date(),
@@ -137,7 +142,7 @@ export async function POST(request: Request) {
     await logAudit(
       'ASSIGNMENT_CREATE',
       `Affectation de ${createdAssignments.length} équipement(s) à ${assignedUser.firstName} ${assignedUser.lastName}`,
-      session.user.id,
+      adminId,
       createdAssignments[0]?.id
     );
 
