@@ -209,7 +209,7 @@ export default function TechnicianMaintenancesPage() {
   const fetchMaintenances = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/maintenances');
+      const res = await fetch(`/api/maintenances?_t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setMaintenances(data || []);
@@ -278,6 +278,20 @@ export default function TechnicianMaintenancesPage() {
       });
 
       if (res.ok) {
+        // Optimistic update
+        setMaintenances(prev =>
+          prev.map(item =>
+            item.id === selectedMaintenance.id
+              ? {
+                  ...item,
+                  status: 'RESOLVED',
+                  diagnosis: declareDiagnosis,
+                  solution: declareSolution,
+                  cost: Number(declareCost) || 0
+                }
+              : item
+          )
+        );
         setSnackbar({
           open: true,
           message: "✅ Matériel déclaré comme réparé ! Le ticket est en attente de validation et clôture par l'administrateur.",
@@ -302,6 +316,13 @@ export default function TechnicianMaintenancesPage() {
 
   const handleQuickStart = async (m: any) => {
     try {
+      // Optimistic update right away so the user sees the button turn green instantly
+      setMaintenances(prev =>
+        prev.map(item =>
+          item.id === m.id ? { ...item, status: 'IN_PROGRESS' } : item
+        )
+      );
+
       const res = await fetch(`/api/maintenances/${m.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -323,6 +344,7 @@ export default function TechnicianMaintenancesPage() {
       }
     } catch (err: any) {
       setSnackbar({ open: true, message: err.message || "Erreur de mise à jour", severity: 'error' });
+      fetchMaintenances();
     }
   };
 

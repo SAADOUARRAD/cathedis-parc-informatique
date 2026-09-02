@@ -60,7 +60,7 @@ export async function PUT(
     let newlyAssignedTechId: string | null = null;
 
     await prisma.$transaction(async (tx) => {
-      if (action === 'assign' || status === 'ASSIGNED' || data.technicianId) {
+      if (action === 'assign' || (status === 'ASSIGNED' && !action)) {
         const targetTechId = data.technicianId || session.user.id;
         newlyAssignedTechId = targetTechId;
 
@@ -82,9 +82,19 @@ export async function PUT(
           where: { id },
           data: {
             status: 'IN_PROGRESS',
-            technicianId: existing.technicianId || session.user.id,
+            technicianId: data.technicianId || existing.technicianId || session.user.id,
             startDate: existing.startDate || new Date(),
           },
+          include: {
+            equipment: true,
+            reportedBy: true,
+            technician: true,
+          }
+        });
+
+        await tx.equipment.update({
+          where: { id: existing.equipmentId },
+          data: { status: 'MAINTENANCE' },
         });
       } else if (action === 'resolve' || status === 'RESOLVED') {
         updated = await tx.maintenance.update({

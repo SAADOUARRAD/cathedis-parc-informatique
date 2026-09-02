@@ -5,6 +5,8 @@ import { logAudit } from '@/lib/audit';
 import { sendTicketAssignmentEmail } from '@/lib/email';
 import { MaintenanceStatus, MaintenancePriority, MaintenanceType } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
