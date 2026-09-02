@@ -286,6 +286,9 @@ export default function TechnicianMaintenancesPage() {
     }
   };
 
+  // Scope Filter: 'MY_TICKETS' or 'ALL_TICKETS' (Default to MY_TICKETS so technician only sees his assigned tickets)
+  const [scopeFilter, setScopeFilter] = useState<'MY_TICKETS' | 'ALL_TICKETS'>('MY_TICKETS');
+
   const handleExportCSV = () => {
     if (maintenances.length === 0) return;
     const headers = ["ID", "Équipement", "N° Série", "Demandeur", "Priorité", "Statut", "Description", "Diagnostic", "Solution", "Coût (DH)"];
@@ -314,7 +317,27 @@ export default function TechnicianMaintenancesPage() {
     setSnackbar({ open: true, message: "Exportation des tickets de maintenance réussie !", severity: 'success' });
   };
 
-  const filteredMaintenances = maintenances.filter((m) => {
+  const currentUserId = session?.user?.id;
+  const currentUserEmail = session?.user?.email;
+
+  const isAssignedToCurrentTech = (m: any) => {
+    if (!currentUserId && !currentUserEmail) return false;
+    return (
+      (currentUserId && (m.technicianId === currentUserId || m.technician?.id === currentUserId)) ||
+      (currentUserEmail && m.technician?.email === currentUserEmail)
+    );
+  };
+
+  const myTicketsCount = maintenances.filter(isAssignedToCurrentTech).length;
+
+  const scopedMaintenances = maintenances.filter((m) => {
+    if (scopeFilter === 'MY_TICKETS') {
+      return isAssignedToCurrentTech(m);
+    }
+    return true;
+  });
+
+  const filteredMaintenances = scopedMaintenances.filter((m) => {
     const eqName = m.equipment?.name || '';
     const desc = m.description || '';
     const reporter = m.reportedBy ? `${m.reportedBy.firstName} ${m.reportedBy.lastName}` : '';
@@ -331,12 +354,12 @@ export default function TechnicianMaintenancesPage() {
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  // KPI Metrics
-  const totalTickets = maintenances.length;
-  const pendingCount = maintenances.filter(m => m.status === 'REPORTED' || m.status === 'ASSIGNED').length;
-  const inProgressCount = maintenances.filter(m => m.status === 'IN_PROGRESS').length;
-  const criticalCount = maintenances.filter(m => (m.priority === 'HIGH' || m.priority === 'CRITICAL') && m.status !== 'COMPLETED').length;
-  const completedCount = maintenances.filter(m => m.status === 'COMPLETED').length;
+  // KPI Metrics computed on scopedMaintenances
+  const totalTickets = scopedMaintenances.length;
+  const pendingCount = scopedMaintenances.filter(m => m.status === 'REPORTED' || m.status === 'ASSIGNED').length;
+  const inProgressCount = scopedMaintenances.filter(m => m.status === 'IN_PROGRESS').length;
+  const criticalCount = scopedMaintenances.filter(m => (m.priority === 'HIGH' || m.priority === 'CRITICAL') && m.status !== 'COMPLETED').length;
+  const completedCount = scopedMaintenances.filter(m => m.status === 'COMPLETED').length;
 
   const paginatedData = filteredMaintenances.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -478,6 +501,55 @@ export default function TechnicianMaintenancesPage() {
 
       {/* 🔍 3. SEARCH, FILTERS & VIEW CONTROLLER 🔍 */}
       <Paper elevation={0} sx={{ borderRadius: 3.5, border: '1px solid #E2E8F0', overflow: 'hidden', p: 2.5, bgcolor: '#FFFFFF' }}>
+        
+        {/* Scope Switch: Mes Interventions vs Tout l'Atelier */}
+        <Box sx={{ display: 'flex', gap: 1, p: 0.6, bgcolor: '#F8FAFC', borderRadius: 3, border: '1px solid #E2E8F0', width: 'fit-content', mb: 2.5, flexWrap: 'wrap' }}>
+          <Button
+            size="small"
+            variant={scopeFilter === 'MY_TICKETS' ? 'contained' : 'text'}
+            onClick={() => { setScopeFilter('MY_TICKETS'); setStatusFilter('ALL'); setPage(0); }}
+            startIcon={<TechIcon sx={{ fontSize: 18 }} />}
+            sx={{
+              borderRadius: 2.5,
+              fontWeight: 800,
+              textTransform: 'none',
+              fontSize: '0.85rem',
+              px: 2.5,
+              py: 0.8,
+              bgcolor: scopeFilter === 'MY_TICKETS' ? '#E31E24' : 'transparent',
+              color: scopeFilter === 'MY_TICKETS' ? '#FFFFFF' : '#475569',
+              boxShadow: scopeFilter === 'MY_TICKETS' ? '0 4px 12px rgba(227,30,36,0.25)' : 'none',
+              '&:hover': {
+                bgcolor: scopeFilter === 'MY_TICKETS' ? '#B91C1C' : '#F1F5F9',
+              },
+            }}
+          >
+            Mes Interventions Assignées ({myTicketsCount})
+          </Button>
+          <Button
+            size="small"
+            variant={scopeFilter === 'ALL_TICKETS' ? 'contained' : 'text'}
+            onClick={() => { setScopeFilter('ALL_TICKETS'); setStatusFilter('ALL'); setPage(0); }}
+            startIcon={<LayersIcon sx={{ fontSize: 18 }} />}
+            sx={{
+              borderRadius: 2.5,
+              fontWeight: 800,
+              textTransform: 'none',
+              fontSize: '0.85rem',
+              px: 2.5,
+              py: 0.8,
+              bgcolor: scopeFilter === 'ALL_TICKETS' ? '#1A1A2E' : 'transparent',
+              color: scopeFilter === 'ALL_TICKETS' ? '#FFFFFF' : '#475569',
+              boxShadow: scopeFilter === 'ALL_TICKETS' ? '0 4px 12px rgba(26,26,46,0.25)' : 'none',
+              '&:hover': {
+                bgcolor: scopeFilter === 'ALL_TICKETS' ? '#0F172A' : '#F1F5F9',
+              },
+            }}
+          >
+            Tous les Tickets Atelier ({maintenances.length})
+          </Button>
+        </Box>
+
         <Box sx={{ mb: 3, display: 'flex', gap: 2, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
           
           <Box sx={{ display: 'flex', gap: 1.5, flex: '1 1 450px', flexWrap: 'wrap' }}>

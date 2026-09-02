@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
           select: { firstName: true, lastName: true, email: true },
         },
         technician: {
-          select: { firstName: true, lastName: true, email: true },
+          select: { id: true, firstName: true, lastName: true, email: true },
         },
       },
       orderBy: {
