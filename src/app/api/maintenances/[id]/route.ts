@@ -36,8 +36,13 @@ export async function PUT(
 ) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    let userId = session?.user?.id;
+    if (!userId && session?.user?.email) {
+      const u = await prisma.user.findUnique({ where: { email: session.user.email } });
+      if (u) userId = u.id;
+    }
+    if (!userId) {
+      return NextResponse.json({ error: "Session expirée ou non autorisée. Veuillez vous reconnecter." }, { status: 401 });
     }
 
     const { id } = await params;
@@ -49,7 +54,7 @@ export async function PUT(
       include: {
         equipment: true,
         reportedBy: true,
-      }
+      },
     });
 
     if (!existing) {
@@ -61,7 +66,7 @@ export async function PUT(
 
     await prisma.$transaction(async (tx) => {
       if (action === 'assign' || (status === 'ASSIGNED' && !action)) {
-        const targetTechId = data.technicianId || session.user.id;
+        const targetTechId = data.technicianId || userId;
         newlyAssignedTechId = targetTechId;
 
         updated = await tx.maintenance.update({
@@ -82,7 +87,7 @@ export async function PUT(
           where: { id },
           data: {
             status: 'IN_PROGRESS',
-            technicianId: data.technicianId || existing.technicianId || session.user.id,
+            technicianId: data.technicianId || existing.technicianId || userId,
             startDate: existing.startDate || new Date(),
           },
           include: {
@@ -97,14 +102,19 @@ export async function PUT(
           data: { status: 'MAINTENANCE' },
         });
       } else if (action === 'resolve' || status === 'RESOLVED') {
+        let parsedCost = existing.cost;
+        if (data.cost !== undefined && data.cost !== null && data.cost !== '') {
+          parsedCost = typeof data.cost === 'number' ? data.cost : parseFloat(String(data.cost)) || 0;
+        }
+
         updated = await tx.maintenance.update({
           where: { id },
           data: {
             status: 'RESOLVED',
-            technicianId: existing.technicianId || session.user.id,
+            technicianId: existing.technicianId || userId,
             diagnosis: data.diagnosis !== undefined ? data.diagnosis : existing.diagnosis,
             solution: data.solution !== undefined ? data.solution : existing.solution,
-            cost: data.cost !== undefined ? (data.cost ? parseFloat(data.cost) : 0) : existing.cost,
+            cost: parsedCost,
           },
           include: {
             equipment: true,
@@ -117,7 +127,7 @@ export async function PUT(
           where: { id },
           data: {
             status: 'COMPLETED',
-            technicianId: existing.technicianId || session.user.id,
+            technicianId: existing.technicianId || userId,
             endDate: new Date(),
             diagnosis: data.diagnosis !== undefined ? data.diagnosis : existing.diagnosis,
             solution: data.solution !== undefined ? data.solution : existing.solution,
@@ -177,13 +187,7 @@ export async function PUT(
         });
 
         if (technician && technician.email) {
-          let adminId = session.user?.id;
-          if (!adminId && session.user?.email) {
-            const u = await prisma.user.findUnique({ where: { email: session.user.email } });
-            if (u) adminId = u.id;
-          }
-
-          const adminUser = adminId ? await prisma.user.findUnique({ where: { id: adminId } }) : null;
+          const adminUser = userId ? await prisma.user.findUnique({ where: { id: userId } }) : null;
 
           await sendTicketAssignmentEmail({
             to: technician.email,
@@ -204,7 +208,7 @@ export async function PUT(
     }
 
     await logAudit(
-      session.user.id,
+      userId,
       'UPDATE',
       'Maintenance',
       id,

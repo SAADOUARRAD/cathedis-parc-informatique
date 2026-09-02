@@ -300,7 +300,8 @@ export default function TechnicianMaintenancesPage() {
         handleCloseDeclareRepaired();
         fetchMaintenances();
       } else {
-        throw new Error("Erreur lors de la déclaration");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `Erreur lors de la déclaration (${res.status})`);
       }
     } catch (err: any) {
       setSnackbar({ open: true, message: err.message || "Erreur lors de la déclaration", severity: 'error' });
