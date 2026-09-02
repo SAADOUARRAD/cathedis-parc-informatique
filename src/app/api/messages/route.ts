@@ -9,12 +9,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const currentUserId = session.user.id;
+    // Resolve current user ID reliably (via session id or email)
+    let currentUserId = session.user.id;
+    if (!currentUserId && session.user.email) {
+      const dbUser = await prisma.user.findUnique({ where: { email: session.user.email } });
+      if (dbUser) currentUserId = dbUser.id;
+    }
+
     const { searchParams } = new URL(request.url);
     const targetUserId = searchParams.get('userId');
 
     // 1. If targetUserId is provided, return conversation history with this user
-    if (targetUserId) {
+    if (targetUserId && currentUserId) {
       const messages = await prisma.message.findMany({
         where: {
           OR: [
@@ -38,10 +44,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ messages });
     }
 
-    // 2. Otherwise, return list of all users with conversation snippets & unread count
+    // 2. Otherwise, return list of all active users in the company
     const users = await prisma.user.findMany({
       where: {
-        id: { not: currentUserId },
+        ...(currentUserId ? { id: { not: currentUserId } } : {}),
         isActive: true,
       },
       select: {
@@ -61,23 +67,32 @@ export async function GET(request: Request) {
     // Fetch last messages and unread counts for each contact
     const contactsWithMeta = await Promise.all(
       users.map(async (u) => {
-        const lastMsg = await prisma.message.findFirst({
-          where: {
-            OR: [
-              { senderId: currentUserId, receiverId: u.id },
-              { senderId: u.id, receiverId: currentUserId },
-            ],
-          },
-          orderBy: { createdAt: 'desc' },
-        });
+        let lastMsg = null;
+        let unreadCount = 0;
 
-        const unreadCount = await prisma.message.count({
-          where: {
-            senderId: u.id,
-            receiverId: currentUserId,
-            read: false,
-          },
-        });
+        if (currentUserId) {
+          try {
+            lastMsg = await prisma.message.findFirst({
+              where: {
+                OR: [
+                  { senderId: currentUserId, receiverId: u.id },
+                  { senderId: u.id, receiverId: currentUserId },
+                ],
+              },
+              orderBy: { createdAt: 'desc' },
+            });
+
+            unreadCount = await prisma.message.count({
+              where: {
+                senderId: u.id,
+                receiverId: currentUserId,
+                read: false,
+              },
+            });
+          } catch (e) {
+            console.error('Error fetching meta for contact:', u.id, e);
+          }
+        }
 
         return {
           id: u.id,
@@ -94,7 +109,7 @@ export async function GET(request: Request) {
       })
     );
 
-    // Sort contacts: contacts with recent messages first, then alphabetically
+    // Sort contacts: unread messages first, then recent messages, then alphabetically
     contactsWithMeta.sort((a, b) => {
       if (a.unreadCount !== b.unreadCount) return b.unreadCount - a.unreadCount;
       if (a.lastMessageAt && b.lastMessageAt) {
@@ -105,12 +120,19 @@ export async function GET(request: Request) {
       return a.name.localeCompare(b.name);
     });
 
-    const totalUnreadCount = await prisma.message.count({
-      where: {
-        receiverId: currentUserId,
-        read: false,
-      },
-    });
+    let totalUnreadCount = 0;
+    if (currentUserId) {
+      try {
+        totalUnreadCount = await prisma.message.count({
+          where: {
+            receiverId: currentUserId,
+            read: false,
+          },
+        });
+      } catch (e) {
+        console.error('Error counting total unread:', e);
+      }
+    }
 
     return NextResponse.json({
       contacts: contactsWithMeta,
@@ -129,7 +151,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const senderId = session.user.id;
+    let senderId = session.user.id;
+    if (!senderId && session.user.email) {
+      const dbUser = await prisma.user.findUnique({ where: { email: session.user.email } });
+      if (dbUser) senderId = dbUser.id;
+    }
+
+    if (!senderId) {
+      return NextResponse.json({ error: 'Expéditeur introuvable' }, { status: 400 });
+    }
+
     const body = await request.json();
     const { receiverId, content } = body;
 
@@ -159,11 +190,16 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const currentUserId = session.user.id;
+    let currentUserId = session.user.id;
+    if (!currentUserId && session.user.email) {
+      const dbUser = await prisma.user.findUnique({ where: { email: session.user.email } });
+      if (dbUser) currentUserId = dbUser.id;
+    }
+
     const body = await request.json();
     const { senderId } = body;
 
-    if (!senderId) {
+    if (!senderId || !currentUserId) {
       return NextResponse.json({ error: 'senderId requis' }, { status: 400 });
     }
 

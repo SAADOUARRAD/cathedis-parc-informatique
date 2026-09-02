@@ -67,7 +67,8 @@ export default function FloatingChatWidget() {
   const currentUserId = session?.user?.id;
 
   // 1. Fetch Contacts list and total unread count
-  const fetchContacts = async () => {
+  const fetchContacts = async (showLoader = false) => {
+    if (showLoader) setLoadingContacts(true);
     try {
       const res = await fetch('/api/messages');
       if (res.ok) {
@@ -77,6 +78,8 @@ export default function FloatingChatWidget() {
       }
     } catch (err) {
       console.error('Erreur chargement contacts messagerie:', err);
+    } finally {
+      if (showLoader) setLoadingContacts(false);
     }
   };
 
@@ -110,11 +113,10 @@ export default function FloatingChatWidget() {
 
   // Initial fetch and global polling every 4 seconds
   useEffect(() => {
-    if (!currentUserId) return;
-    fetchContacts();
+    fetchContacts(true);
 
     pollingRef.current = setInterval(() => {
-      fetchContacts();
+      fetchContacts(false);
       if (activeContact) {
         fetchActiveMessages(activeContact.id, false);
       }
@@ -123,7 +125,14 @@ export default function FloatingChatWidget() {
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
-  }, [currentUserId, activeContact?.id]);
+  }, [session?.user, activeContact?.id]);
+
+  // Trigger fetch when widget is opened
+  useEffect(() => {
+    if (isOpen) {
+      fetchContacts(contacts.length === 0);
+    }
+  }, [isOpen]);
 
   // Open a specific contact conversation
   const handleSelectContact = (contact: Contact) => {
