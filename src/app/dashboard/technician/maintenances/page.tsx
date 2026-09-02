@@ -109,14 +109,14 @@ const statusConfig: Record<string, { label: string; color: string; bgColor: stri
     icon: <TechIcon sx={{ fontSize: 16, color: '#0284C7' }} />
   },
   RESOLVED: {
-    label: 'Réparé • Validation Requise',
+    label: 'Réparé • En attente validation Admin',
     color: '#D97706',
     bgColor: '#FFFBEB',
     borderColor: '#FDE68A',
     icon: <ScheduleIcon sx={{ fontSize: 16, color: '#D97706' }} />
   },
   COMPLETED: {
-    label: 'Résolue & Clôturée',
+    label: 'Matériel Réparé & Validé ✓',
     color: '#059669',
     bgColor: '#D1FAE5',
     borderColor: '#A7F3D0',
@@ -192,6 +192,13 @@ export default function TechnicianMaintenancesPage() {
   const [editCost, setEditCost] = useState<number | ''>('');
   const [saving, setSaving] = useState(false);
 
+  // Dedicated Declare Repaired Dialog State
+  const [declareRepairedOpen, setDeclareRepairedOpen] = useState(false);
+  const [declareDiagnosis, setDeclareDiagnosis] = useState('');
+  const [declareSolution, setDeclareSolution] = useState('');
+  const [declareCost, setDeclareCost] = useState<number | ''>('');
+  const [declaring, setDeclaring] = useState(false);
+
   // Snackbar State
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
@@ -235,6 +242,59 @@ export default function TechnicianMaintenancesPage() {
     setSelectedMaintenance(null);
   };
 
+  const handleOpenDeclareRepaired = (m: any) => {
+    setSelectedMaintenance(m);
+    setDeclareDiagnosis(m.diagnosis || '');
+    setDeclareSolution(m.solution || '');
+    setDeclareCost(m.cost !== null && m.cost !== undefined ? m.cost : '');
+    setDeclareRepairedOpen(true);
+  };
+
+  const handleCloseDeclareRepaired = () => {
+    setDeclareRepairedOpen(false);
+    setSelectedMaintenance(null);
+  };
+
+  const handleConfirmDeclareRepaired = async () => {
+    if (!selectedMaintenance) return;
+    if (!declareDiagnosis.trim() || !declareSolution.trim()) {
+      setSnackbar({ open: true, message: 'Veuillez renseigner le diagnostic et la solution appliquée.', severity: 'error' });
+      return;
+    }
+
+    setDeclaring(true);
+    try {
+      const res = await fetch(`/api/maintenances/${selectedMaintenance.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'resolve',
+          status: 'RESOLVED',
+          diagnosis: declareDiagnosis,
+          solution: declareSolution,
+          cost: declareCost === '' ? 0 : Number(declareCost),
+          technicianId: session?.user?.id
+        })
+      });
+
+      if (res.ok) {
+        setSnackbar({
+          open: true,
+          message: "✅ Matériel déclaré comme réparé ! Le ticket est en attente de validation et clôture par l'administrateur.",
+          severity: 'success'
+        });
+        handleCloseDeclareRepaired();
+        fetchMaintenances();
+      } else {
+        throw new Error("Erreur lors de la déclaration");
+      }
+    } catch (err: any) {
+      setSnackbar({ open: true, message: err.message || "Erreur lors de la déclaration", severity: 'error' });
+    } finally {
+      setDeclaring(false);
+    }
+  };
+
   const openDetails = (m: any) => {
     setSelectedMaintenance(m);
     setDetailsOpen(true);
@@ -246,12 +306,17 @@ export default function TechnicianMaintenancesPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          action: 'start',
           status: 'IN_PROGRESS',
           technicianId: session?.user?.id
         })
       });
       if (res.ok) {
-        setSnackbar({ open: true, message: `Intervention sur "${m.equipment?.name}" prise en charge !`, severity: 'success' });
+        setSnackbar({
+          open: true,
+          message: `🚀 Prise en charge validée ! Le statut est passé à "En Réparation". Le bouton devient "Déclarer Réparé 🛠️".`,
+          severity: 'success'
+        });
         fetchMaintenances();
       } else {
         throw new Error("Erreur de mise à jour");
@@ -755,6 +820,34 @@ export default function TechnicianMaintenancesPage() {
                           />
                         )}
                       </Box>
+
+                      {/* Status Guidance Banners */}
+                      {m.status === 'IN_PROGRESS' && (
+                        <Box sx={{ mt: 1.5, p: 1.2, borderRadius: 2, bgcolor: '#F0F9FF', border: '1px solid #BAE6FD', display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <TechIcon sx={{ color: '#0284C7', fontSize: 18 }} />
+                          <Typography sx={{ fontSize: '0.76rem', color: '#0369A1', fontWeight: 700 }}>
+                            Matériel en cours de réparation à l&apos;atelier • Cliquez sur &quot;Déclarer Réparé 🛠️&quot; ci-dessous dès que l&apos;intervention est terminée.
+                          </Typography>
+                        </Box>
+                      )}
+
+                      {m.status === 'RESOLVED' && (
+                        <Box sx={{ mt: 1.5, p: 1.2, borderRadius: 2, bgcolor: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <ScheduleIcon sx={{ color: '#D97706', fontSize: 18 }} />
+                          <Typography sx={{ fontSize: '0.76rem', color: '#B45309', fontWeight: 700 }}>
+                            ⏳ Réparation déclarée ! En attente de validation et clôture par l&apos;Administrateur.
+                          </Typography>
+                        </Box>
+                      )}
+
+                      {m.status === 'COMPLETED' && (
+                        <Box sx={{ mt: 1.5, p: 1.2, borderRadius: 2, bgcolor: '#ECFDF5', border: '1px solid #A7F3D0', display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <SuccessIcon sx={{ color: '#059669', fontSize: 18 }} />
+                          <Typography sx={{ fontSize: '0.76rem', color: '#047857', fontWeight: 700 }}>
+                            ✅ Matériel réparé et validé par l&apos;Administrateur IT ! Remis en service.
+                          </Typography>
+                        </Box>
+                      )}
                     </CardContent>
 
                     {/* Actions Footer */}
@@ -781,7 +874,9 @@ export default function TechnicianMaintenancesPage() {
                               borderRadius: 2,
                               fontWeight: 800,
                               fontSize: '0.75rem',
-                              textTransform: 'none'
+                              textTransform: 'none',
+                              px: 1.8,
+                              boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
                             }}
                           >
                             Prendre en charge
@@ -792,19 +887,17 @@ export default function TechnicianMaintenancesPage() {
                           <Button
                             size="small"
                             variant="contained"
-                            onClick={() => {
-                              handleOpenEdit(m);
-                              setEditStatus('RESOLVED');
-                            }}
+                            onClick={() => handleOpenDeclareRepaired(m)}
                             startIcon={<SuccessIcon />}
                             sx={{
                               background: 'linear-gradient(90deg, #059669 0%, #047857 100%)',
                               color: '#FFFFFF',
                               borderRadius: 2,
                               fontWeight: 800,
-                              fontSize: '0.75rem',
+                              fontSize: '0.78rem',
                               textTransform: 'none',
-                              boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)',
+                              px: 1.8,
+                              boxShadow: '0 4px 12px rgba(5, 150, 105, 0.35)',
                               '&:hover': {
                                 background: 'linear-gradient(90deg, #047857 0%, #059669 100%)'
                               }
@@ -817,13 +910,33 @@ export default function TechnicianMaintenancesPage() {
                         {m.status === 'RESOLVED' && (
                           <Chip
                             size="small"
+                            icon={<ScheduleIcon sx={{ fontSize: 14, color: '#B45309 !important' }} />}
                             label="En attente validation Admin ⏳"
                             sx={{
                               bgcolor: '#FFFBEB',
                               color: '#B45309',
                               border: '1px solid #FDE68A',
                               fontWeight: 800,
-                              fontSize: '0.72rem'
+                              fontSize: '0.74rem',
+                              py: 1.8,
+                              px: 1
+                            }}
+                          />
+                        )}
+
+                        {m.status === 'COMPLETED' && (
+                          <Chip
+                            size="small"
+                            icon={<SuccessIcon sx={{ fontSize: 14, color: '#047857 !important' }} />}
+                            label="Matériel Réparé & Validé ✓"
+                            sx={{
+                              bgcolor: '#ECFDF5',
+                              color: '#047857',
+                              border: '1px solid #A7F3D0',
+                              fontWeight: 800,
+                              fontSize: '0.74rem',
+                              py: 1.8,
+                              px: 1
                             }}
                           />
                         )}
@@ -952,7 +1065,21 @@ export default function TechnicianMaintenancesPage() {
                           </TableCell>
 
                           <TableCell align="center">
-                            <Box sx={{ display: 'flex', gap: 0.8, justifyContent: 'center' }}>
+                            <Box sx={{ display: 'flex', gap: 0.8, justifyContent: 'center', alignItems: 'center' }}>
+                              {(row.status === 'REPORTED' || row.status === 'ASSIGNED') && (
+                                <Tooltip title="Prendre en charge">
+                                  <IconButton size="small" onClick={() => handleQuickStart(row)} sx={{ color: '#FFFFFF', bgcolor: '#0284C7', '&:hover': { bgcolor: '#0369A1' } }}>
+                                    <StartIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                              {row.status === 'IN_PROGRESS' && (
+                                <Tooltip title="Déclarer Réparé 🛠️">
+                                  <IconButton size="small" onClick={() => handleOpenDeclareRepaired(row)} sx={{ color: '#FFFFFF', bgcolor: '#059669', '&:hover': { bgcolor: '#047857' } }}>
+                                    <SuccessIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
                               <Tooltip title="Fiche 360°">
                                 <IconButton size="small" onClick={() => openDetails(row)} sx={{ color: '#1A1A2E', bgcolor: '#F1F5F9' }}>
                                   <ViewIcon fontSize="small" />
@@ -1249,6 +1376,109 @@ export default function TechnicianMaintenancesPage() {
             </DialogActions>
           </>
         )}
+      </Dialog>
+
+      {/* 🛠️ MODALE DÉDIÉE : DÉCLARER LE MATÉRIEL COMME RÉPARÉ 🛠️ */}
+      <Dialog
+        open={declareRepairedOpen}
+        onClose={handleCloseDeclareRepaired}
+        maxWidth="sm"
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 4, overflow: 'hidden' } } }}
+      >
+        <DialogTitle sx={{
+          background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+          color: '#FFFFFF',
+          p: 2.5,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5
+        }}>
+          <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: '#FFFFFF' }}>
+            <SuccessIcon />
+          </Avatar>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2 }}>
+              Déclarer le Matériel comme Réparé 🛠️
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.85)' }}>
+              {selectedMaintenance?.equipment?.name} (SN: {selectedMaintenance?.equipment?.serialNumber || '-'})
+            </Typography>
+          </Box>
+          <IconButton onClick={handleCloseDeclareRepaired} sx={{ color: '#FFFFFF' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent dividers sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2.5, bgcolor: '#FAFAFA' }}>
+          <Alert severity="info" sx={{ borderRadius: 2.5, fontSize: '0.82rem', fontWeight: 600 }}>
+            Renseignez les détails de votre réparation. Dès validation par l&apos;Administrateur, le ticket sera clôturé et le matériel remis en service.
+          </Alert>
+
+          <TextField
+            label="Diagnostic de la Panne Constatée *"
+            placeholder="ex: Batterie interne hors d'usage, connecteur encrassé..."
+            fullWidth
+            multiline
+            rows={2}
+            value={declareDiagnosis}
+            onChange={(e) => setDeclareDiagnosis(e.target.value)}
+            required
+            sx={{ bgcolor: '#FFFFFF' }}
+          />
+
+          <TextField
+            label="Solution Appliquée & Pièces Remplacées *"
+            placeholder="ex: Remplacement bloc batterie OEM, nettoyage connectique, test de charge à 100% concluant..."
+            fullWidth
+            multiline
+            rows={3}
+            value={declareSolution}
+            onChange={(e) => setDeclareSolution(e.target.value)}
+            required
+            sx={{ bgcolor: '#FFFFFF' }}
+          />
+
+          <TextField
+            label="Coût Total de Réparation (MAD / DH)"
+            placeholder="0"
+            type="number"
+            value={declareCost}
+            onChange={(e) => setDeclareCost(e.target.value === '' ? '' : Number(e.target.value))}
+            slotProps={{
+              input: {
+                endAdornment: <InputAdornment position="end"><Typography sx={{ fontWeight: 800, color: '#047857' }}>MAD (DH)</Typography></InputAdornment>
+              }
+            }}
+            helperText="Indiquez 0 si l'intervention est sans surcoût matériel"
+            sx={{ bgcolor: '#FFFFFF' }}
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2.5, px: 3, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+          <Button onClick={handleCloseDeclareRepaired} variant="outlined" sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 700, color: '#64748B' }}>
+            Annuler
+          </Button>
+          <Button
+            onClick={handleConfirmDeclareRepaired}
+            variant="contained"
+            disabled={declaring || !declareDiagnosis.trim() || !declareSolution.trim()}
+            sx={{
+              background: 'linear-gradient(90deg, #059669 0%, #047857 100%)',
+              color: '#FFFFFF',
+              fontWeight: 800,
+              borderRadius: 2.5,
+              px: 3.5,
+              textTransform: 'none',
+              boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)',
+              '&:hover': {
+                background: 'linear-gradient(90deg, #047857 0%, #059669 100%)'
+              }
+            }}
+          >
+            {declaring ? 'Transmission en cours...' : 'Déclarer Réparé & Transmettre à l\'Admin 🚀'}
+          </Button>
+        </DialogActions>
       </Dialog>
 
       {/* Snackbar */}

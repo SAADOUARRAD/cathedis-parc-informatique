@@ -75,7 +75,7 @@ const statusConfig: Record<string, { label: string; color: string; bgColor: stri
   ASSIGNED: { label: 'Assigné', color: '#2563EB', bgColor: '#DBEAFE', borderColor: '#BFDBFE' },
   IN_PROGRESS: { label: 'En cours de réparation', color: '#7C3AED', bgColor: '#F5F3FF', borderColor: '#DDD6FE' },
   RESOLVED: { label: 'Réparé • En attente validation Admin', color: '#D97706', bgColor: '#FFFBEB', borderColor: '#FDE68A' },
-  COMPLETED: { label: 'Résolu & Conforme', color: '#059669', bgColor: '#D1FAE5', borderColor: '#A7F3D0' },
+  COMPLETED: { label: 'Matériel Réparé & Validé ✓', color: '#059669', bgColor: '#D1FAE5', borderColor: '#A7F3D0' },
   CANCELLED: { label: 'Annulé', color: '#DC2626', bgColor: '#FEE2E2', borderColor: '#FECACA' },
 };
 
@@ -144,10 +144,14 @@ export default function TechnicianDashboard() {
       const res = await fetch(`/api/maintenances/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'IN_PROGRESS' }),
+        body: JSON.stringify({ action: 'start', status: 'IN_PROGRESS' }),
       });
       if (res.ok) {
-        setSnackbar({ open: true, message: 'Intervention démarrée • Statut passé à "En cours"', severity: 'success' });
+        setSnackbar({
+          open: true,
+          message: '🚀 Prise en charge validée ! Le statut passe à "En cours". Le bouton devient "Déclarer comme Réparé 🛠️".',
+          severity: 'success'
+        });
         fetchData();
       } else {
         setSnackbar({ open: true, message: 'Erreur lors de la prise en charge', severity: 'error' });
@@ -617,6 +621,22 @@ export default function TechnicianDashboard() {
                           bgcolor: '#FFFBEB',
                           color: '#B45309',
                           border: '1px solid #FDE68A',
+                          fontWeight: 800,
+                          fontSize: '0.78rem',
+                          py: 1.8,
+                          px: 1.5,
+                        }}
+                      />
+                    )}
+
+                    {maintenance.status === 'COMPLETED' && (
+                      <Chip
+                        icon={<CheckIcon sx={{ fontSize: 16, color: '#047857 !important' }} />}
+                        label="Matériel Réparé & Validé ✓"
+                        sx={{
+                          bgcolor: '#ECFDF5',
+                          color: '#047857',
+                          border: '1px solid #A7F3D0',
                           fontWeight: 800,
                           fontSize: '0.78rem',
                           py: 1.8,
