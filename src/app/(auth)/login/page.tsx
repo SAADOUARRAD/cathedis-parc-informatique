@@ -71,11 +71,11 @@ export default function LoginPage() {
       position: 'relative',
       alignItems: 'center',
       justifyContent: 'center',
-      bgcolor: '#090D16',
+      bgcolor: '#0B0F19',
       p: { xs: 2.5, sm: 4 },
       overflow: 'hidden',
     }}>
-      {/* 1. Arrière-plan Cinématique Subtil */}
+      {/* 1. Arrière-plan Cinématique Élégant */}
       <Box
         component="img"
         src="/images/img.jpg"
@@ -87,62 +87,58 @@ export default function LoginPage() {
           height: '100%',
           objectFit: 'cover',
           objectPosition: 'center',
-          filter: 'brightness(0.25) saturate(1.1)',
+          filter: 'brightness(0.3) saturate(1.1)',
           zIndex: 0,
         }}
       />
 
-      {/* 2. Filtre Dégradé Sombre & Épuré */}
+      {/* 2. Filtre Dégradé de Profondeur */}
       <Box sx={{
         position: 'absolute',
         inset: 0,
         background: `
-          radial-gradient(circle at 50% 20%, rgba(227, 30, 36, 0.12) 0%, transparent 60%),
-          linear-gradient(180deg, rgba(9, 13, 22, 0.85) 0%, rgba(9, 13, 22, 0.95) 100%)
+          radial-gradient(circle at 50% 30%, rgba(227, 30, 36, 0.15) 0%, transparent 65%),
+          linear-gradient(180deg, rgba(11, 15, 25, 0.85) 0%, rgba(11, 15, 25, 0.95) 100%)
         `,
         zIndex: 1,
       }} />
 
-      {/* 3. Carte de Connexion Centrale Professionnelle */}
+      {/* 3. Carte de Connexion Blanche Haut de Gamme */}
       <Box sx={{
         position: 'relative',
         zIndex: 2,
         width: '100%',
         maxWidth: 440,
-        bgcolor: 'rgba(15, 23, 42, 0.78)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+        bgcolor: '#FFFFFF',
         borderRadius: '24px',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1)',
         overflow: 'hidden',
-        animation: 'fadeIn 0.5s ease-out',
+        animation: 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
 
-        {/* Ligne d'accent supérieure rouge Cathedis */}
+        {/* Barre d'accent supérieure rouge Cathedis */}
         <Box sx={{
-          height: 3,
+          height: 4,
           background: 'linear-gradient(90deg, #E31E24 0%, #FF4D4D 50%, #C41018 100%)',
         }} />
 
         <Box sx={{ p: { xs: 3.5, sm: 4.5 } }}>
 
-          {/* Logo Cathedis Intégré */}
+          {/* Logo Cathedis 2 Intégré */}
           <Box sx={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            mb: 3,
+            mb: 2.5,
           }}>
             <Box
               component="img"
-              src="/images/logo.png"
+              src="/images/logo2.png"
               alt="Cathedis Logo"
               sx={{
-                height: 48,
-                maxWidth: 220,
+                height: 52,
+                maxWidth: 240,
                 objectFit: 'contain',
-                filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3))',
               }}
             />
           </Box>
@@ -151,18 +147,19 @@ export default function LoginPage() {
           <Box sx={{ textAlign: 'center', mb: 3.5 }}>
             <Typography variant="h5" sx={{
               fontWeight: 800,
-              color: '#FFFFFF',
-              fontSize: '1.45rem',
-              letterSpacing: '-0.01em',
+              color: '#0F172A',
+              fontSize: '1.4rem',
+              letterSpacing: '-0.02em',
             }}>
-              Portail Informatique
+              Espace Authentification
             </Typography>
             <Typography sx={{
-              color: 'rgba(255, 255, 255, 0.65)',
+              color: '#64748B',
               fontSize: '0.86rem',
               mt: 0.6,
+              fontWeight: 500,
             }}>
-              Authentification sécurisée DSI Cathedis
+              Portail de gestion du parc informatique DSI
             </Typography>
           </Box>
 
@@ -175,9 +172,9 @@ export default function LoginPage() {
                 borderRadius: 2.5,
                 fontSize: '0.84rem',
                 fontWeight: 600,
-                bgcolor: 'rgba(220, 38, 38, 0.15)',
-                color: '#FCA5A5',
-                border: '1px solid rgba(220, 38, 38, 0.35)',
+                bgcolor: '#FEF2F2',
+                color: '#DC2626',
+                border: '1px solid #FEE2E2',
               }}
             >
               {error}
@@ -185,18 +182,18 @@ export default function LoginPage() {
           )}
 
           {/* Formulaire de Connexion */}
-          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2.4 }}>
 
             {/* Champ Email */}
             <Box>
-              <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.9)', mb: 0.7 }}>
-                Identifiant / Email
+              <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', mb: 0.7 }}>
+                Identifiant / Email professionnel
               </Typography>
               <TextField
                 {...register('email')}
                 fullWidth
                 size="small"
-                placeholder="votre.email@cathedis.com"
+                placeholder="nom.prenom@cathedis.com"
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 disabled={isLoading}
@@ -204,26 +201,25 @@ export default function LoginPage() {
                   input: {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <EmailOutlinedIcon sx={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: 20 }} />
+                        <EmailOutlinedIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
                       </InputAdornment>
                     ),
                     sx: {
                       borderRadius: '12px',
-                      bgcolor: 'rgba(0, 0, 0, 0.3)',
-                      color: '#FFFFFF',
+                      bgcolor: '#F8FAFC',
+                      color: '#0F172A',
                       fontSize: '0.92rem',
-                      '& input': { color: '#FFFFFF', py: 1.35 },
-                      '& input::placeholder': { color: 'rgba(255, 255, 255, 0.35)' },
-                      '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.15)' },
-                      '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.35) !important' },
+                      fontWeight: 500,
+                      '& input': { color: '#0F172A', py: 1.35 },
+                      '& input::placeholder': { color: '#94A3B8' },
+                      '& fieldset': { borderColor: '#E2E8F0' },
+                      '&:hover fieldset': { borderColor: '#CBD5E1 !important' },
+                      '&.Mui-focused': {
+                        bgcolor: '#FFFFFF',
+                      },
                       '&.Mui-focused fieldset': {
                         borderColor: '#E31E24 !important',
-                        boxShadow: '0 0 0 3px rgba(227, 30, 36, 0.2)',
-                      },
-                      '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus': {
-                        WebkitBoxShadow: '0 0 0 1000px #0F172A inset !important',
-                        WebkitTextFillColor: '#FFFFFF !important',
-                        caretColor: '#FFFFFF',
+                        boxShadow: '0 0 0 3px rgba(227, 30, 36, 0.15)',
                       },
                     },
                   },
@@ -234,14 +230,14 @@ export default function LoginPage() {
             {/* Champ Mot de passe */}
             <Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.7 }}>
-                <Typography sx={{ fontSize: '0.82rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.9)' }}>
+                <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>
                   Mot de passe
                 </Typography>
                 <Tooltip title="Veuillez contacter le support informatique (support.it@cathedis.com) pour réinitialiser votre mot de passe." arrow>
                   <Typography sx={{
                     fontSize: '0.78rem',
-                    color: 'rgba(255, 255, 255, 0.55)',
-                    fontWeight: 500,
+                    color: '#64748B',
+                    fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'color 0.2s ease',
                     '&:hover': { color: '#E31E24' }
@@ -264,7 +260,7 @@ export default function LoginPage() {
                   input: {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LockOutlinedIcon sx={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: 20 }} />
+                        <LockOutlinedIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
                       </InputAdornment>
                     ),
                     endAdornment: (
@@ -274,7 +270,7 @@ export default function LoginPage() {
                           edge="end"
                           size="small"
                           disabled={isLoading}
-                          sx={{ color: 'rgba(255, 255, 255, 0.5)' }}
+                          sx={{ color: '#94A3B8' }}
                         >
                           {showPassword ? <VisibilityOff sx={{ fontSize: 19 }} /> : <Visibility sx={{ fontSize: 19 }} />}
                         </IconButton>
@@ -282,21 +278,20 @@ export default function LoginPage() {
                     ),
                     sx: {
                       borderRadius: '12px',
-                      bgcolor: 'rgba(0, 0, 0, 0.3)',
-                      color: '#FFFFFF',
+                      bgcolor: '#F8FAFC',
+                      color: '#0F172A',
                       fontSize: '0.92rem',
-                      '& input': { color: '#FFFFFF', py: 1.35 },
-                      '& input::placeholder': { color: 'rgba(255, 255, 255, 0.35)' },
-                      '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.15)' },
-                      '&:hover fieldset': { borderColor: 'rgba(255, 255, 0.35) !important' },
+                      fontWeight: 500,
+                      '& input': { color: '#0F172A', py: 1.35 },
+                      '& input::placeholder': { color: '#94A3B8' },
+                      '& fieldset': { borderColor: '#E2E8F0' },
+                      '&:hover fieldset': { borderColor: '#CBD5E1 !important' },
+                      '&.Mui-focused': {
+                        bgcolor: '#FFFFFF',
+                      },
                       '&.Mui-focused fieldset': {
                         borderColor: '#E31E24 !important',
-                        boxShadow: '0 0 0 3px rgba(227, 30, 36, 0.2)',
-                      },
-                      '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus': {
-                        WebkitBoxShadow: '0 0 0 1000px #0F172A inset !important',
-                        WebkitTextFillColor: '#FFFFFF !important',
-                        caretColor: '#FFFFFF',
+                        boxShadow: '0 0 0 3px rgba(227, 30, 36, 0.15)',
                       },
                     },
                   },
@@ -317,19 +312,19 @@ export default function LoginPage() {
                 background: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
                 color: '#FFFFFF',
                 textTransform: 'none',
-                fontSize: '0.96rem',
-                fontWeight: 700,
+                fontSize: '0.98rem',
+                fontWeight: 800,
                 letterSpacing: '0.01em',
                 boxShadow: '0 4px 14px rgba(227, 30, 36, 0.35)',
                 transition: 'all 0.25s ease',
                 '&:hover': {
                   background: 'linear-gradient(90deg, #C41018 0%, #E31E24 100%)',
-                  boxShadow: '0 6px 20px rgba(227, 30, 36, 0.5)',
+                  boxShadow: '0 6px 20px rgba(227, 30, 36, 0.45)',
                   transform: 'translateY(-1px)',
                 },
                 '&.Mui-disabled': {
-                  background: 'rgba(255, 255, 255, 0.12)',
-                  color: 'rgba(255, 255, 255, 0.35)',
+                  background: '#CBD5E1',
+                  color: '#94A3B8',
                 },
               }}
             >
@@ -344,18 +339,18 @@ export default function LoginPage() {
             </Button>
           </Box>
 
-          {/* Pied de Page Sécurisé & Sobre */}
+          {/* Pied de Page Sécurisé */}
           <Box sx={{
             mt: 4,
             pt: 2.5,
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            borderTop: '1px solid #F1F5F9',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: 1,
           }}>
-            <ShieldOutlinedIcon sx={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 16 }} />
-            <Typography sx={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: '0.74rem', fontWeight: 500 }}>
+            <ShieldOutlinedIcon sx={{ color: '#94A3B8', fontSize: 16 }} />
+            <Typography sx={{ color: '#64748B', fontSize: '0.75rem', fontWeight: 600 }}>
               Connexion sécurisée SSL • DSI Cathedis
             </Typography>
           </Box>
@@ -363,10 +358,10 @@ export default function LoginPage() {
         </Box>
       </Box>
 
-      {/* Animation d'apparition douce */}
+      {/* Animation d'apparition */}
       <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(16px); }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}} />
