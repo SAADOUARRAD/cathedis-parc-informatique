@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,7 +15,6 @@ import {
   CircularProgress,
   InputAdornment,
   IconButton,
-  Tooltip,
   Checkbox,
   FormControlLabel,
   Fade,
@@ -29,10 +28,6 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
-import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
-import EngineeringOutlinedIcon from '@mui/icons-material/EngineeringOutlined';
-import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import KeyOutlinedIcon from '@mui/icons-material/KeyOutlined';
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import CloseIcon from '@mui/icons-material/Close';
@@ -51,37 +46,17 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isCapsLockOn, setIsCapsLockOn] = useState(false);
-  const [activeRole, setActiveRole] = useState<'ADMIN' | 'TECH' | 'EMPLOYEE'>('ADMIN');
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<LoginFormValues>({
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
-
-  const emailValue = watch('email');
-  const passwordValue = watch('password');
 
   // Handle CapsLock detection for password input
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.getModifierState) {
       setIsCapsLockOn(e.getModifierState('CapsLock'));
-    }
-  };
-
-  // Quick profile switch
-  const handleQuickRoleSelect = (role: 'ADMIN' | 'TECH' | 'EMPLOYEE') => {
-    setActiveRole(role);
-    setError(null);
-    if (role === 'ADMIN') {
-      setValue('email', 'admin@cathedis.com');
-      setValue('password', 'Admin@2024');
-    } else if (role === 'TECH') {
-      setValue('email', 'technicien@cathedis.com');
-      setValue('password', 'Tech@2024');
-    } else {
-      setValue('email', 'employe@cathedis.com');
-      setValue('password', 'User@2024');
     }
   };
 
@@ -189,7 +164,7 @@ export default function LoginPage() {
         position: 'relative',
         zIndex: 2,
         width: '100%',
-        maxWidth: 460,
+        maxWidth: 450,
         bgcolor: 'rgba(15, 23, 42, 0.78)',
         backdropFilter: 'blur(28px)',
         WebkitBackdropFilter: 'blur(28px)',
@@ -200,144 +175,54 @@ export default function LoginPage() {
         animation: 'cardSlideUp 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
 
-        {/* Ligne d'accent lumineuse supérieure */}
+        {/* Ligne d'accent lumineuse supérieure rouge Cathedis */}
         <Box sx={{
           height: 3.5,
           background: 'linear-gradient(90deg, #E31E24 0%, #FF4D4D 50%, #C41018 100%)',
           boxShadow: '0 2px 10px rgba(227, 30, 36, 0.5)',
         }} />
 
-        <Box sx={{ p: { xs: 3, sm: 4.5 } }}>
+        <Box sx={{ p: { xs: 3.5, sm: 4.5 } }}>
 
-          {/* En-tête : Logo Cathedis dans capsule de verre lumineuse */}
+          {/* Logo 1 directement sur le formulaire */}
           <Box sx={{
             display: 'flex',
-            flexDirection: 'column',
+            justifyContent: 'center',
             alignItems: 'center',
-            mb: 3.2,
+            mb: 2.5,
           }}>
-            <Box sx={{
-              p: 1.6,
-              px: 3.2,
-              borderRadius: '20px',
-              bgcolor: 'rgba(255, 255, 255, 0.95)',
-              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.8)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mb: 2.2,
-              transition: 'transform 0.3s ease',
-              '&:hover': { transform: 'scale(1.02)' }
-            }}>
-              <Box
-                component="img"
-                src="/images/logo2.png"
-                alt="Cathedis"
-                sx={{
-                  height: 36,
-                  maxWidth: 200,
-                  objectFit: 'contain',
-                }}
-              />
-            </Box>
+            <Box
+              component="img"
+              src="/images/logo1.png"
+              alt="Cathedis Logo"
+              sx={{
+                height: 52,
+                maxWidth: 240,
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4))',
+              }}
+            />
+          </Box>
 
+          {/* Titre & Sous-titre Institutionnel */}
+          <Box sx={{ textAlign: 'center', mb: 3.5 }}>
             <Typography variant="h5" sx={{
               fontWeight: 900,
               color: '#FFFFFF',
               fontSize: '1.45rem',
               letterSpacing: '-0.02em',
-              textAlign: 'center',
             }}>
               Portail Informatique
             </Typography>
 
             <Typography sx={{
-              color: 'rgba(255, 255, 255, 0.6)',
-              fontSize: '0.84rem',
-              mt: 0.4,
-              textAlign: 'center',
+              color: 'rgba(255, 255, 255, 0.65)',
+              fontSize: '0.85rem',
+              mt: 0.5,
               fontWeight: 500,
             }}>
               Authentification sécurisée • Parc IT Cathedis
             </Typography>
-          </Box>
-
-          {/* Sélecteur de Rôles Haute Définition */}
-          <Box sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            p: 0.6,
-            borderRadius: '16px',
-            bgcolor: 'rgba(0, 0, 0, 0.45)',
-            border: '1px solid rgba(255, 255, 255, 0.09)',
-            mb: 3,
-            gap: 0.6,
-          }}>
-            <Button
-              size="small"
-              onClick={() => handleQuickRoleSelect('ADMIN')}
-              startIcon={<AdminPanelSettingsOutlinedIcon sx={{ fontSize: '15px !important' }} />}
-              sx={{
-                py: 0.9,
-                borderRadius: '11px',
-                fontSize: '0.74rem',
-                fontWeight: 800,
-                textTransform: 'none',
-                color: activeRole === 'ADMIN' ? '#FFFFFF' : 'rgba(255, 255, 255, 0.6)',
-                bgcolor: activeRole === 'ADMIN' ? 'rgba(227, 30, 36, 0.85)' : 'transparent',
-                boxShadow: activeRole === 'ADMIN' ? '0 4px 14px rgba(227, 30, 36, 0.4)' : 'none',
-                transition: 'all 0.25s ease',
-                '&:hover': {
-                  bgcolor: activeRole === 'ADMIN' ? '#E31E24' : 'rgba(255, 255, 255, 0.06)',
-                },
-              }}
-            >
-              Admin DSI
-            </Button>
-
-            <Button
-              size="small"
-              onClick={() => handleQuickRoleSelect('TECH')}
-              startIcon={<EngineeringOutlinedIcon sx={{ fontSize: '15px !important' }} />}
-              sx={{
-                py: 0.9,
-                borderRadius: '11px',
-                fontSize: '0.74rem',
-                fontWeight: 800,
-                textTransform: 'none',
-                color: activeRole === 'TECH' ? '#FFFFFF' : 'rgba(255, 255, 255, 0.6)',
-                bgcolor: activeRole === 'TECH' ? 'rgba(14, 165, 233, 0.85)' : 'transparent',
-                boxShadow: activeRole === 'TECH' ? '0 4px 14px rgba(14, 165, 233, 0.4)' : 'none',
-                transition: 'all 0.25s ease',
-                '&:hover': {
-                  bgcolor: activeRole === 'TECH' ? '#0EA5E9' : 'rgba(255, 255, 255, 0.06)',
-                },
-              }}
-            >
-              Technicien
-            </Button>
-
-            <Button
-              size="small"
-              onClick={() => handleQuickRoleSelect('EMPLOYEE')}
-              startIcon={<PersonOutlineOutlinedIcon sx={{ fontSize: '15px !important' }} />}
-              sx={{
-                py: 0.9,
-                borderRadius: '11px',
-                fontSize: '0.74rem',
-                fontWeight: 800,
-                textTransform: 'none',
-                color: activeRole === 'EMPLOYEE' ? '#FFFFFF' : 'rgba(255, 255, 255, 0.6)',
-                bgcolor: activeRole === 'EMPLOYEE' ? 'rgba(16, 185, 129, 0.85)' : 'transparent',
-                boxShadow: activeRole === 'EMPLOYEE' ? '0 4px 14px rgba(16, 185, 129, 0.4)' : 'none',
-                transition: 'all 0.25s ease',
-                '&:hover': {
-                  bgcolor: activeRole === 'EMPLOYEE' ? '#10B981' : 'rgba(255, 255, 255, 0.06)',
-                },
-              }}
-            >
-              Collaborateur
-            </Button>
           </Box>
 
           {/* Alerte d'erreur avec animation */}
@@ -362,7 +247,7 @@ export default function LoginPage() {
           )}
 
           {/* Formulaire de Connexion */}
-          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2.3 }}>
+          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2.4 }}>
 
             {/* Champ Email Professionnel */}
             <Box>
@@ -373,7 +258,7 @@ export default function LoginPage() {
                 {...register('email')}
                 fullWidth
                 size="small"
-                placeholder="votre.email@cathedis.com"
+                placeholder="nom.prenom@cathedis.com"
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 disabled={isLoading}
@@ -542,7 +427,7 @@ export default function LoginPage() {
               </Box>
             </Box>
 
-            {/* Bouton de Connexion Deluxe avec Shimmer Effect */}
+            {/* Bouton de Connexion Se connecter */}
             <Button
               type="submit"
               fullWidth
@@ -582,7 +467,7 @@ export default function LoginPage() {
                   <span>Vérification des accès...</span>
                 </Box>
               ) : (
-                'Accéder au Portail DSI 🚀'
+                'Se connecter'
               )}
             </Button>
           </Box>
