@@ -35,11 +35,26 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'TECH' | 'USER'>('ADMIN');
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
+
+  const handleRoleChange = (role: 'ADMIN' | 'TECH' | 'USER') => {
+    setSelectedRole(role);
+    if (role === 'ADMIN') {
+      setValue('email', 'admin@cathedis.com');
+      setValue('password', 'Admin@2024');
+    } else if (role === 'TECH') {
+      setValue('email', 'technicien@cathedis.com');
+      setValue('password', 'Tech@2024');
+    } else {
+      setValue('email', 'employe@cathedis.com');
+      setValue('password', 'User@2024');
+    }
+  };
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
@@ -71,298 +86,317 @@ export default function LoginPage() {
       position: 'relative',
       alignItems: 'center',
       justifyContent: 'center',
-      bgcolor: '#0B0F19',
+      bgcolor: '#F8FAFC',
+      backgroundImage: 'radial-gradient(#CBD5E1 1px, transparent 1px)',
+      backgroundSize: '24px 24px',
       p: { xs: 2.5, sm: 4 },
       overflow: 'hidden',
+      fontFamily: 'inherit',
     }}>
-      {/* 1. Arrière-plan Cinématique Élégant */}
-      <Box
-        component="img"
-        src="/images/img.jpg"
-        alt="Cathedis Background"
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          objectPosition: 'center',
-          filter: 'brightness(0.3) saturate(1.1)',
-          zIndex: 0,
-        }}
-      />
-
-      {/* 2. Filtre Dégradé de Profondeur */}
+      {/* Halo lumineux très doux en arrière-plan */}
       <Box sx={{
         position: 'absolute',
-        inset: 0,
-        background: `
-          radial-gradient(circle at 50% 30%, rgba(227, 30, 36, 0.15) 0%, transparent 65%),
-          linear-gradient(180deg, rgba(11, 15, 25, 0.85) 0%, rgba(11, 15, 25, 0.95) 100%)
-        `,
-        zIndex: 1,
+        width: 600,
+        height: 600,
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(227, 30, 36, 0.04) 0%, rgba(248, 250, 252, 0) 70%)',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        pointerEvents: 'none',
       }} />
 
-      {/* 3. Carte de Connexion Blanche Haut de Gamme */}
+      {/* Carte Blanche Concept 3 (Style Apple / Stripe) */}
       <Box sx={{
         position: 'relative',
         zIndex: 2,
         width: '100%',
-        maxWidth: 440,
+        maxWidth: 420,
         bgcolor: '#FFFFFF',
-        borderRadius: '24px',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-        overflow: 'hidden',
-        animation: 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        borderRadius: '28px',
+        border: '1px solid rgba(226, 232, 240, 0.9)',
+        boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02)',
+        p: { xs: 3.5, sm: 4.5 },
+        animation: 'cardAppear 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
 
-        {/* Barre d'accent supérieure rouge Cathedis */}
+        {/* Logo Cathedis 2 */}
         <Box sx={{
-          height: 4,
-          background: 'linear-gradient(90deg, #E31E24 0%, #FF4D4D 50%, #C41018 100%)',
-        }} />
-
-        <Box sx={{ p: { xs: 3.5, sm: 4.5 } }}>
-
-          {/* Logo Cathedis 2 Intégré */}
-          <Box sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            mb: 2.5,
-          }}>
-            <Box
-              component="img"
-              src="/images/logo2.png"
-              alt="Cathedis Logo"
-              sx={{
-                height: 52,
-                maxWidth: 240,
-                objectFit: 'contain',
-              }}
-            />
-          </Box>
-
-          {/* Titre & Sous-titre Institutionnel */}
-          <Box sx={{ textAlign: 'center', mb: 3.5 }}>
-            <Typography variant="h5" sx={{
-              fontWeight: 800,
-              color: '#0F172A',
-              fontSize: '1.4rem',
-              letterSpacing: '-0.02em',
-            }}>
-              Espace Authentification
-            </Typography>
-            <Typography sx={{
-              color: '#64748B',
-              fontSize: '0.86rem',
-              mt: 0.6,
-              fontWeight: 500,
-            }}>
-              Portail de gestion du parc informatique DSI
-            </Typography>
-          </Box>
-
-          {/* Message d'erreur */}
-          {error && (
-            <Alert
-              severity="error"
-              sx={{
-                mb: 3,
-                borderRadius: 2.5,
-                fontSize: '0.84rem',
-                fontWeight: 600,
-                bgcolor: '#FEF2F2',
-                color: '#DC2626',
-                border: '1px solid #FEE2E2',
-              }}
-            >
-              {error}
-            </Alert>
-          )}
-
-          {/* Formulaire de Connexion */}
-          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2.4 }}>
-
-            {/* Champ Email */}
-            <Box>
-              <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', mb: 0.7 }}>
-                Identifiant / Email professionnel
-              </Typography>
-              <TextField
-                {...register('email')}
-                fullWidth
-                size="small"
-                placeholder="nom.prenom@cathedis.com"
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                disabled={isLoading}
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <EmailOutlinedIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
-                      </InputAdornment>
-                    ),
-                    sx: {
-                      borderRadius: '12px',
-                      bgcolor: '#F8FAFC',
-                      color: '#0F172A',
-                      fontSize: '0.92rem',
-                      fontWeight: 500,
-                      '& input': { color: '#0F172A', py: 1.35 },
-                      '& input::placeholder': { color: '#94A3B8' },
-                      '& fieldset': { borderColor: '#E2E8F0' },
-                      '&:hover fieldset': { borderColor: '#CBD5E1 !important' },
-                      '&.Mui-focused': {
-                        bgcolor: '#FFFFFF',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#E31E24 !important',
-                        boxShadow: '0 0 0 3px rgba(227, 30, 36, 0.15)',
-                      },
-                    },
-                  },
-                }}
-              />
-            </Box>
-
-            {/* Champ Mot de passe */}
-            <Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.7 }}>
-                <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>
-                  Mot de passe
-                </Typography>
-                <Tooltip title="Veuillez contacter le support informatique (support.it@cathedis.com) pour réinitialiser votre mot de passe." arrow>
-                  <Typography sx={{
-                    fontSize: '0.78rem',
-                    color: '#64748B',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'color 0.2s ease',
-                    '&:hover': { color: '#E31E24' }
-                  }}>
-                    Mot de passe oublié ?
-                  </Typography>
-                </Tooltip>
-              </Box>
-
-              <TextField
-                {...register('password')}
-                fullWidth
-                size="small"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••••••"
-                error={!!errors.password}
-                helperText={errors.password?.message}
-                disabled={isLoading}
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockOutlinedIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                          size="small"
-                          disabled={isLoading}
-                          sx={{ color: '#94A3B8' }}
-                        >
-                          {showPassword ? <VisibilityOff sx={{ fontSize: 19 }} /> : <Visibility sx={{ fontSize: 19 }} />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    sx: {
-                      borderRadius: '12px',
-                      bgcolor: '#F8FAFC',
-                      color: '#0F172A',
-                      fontSize: '0.92rem',
-                      fontWeight: 500,
-                      '& input': { color: '#0F172A', py: 1.35 },
-                      '& input::placeholder': { color: '#94A3B8' },
-                      '& fieldset': { borderColor: '#E2E8F0' },
-                      '&:hover fieldset': { borderColor: '#CBD5E1 !important' },
-                      '&.Mui-focused': {
-                        bgcolor: '#FFFFFF',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#E31E24 !important',
-                        boxShadow: '0 0 0 3px rgba(227, 30, 36, 0.15)',
-                      },
-                    },
-                  },
-                }}
-              />
-            </Box>
-
-            {/* Bouton de Connexion */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              disabled={isLoading}
-              sx={{
-                mt: 1,
-                py: 1.4,
-                borderRadius: '12px',
-                background: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
-                color: '#FFFFFF',
-                textTransform: 'none',
-                fontSize: '0.98rem',
-                fontWeight: 800,
-                letterSpacing: '0.01em',
-                boxShadow: '0 4px 14px rgba(227, 30, 36, 0.35)',
-                transition: 'all 0.25s ease',
-                '&:hover': {
-                  background: 'linear-gradient(90deg, #C41018 0%, #E31E24 100%)',
-                  boxShadow: '0 6px 20px rgba(227, 30, 36, 0.45)',
-                  transform: 'translateY(-1px)',
-                },
-                '&.Mui-disabled': {
-                  background: '#CBD5E1',
-                  color: '#94A3B8',
-                },
-              }}
-            >
-              {isLoading ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <CircularProgress size={20} color="inherit" />
-                  <span>Connexion en cours...</span>
-                </Box>
-              ) : (
-                'Se connecter'
-              )}
-            </Button>
-          </Box>
-
-          {/* Pied de Page Sécurisé */}
-          <Box sx={{
-            mt: 4,
-            pt: 2.5,
-            borderTop: '1px solid #F1F5F9',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 1,
-          }}>
-            <ShieldOutlinedIcon sx={{ color: '#94A3B8', fontSize: 16 }} />
-            <Typography sx={{ color: '#64748B', fontSize: '0.75rem', fontWeight: 600 }}>
-              Connexion sécurisée SSL • DSI Cathedis
-            </Typography>
-          </Box>
-
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          mb: 2.5,
+        }}>
+          <Box
+            component="img"
+            src="/images/logo2.png"
+            alt="Cathedis"
+            sx={{
+              height: 48,
+              maxWidth: 220,
+              objectFit: 'contain',
+            }}
+          />
         </Box>
+
+        {/* Titre & Sous-titre Épuré */}
+        <Box sx={{ textAlign: 'center', mb: 3 }}>
+          <Typography sx={{
+            fontWeight: 800,
+            color: '#0F172A',
+            fontSize: '1.45rem',
+            letterSpacing: '-0.02em',
+          }}>
+            Connexion au Portail IT
+          </Typography>
+          <Typography sx={{
+            color: '#64748B',
+            fontSize: '0.88rem',
+            mt: 0.5,
+            fontWeight: 500,
+          }}>
+            Gestion centralisée du parc
+          </Typography>
+        </Box>
+
+        {/* Sélecteur de profil en pilule segmentée */}
+        <Box sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          p: 0.5,
+          borderRadius: '14px',
+          bgcolor: '#F1F5F9',
+          mb: 3,
+          gap: 0.5,
+        }}>
+          <Button
+            size="small"
+            onClick={() => handleRoleChange('ADMIN')}
+            sx={{
+              py: 0.7,
+              borderRadius: '10px',
+              fontSize: '0.74rem',
+              fontWeight: 700,
+              textTransform: 'none',
+              color: selectedRole === 'ADMIN' ? '#0F172A' : '#64748B',
+              bgcolor: selectedRole === 'ADMIN' ? '#FFFFFF' : 'transparent',
+              boxShadow: selectedRole === 'ADMIN' ? '0 2px 6px rgba(0, 0, 0, 0.08)' : 'none',
+              '&:hover': {
+                bgcolor: selectedRole === 'ADMIN' ? '#FFFFFF' : 'rgba(255, 255, 255, 0.6)',
+              },
+            }}
+          >
+            Administrateur
+          </Button>
+
+          <Button
+            size="small"
+            onClick={() => handleRoleChange('TECH')}
+            sx={{
+              py: 0.7,
+              borderRadius: '10px',
+              fontSize: '0.74rem',
+              fontWeight: 700,
+              textTransform: 'none',
+              color: selectedRole === 'TECH' ? '#0F172A' : '#64748B',
+              bgcolor: selectedRole === 'TECH' ? '#FFFFFF' : 'transparent',
+              boxShadow: selectedRole === 'TECH' ? '0 2px 6px rgba(0, 0, 0, 0.08)' : 'none',
+              '&:hover': {
+                bgcolor: selectedRole === 'TECH' ? '#FFFFFF' : 'rgba(255, 255, 255, 0.6)',
+              },
+            }}
+          >
+            Technicien
+          </Button>
+
+          <Button
+            size="small"
+            onClick={() => handleRoleChange('USER')}
+            sx={{
+              py: 0.7,
+              borderRadius: '10px',
+              fontSize: '0.74rem',
+              fontWeight: 700,
+              textTransform: 'none',
+              color: selectedRole === 'USER' ? '#0F172A' : '#64748B',
+              bgcolor: selectedRole === 'USER' ? '#FFFFFF' : 'transparent',
+              boxShadow: selectedRole === 'USER' ? '0 2px 6px rgba(0, 0, 0, 0.08)' : 'none',
+              '&:hover': {
+                bgcolor: selectedRole === 'USER' ? '#FFFFFF' : 'rgba(255, 255, 255, 0.6)',
+              },
+            }}
+          >
+            Collaborateur
+          </Button>
+        </Box>
+
+        {/* Message d'erreur */}
+        {error && (
+          <Alert
+            severity="error"
+            sx={{
+              mb: 2.5,
+              borderRadius: '12px',
+              fontSize: '0.84rem',
+              fontWeight: 600,
+              bgcolor: '#FEF2F2',
+              color: '#DC2626',
+              border: '1px solid #FEE2E2',
+            }}
+          >
+            {error}
+          </Alert>
+        )}
+
+        {/* Formulaire */}
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+
+          {/* Champ Email */}
+          <TextField
+            {...register('email')}
+            fullWidth
+            size="small"
+            placeholder="Email"
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            disabled={isLoading}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailOutlinedIcon sx={{ color: '#94A3B8', fontSize: 19 }} />
+                  </InputAdornment>
+                ),
+                sx: {
+                  borderRadius: '12px',
+                  bgcolor: '#FFFFFF',
+                  color: '#0F172A',
+                  fontSize: '0.92rem',
+                  '& input': { color: '#0F172A', py: 1.3 },
+                  '& input::placeholder': { color: '#94A3B8' },
+                  '& fieldset': { borderColor: '#E2E8F0' },
+                  '&:hover fieldset': { borderColor: '#CBD5E1 !important' },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#E31E24 !important',
+                    boxShadow: '0 0 0 3px rgba(227, 30, 36, 0.12)',
+                  },
+                },
+              },
+            }}
+          />
+
+          {/* Champ Mot de passe */}
+          <TextField
+            {...register('password')}
+            fullWidth
+            size="small"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Mot de passe"
+            error={!!errors.password}
+            helperText={errors.password?.message}
+            disabled={isLoading}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockOutlinedIcon sx={{ color: '#94A3B8', fontSize: 19 }} />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                      size="small"
+                      disabled={isLoading}
+                      sx={{ color: '#94A3B8' }}
+                    >
+                      {showPassword ? <VisibilityOff sx={{ fontSize: 19 }} /> : <Visibility sx={{ fontSize: 19 }} />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+                sx: {
+                  borderRadius: '12px',
+                  bgcolor: '#FFFFFF',
+                  color: '#0F172A',
+                  fontSize: '0.92rem',
+                  '& input': { color: '#0F172A', py: 1.3 },
+                  '& input::placeholder': { color: '#94A3B8' },
+                  '& fieldset': { borderColor: '#E2E8F0' },
+                  '&:hover fieldset': { borderColor: '#CBD5E1 !important' },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#E31E24 !important',
+                    boxShadow: '0 0 0 3px rgba(227, 30, 36, 0.12)',
+                  },
+                },
+              },
+            }}
+          />
+
+          {/* Bouton d'action rouge signature */}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            disabled={isLoading}
+            sx={{
+              mt: 1,
+              py: 1.35,
+              borderRadius: '12px',
+              bgcolor: '#E31E24',
+              color: '#FFFFFF',
+              textTransform: 'none',
+              fontSize: '0.96rem',
+              fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(227, 30, 36, 0.25)',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                bgcolor: '#C41018',
+                boxShadow: '0 6px 16px rgba(227, 30, 36, 0.35)',
+                transform: 'translateY(-1px)',
+              },
+              '&.Mui-disabled': {
+                bgcolor: '#CBD5E1',
+                color: '#94A3B8',
+              },
+            }}
+          >
+            {isLoading ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <CircularProgress size={18} color="inherit" />
+                <span>Accès en cours...</span>
+              </Box>
+            ) : (
+              'Accéder à mon espace'
+            )}
+          </Button>
+        </Box>
+
+        {/* Pied de Page Concept 3 */}
+        <Box sx={{
+          mt: 4,
+          pt: 2.5,
+          borderTop: '1px solid #F1F5F9',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <Typography sx={{ color: '#94A3B8', fontSize: '0.74rem', fontWeight: 500 }}>
+            Chiffrement SSL 256-bit
+          </Typography>
+
+          <Typography sx={{ color: '#94A3B8', fontSize: '0.74rem', fontWeight: 500 }}>
+            DSI Cathedis
+          </Typography>
+        </Box>
+
       </Box>
 
-      {/* Animation d'apparition */}
+      {/* Animations */}
       <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+        @keyframes cardAppear {
+          from { opacity: 0; transform: translateY(16px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}} />
     </Box>
