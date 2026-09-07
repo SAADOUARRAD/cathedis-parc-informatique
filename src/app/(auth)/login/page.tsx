@@ -21,16 +21,18 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Container,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
-import KeyOutlinedIcon from '@mui/icons-material/KeyOutlined';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import CloseIcon from '@mui/icons-material/Close';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 
 const loginSchema = z.object({
   email: z.string().min(1, "L'adresse email est requise").email("Format d'email invalide"),
@@ -47,13 +49,13 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
   const [isCapsLockOn, setIsCapsLockOn] = useState(false);
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
+  const [registerInfoOpen, setRegisterInfoOpen] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
 
-  // Handle CapsLock detection for password input
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.getModifierState) {
       setIsCapsLockOn(e.getModifierState('CapsLock'));
@@ -69,6 +71,7 @@ export default function LoginPage() {
         email: data.email,
         password: data.password,
       });
+
       if (result?.error) {
         setError('Identifiants incorrects. Veuillez vérifier votre adresse email et mot de passe.');
       } else {
@@ -83,23 +86,22 @@ export default function LoginPage() {
   };
 
   return (
-    <Box sx={{
-      display: 'flex',
-      minHeight: '100vh',
-      width: '100%',
-      position: 'relative',
-      alignItems: 'center',
-      justifyContent: 'center',
-      bgcolor: '#070A13',
-      p: { xs: 2, sm: 3, md: 4 },
-      overflow: 'hidden',
-      fontFamily: 'inherit',
-    }}>
-      {/* 1. Arrière-plan Cinématique avec Effet de Flou & Profondeur */}
+    <Box
+      sx={{
+        position: 'relative',
+        minHeight: '100vh',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        overflow: 'hidden',
+        bgcolor: '#0B1120',
+      }}
+    >
+      {/* 1. Image de fond haute définition (fond.png) */}
       <Box
         component="img"
-        src="/images/img.jpg"
-        alt="Cathedis Fleet"
+        src="/images/fond.png"
+        alt="Cathedis Workplace"
         sx={{
           position: 'absolute',
           inset: 0,
@@ -107,469 +109,604 @@ export default function LoginPage() {
           height: '100%',
           objectFit: 'cover',
           objectPosition: 'center',
-          filter: 'brightness(0.28) saturate(1.2)',
-          transform: 'scale(1.02)',
           zIndex: 0,
+          filter: 'brightness(0.92) contrast(1.04)',
         }}
       />
 
-      {/* 2. Orbes de Lumière Ambiante Animée (Mesh Glows) */}
-      <Box sx={{
-        position: 'absolute',
-        width: { xs: 320, md: 650 },
-        height: { xs: 320, md: 650 },
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(227, 30, 36, 0.22) 0%, rgba(227, 30, 36, 0.02) 60%, transparent 80%)',
-        top: '15%',
-        left: '12%',
-        filter: 'blur(60px)',
-        zIndex: 1,
-        animation: 'floatGlow 14s infinite alternate ease-in-out',
-        pointerEvents: 'none',
-      }} />
+      {/* 2. Léger voile sombre pour rehausser le contraste et le texte */}
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(90deg, rgba(7, 10, 19, 0.45) 0%, rgba(7, 10, 19, 0.25) 50%, rgba(7, 10, 19, 0.5) 100%)',
+          zIndex: 1,
+        }}
+      />
 
-      <Box sx={{
-        position: 'absolute',
-        width: { xs: 300, md: 550 },
-        height: { xs: 300, md: 550 },
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, rgba(14, 165, 233, 0.02) 60%, transparent 80%)',
-        bottom: '10%',
-        right: '15%',
-        filter: 'blur(70px)',
-        zIndex: 1,
-        animation: 'floatGlowReverse 16s infinite alternate ease-in-out',
-        pointerEvents: 'none',
-      }} />
+      {/* 3. Contenu principal structuré en 2 colonnes */}
+      <Container
+        maxWidth="xl"
+        sx={{
+          position: 'relative',
+          zIndex: 2,
+          py: { xs: 4, md: 6 },
+          px: { xs: 2.5, sm: 4, md: 6, lg: 8 },
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* En-tête : Logo Cathedis en haut à gauche */}
+        <Box sx={{ pt: { xs: 1, md: 2 } }}>
+          <Box
+            component="img"
+            src="/images/logo1.png"
+            alt="Cathedis Logo"
+            sx={{
+              height: { xs: 44, sm: 54, md: 62 },
+              width: 'auto',
+              maxWidth: { xs: 220, md: 300 },
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 4px 16px rgba(0, 0, 0, 0.6))',
+            }}
+          />
+        </Box>
 
-      {/* 3. Filtre de Contraste Sombre & Grille Cyber Discrète */}
-      <Box sx={{
-        position: 'absolute',
-        inset: 0,
-        background: 'linear-gradient(135deg, rgba(7, 10, 19, 0.92) 0%, rgba(11, 15, 25, 0.82) 50%, rgba(7, 10, 19, 0.95) 100%)',
-        zIndex: 1,
-      }} />
-
-      <Box sx={{
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.018) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.018) 1px, transparent 1px)',
-        backgroundSize: '40px 40px',
-        zIndex: 1,
-        pointerEvents: 'none',
-      }} />
-
-      {/* 4. Carte de Connexion Deluxe Frosted Glass */}
-      <Box sx={{
-        position: 'relative',
-        zIndex: 2,
-        width: '100%',
-        maxWidth: 450,
-        bgcolor: 'rgba(15, 23, 42, 0.78)',
-        backdropFilter: 'blur(28px)',
-        WebkitBackdropFilter: 'blur(28px)',
-        borderRadius: '28px',
-        border: '1px solid rgba(255, 255, 255, 0.14)',
-        boxShadow: '0 30px 80px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-        overflow: 'hidden',
-        animation: 'cardSlideUp 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
-      }}>
-
-        {/* Ligne d'accent lumineuse supérieure rouge Cathedis */}
-        <Box sx={{
-          height: 3.5,
-          background: 'linear-gradient(90deg, #E31E24 0%, #FF4D4D 50%, #C41018 100%)',
-          boxShadow: '0 2px 10px rgba(227, 30, 36, 0.5)',
-        }} />
-
-        <Box sx={{ p: { xs: 3.5, sm: 4.5 } }}>
-
-          {/* Logo 1 directement sur le formulaire */}
-          <Box sx={{
+        {/* Corps central : Textes à gauche & Formulaire Glassmorphism à droite */}
+        <Box
+          sx={{
             display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            mb: 2.5,
-          }}>
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'center', md: 'center' },
+            justifyContent: 'space-between',
+            gap: { xs: 4, md: 6 },
+            my: 'auto',
+            py: { xs: 2, md: 4 },
+          }}
+        >
+          {/* Colonne Gauche : Espace Collaboratif & Titre */}
+          <Box
+            sx={{
+              maxWidth: { xs: '100%', md: 480 },
+              textAlign: { xs: 'center', md: 'left' },
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: { xs: 'center', md: 'flex-start' },
+            }}
+          >
+            {/* Barre décorative rouge */}
             <Box
-              component="img"
-              src="/images/logo1.png"
-              alt="Cathedis Logo"
               sx={{
-                height: 52,
-                maxWidth: 240,
-                objectFit: 'contain',
-                filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4))',
+                width: 36,
+                height: 3,
+                bgcolor: '#E31E24',
+                borderRadius: '2px',
+                mb: 1.5,
               }}
             />
-          </Box>
 
-          {/* Titre & Sous-titre Institutionnel */}
-          <Box sx={{ textAlign: 'center', mb: 3.5 }}>
-            <Typography variant="h5" sx={{
-              fontWeight: 900,
-              color: '#FFFFFF',
-              fontSize: '1.45rem',
-              letterSpacing: '-0.02em',
-            }}>
-              Portail Informatique
+            {/* Surtitre Espace Collaboratif */}
+            <Typography
+              variant="overline"
+              sx={{
+                color: 'rgba(255, 255, 255, 0.75)',
+                fontWeight: 600,
+                letterSpacing: '2.5px',
+                fontSize: { xs: '0.75rem', sm: '0.82rem' },
+                textTransform: 'uppercase',
+                mb: 1.5,
+              }}
+            >
+              ESPACE COLLABORATIF
             </Typography>
 
-            <Typography sx={{
-              color: 'rgba(255, 255, 255, 0.65)',
-              fontSize: '0.85rem',
-              mt: 0.5,
-              fontWeight: 500,
-            }}>
-              Authentification sécurisée • Parc IT Cathedis
+            {/* Titre principal */}
+            <Typography
+              component="h1"
+              sx={{
+                color: '#FFFFFF',
+                fontSize: { xs: '2rem', sm: '2.5rem', lg: '3.1rem' },
+                lineHeight: 1.15,
+                fontWeight: 700,
+                letterSpacing: '-0.5px',
+                textShadow: '0 4px 18px rgba(0, 0, 0, 0.7)',
+                mb: 1,
+              }}
+            >
+              Connectez-vous
+            </Typography>
+            <Typography
+              component="h2"
+              sx={{
+                color: '#FFFFFF',
+                fontSize: { xs: '2rem', sm: '2.5rem', lg: '3.1rem' },
+                lineHeight: 1.15,
+                fontWeight: 300,
+                letterSpacing: '-0.5px',
+                textShadow: '0 4px 18px rgba(0, 0, 0, 0.7)',
+                mb: 2.5,
+              }}
+            >
+              à votre espace
+            </Typography>
+
+            {/* Sous-titre descriptif */}
+            <Typography
+              sx={{
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: { xs: '0.92rem', sm: '1.02rem' },
+                lineHeight: 1.6,
+                maxWidth: 420,
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.6)',
+              }}
+            >
+              Gérez vos équipements informatiques en toute simplicité.
             </Typography>
           </Box>
 
-          {/* Alerte d'erreur avec animation */}
-          {error && (
-            <Fade in={!!error}>
-              <Alert
-                severity="error"
-                sx={{
-                  mb: 2.8,
-                  borderRadius: '14px',
-                  fontSize: '0.84rem',
-                  fontWeight: 600,
-                  bgcolor: 'rgba(220, 38, 38, 0.18)',
-                  color: '#FCA5A5',
-                  border: '1px solid rgba(220, 38, 38, 0.4)',
-                  boxShadow: '0 4px 14px rgba(220, 38, 38, 0.15)',
-                }}
-              >
-                {error}
-              </Alert>
-            </Fade>
-          )}
+          {/* Colonne Droite : Carte Frosted Glass Formulaire */}
+          <Box
+            sx={{
+              width: '100%',
+              maxWidth: { xs: 400, sm: 440, md: 460 },
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+              backgroundColor: 'rgba(18, 26, 43, 0.48)',
+              border: '1px solid rgba(255, 255, 255, 0.18)',
+              borderRadius: '24px',
+              p: { xs: 3, sm: 4.5 },
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06) inset',
+            }}
+          >
+            {/* Titre Connexion */}
+            <Typography
+              component="h3"
+              sx={{
+                color: '#FFFFFF',
+                fontSize: { xs: '1.75rem', sm: '2rem' },
+                fontWeight: 700,
+                letterSpacing: '-0.5px',
+                mb: 0.8,
+              }}
+            >
+              Connexion
+            </Typography>
+            <Typography
+              sx={{
+                color: 'rgba(255, 255, 255, 0.65)',
+                fontSize: '0.92rem',
+                mb: 3,
+              }}
+            >
+              Accédez à votre espace de gestion.
+            </Typography>
 
-          {/* Formulaire de Connexion */}
-          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2.4 }}>
+            {/* Message d'erreur */}
+            {error && (
+              <Fade in={Boolean(error)}>
+                <Alert
+                  severity="error"
+                  onClose={() => setError(null)}
+                  sx={{
+                    mb: 2.5,
+                    bgcolor: 'rgba(239, 68, 68, 0.15)',
+                    color: '#FCA5A5',
+                    border: '1px solid rgba(239, 68, 68, 0.35)',
+                    borderRadius: '12px',
+                    fontSize: '0.84rem',
+                    '& .MuiAlert-icon': { color: '#EF4444' },
+                  }}
+                >
+                  {error}
+                </Alert>
+              </Fade>
+            )}
 
-            {/* Champ Email Professionnel */}
-            <Box>
-              <Typography sx={{ fontSize: '0.81rem', fontWeight: 700, color: 'rgba(255, 255, 255, 0.85)', mb: 0.7 }}>
-                Identifiant / Email Professionnel
-              </Typography>
-              <TextField
-                {...register('email')}
-                fullWidth
-                size="small"
-                placeholder="nom.prenom@cathedis.com"
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                disabled={isLoading}
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <EmailOutlinedIcon sx={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: 19 }} />
-                      </InputAdornment>
-                    ),
-                    sx: {
-                      borderRadius: '14px',
-                      bgcolor: 'rgba(0, 0, 0, 0.4)',
+            {/* Formulaire */}
+            <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+              {/* Champ Email */}
+              <Box sx={{ mb: 2.2 }}>
+                <TextField
+                  fullWidth
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="Entrez votre email"
+                  error={Boolean(errors.email)}
+                  helperText={errors.email?.message}
+                  {...register('email')}
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <EmailOutlinedIcon sx={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: 20 }} />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      height: 50,
+                      borderRadius: '12px',
                       color: '#FFFFFF',
-                      fontSize: '0.91rem',
-                      fontWeight: 500,
-                      transition: 'all 0.25s ease',
-                      '& input': { color: '#FFFFFF', py: 1.35 },
-                      '& input::placeholder': { color: 'rgba(255, 255, 255, 0.35)' },
-                      '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.14)' },
-                      '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.35) !important' },
-                      '&.Mui-focused': {
-                        bgcolor: 'rgba(0, 0, 0, 0.55)',
+                      bgcolor: 'rgba(255, 255, 255, 0.06)',
+                      transition: 'all 0.2s ease',
+                      '& fieldset': {
+                        borderColor: 'rgba(255, 255, 255, 0.16)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'rgba(255, 255, 255, 0.35)',
                       },
                       '&.Mui-focused fieldset': {
-                        borderColor: '#E31E24 !important',
-                        boxShadow: '0 0 0 3px rgba(227, 30, 36, 0.25)',
-                      },
-                      '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus': {
-                        WebkitBoxShadow: '0 0 0 1000px #0D1321 inset !important',
-                        WebkitTextFillColor: '#FFFFFF !important',
-                        caretColor: '#FFFFFF',
+                        borderColor: '#E31E24',
+                        borderWidth: 1.5,
                       },
                     },
-                  },
-                }}
-              />
-            </Box>
+                    '& .MuiInputBase-input::placeholder': {
+                      color: 'rgba(255, 255, 255, 0.45)',
+                      opacity: 1,
+                      fontSize: '0.92rem',
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: '#FCA5A5',
+                      fontSize: '0.78rem',
+                      mt: 0.5,
+                    },
+                  }}
+                />
+              </Box>
 
-            {/* Champ Mot de Passe */}
-            <Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.7 }}>
-                <Typography sx={{ fontSize: '0.81rem', fontWeight: 700, color: 'rgba(255, 255, 255, 0.85)' }}>
-                  Mot de passe
-                </Typography>
-                <Typography
+              {/* Champ Mot de passe */}
+              <Box sx={{ mb: 1.8 }}>
+                <TextField
+                  fullWidth
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  placeholder="Entrez votre mot de passe"
+                  onKeyUp={handleKeyUp}
+                  error={Boolean(errors.password)}
+                  helperText={errors.password?.message}
+                  {...register('password')}
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LockOutlinedIcon sx={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: 20 }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            size="small"
+                            sx={{ color: 'rgba(255, 255, 255, 0.5)', '&:hover': { color: '#FFFFFF' } }}
+                          >
+                            {showPassword ? <VisibilityOff sx={{ fontSize: 20 }} /> : <Visibility sx={{ fontSize: 20 }} />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      height: 50,
+                      borderRadius: '12px',
+                      color: '#FFFFFF',
+                      bgcolor: 'rgba(255, 255, 255, 0.06)',
+                      transition: 'all 0.2s ease',
+                      '& fieldset': {
+                        borderColor: 'rgba(255, 255, 255, 0.16)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'rgba(255, 255, 255, 0.35)',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#E31E24',
+                        borderWidth: 1.5,
+                      },
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: 'rgba(255, 255, 255, 0.45)',
+                      opacity: 1,
+                      fontSize: '0.92rem',
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: '#FCA5A5',
+                      fontSize: '0.78rem',
+                      mt: 0.5,
+                    },
+                  }}
+                />
+              </Box>
+
+              {/* Avertissement Caps Lock */}
+              {isCapsLockOn && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 1.5, px: 0.5 }}>
+                  <WarningAmberOutlinedIcon sx={{ color: '#FBBF24', fontSize: 16 }} />
+                  <Typography sx={{ color: '#FBBF24', fontSize: '0.76rem' }}>
+                    Touche Verr. Maj (Caps Lock) activée
+                  </Typography>
+                </Box>
+              )}
+
+              {/* Ligne "Se souvenir de moi" & "Mot de passe oublié ?" */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  mb: 3,
+                  flexWrap: 'wrap',
+                  gap: 1,
+                }}
+              >
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      size="small"
+                      sx={{
+                        color: 'rgba(255, 255, 255, 0.4)',
+                        p: 0.5,
+                        '&.Mui-checked': {
+                          color: '#E31E24',
+                        },
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.84rem' }}>
+                      Se souvenir de moi
+                    </Typography>
+                  }
+                  sx={{ ml: -0.5, mr: 0 }}
+                />
+
+                <Button
+                  variant="text"
                   onClick={() => setForgotPasswordOpen(true)}
                   sx={{
-                    fontSize: '0.78rem',
-                    color: '#FF5A5F',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'color 0.2s ease',
-                    '&:hover': { color: '#FFA4A7', textDecoration: 'underline' }
+                    p: 0,
+                    minWidth: 'auto',
+                    color: '#E31E24',
+                    fontSize: '0.84rem',
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    '&:hover': {
+                      background: 'transparent',
+                      textDecoration: 'underline',
+                      color: '#FF3B42',
+                    },
                   }}
                 >
                   Mot de passe oublié ?
-                </Typography>
+                </Button>
               </Box>
 
-              <TextField
-                {...register('password')}
+              {/* Bouton de Soumission Rouge Gradient */}
+              <Button
+                type="submit"
                 fullWidth
-                size="small"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••••••"
-                error={!!errors.password}
-                helperText={errors.password?.message}
                 disabled={isLoading}
-                onKeyUp={handleKeyUp}
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockOutlinedIcon sx={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: 19 }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                          size="small"
-                          disabled={isLoading}
-                          sx={{ color: 'rgba(255, 255, 255, 0.55)', '&:hover': { color: '#FFFFFF' } }}
-                        >
-                          {showPassword ? <VisibilityOff sx={{ fontSize: 19 }} /> : <Visibility sx={{ fontSize: 19 }} />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    sx: {
-                      borderRadius: '14px',
-                      bgcolor: 'rgba(0, 0, 0, 0.4)',
-                      color: '#FFFFFF',
-                      fontSize: '0.91rem',
-                      fontWeight: 500,
-                      transition: 'all 0.25s ease',
-                      '& input': { color: '#FFFFFF', py: 1.35 },
-                      '& input::placeholder': { color: 'rgba(255, 255, 255, 0.35)' },
-                      '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.14)' },
-                      '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.35) !important' },
-                      '&.Mui-focused': {
-                        bgcolor: 'rgba(0, 0, 0, 0.55)',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#E31E24 !important',
-                        boxShadow: '0 0 0 3px rgba(227, 30, 36, 0.25)',
-                      },
-                      '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus': {
-                        WebkitBoxShadow: '0 0 0 1000px #0D1321 inset !important',
-                        WebkitTextFillColor: '#FFFFFF !important',
-                        caretColor: '#FFFFFF',
-                      },
-                    },
+                sx={{
+                  height: 50,
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #E31E24 0%, #C4141A 100%)',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                  fontSize: '0.98rem',
+                  textTransform: 'none',
+                  letterSpacing: '0.2px',
+                  boxShadow: '0 8px 24px rgba(227, 30, 36, 0.42)',
+                  transition: 'all 0.25s ease',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #FF2E36 0%, #D8171E 100%)',
+                    boxShadow: '0 10px 28px rgba(227, 30, 36, 0.55)',
+                    transform: 'translateY(-1.5px)',
+                  },
+                  '&:active': {
+                    transform: 'translateY(0)',
+                  },
+                  '&.Mui-disabled': {
+                    background: 'rgba(227, 30, 36, 0.5)',
+                    color: 'rgba(255, 255, 255, 0.7)',
                   },
                 }}
-              />
+              >
+                {isLoading ? (
+                  <CircularProgress size={22} sx={{ color: '#FFFFFF' }} />
+                ) : (
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                    <span>Se connecter</span>
+                    <ArrowForwardIcon sx={{ fontSize: 19 }} />
+                  </Box>
+                )}
+              </Button>
 
-              {/* Indicateur de Verr. Majuscule actif */}
-              {isCapsLockOn && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.8, color: '#FBBF24' }}>
-                  <WarningAmberOutlinedIcon sx={{ fontSize: 15 }} />
-                  <Typography sx={{ fontSize: '0.74rem', fontWeight: 600 }}>
-                    Touche Verrouillage Majuscule activée
-                  </Typography>
-                </Box>
-              )}
-            </Box>
-
-            {/* Ligne Options : Mémoriser la session */}
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    size="small"
-                    sx={{
-                      color: 'rgba(255, 255, 255, 0.4)',
-                      '&.Mui-checked': { color: '#E31E24' },
-                      p: 0.5,
-                    }}
-                  />
-                }
-                label={
-                  <Typography sx={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.75)', fontWeight: 500 }}>
-                    Mémoriser ma session
-                  </Typography>
-                }
-              />
-
-              <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.8,
-                px: 1.2,
-                py: 0.4,
-                borderRadius: '8px',
-                bgcolor: 'rgba(16, 185, 129, 0.1)',
-                border: '1px solid rgba(16, 185, 129, 0.25)',
-              }}>
-                <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#10B981', boxShadow: '0 0 6px #10B981' }} />
-                <Typography sx={{ color: '#6EE7B7', fontSize: '0.72rem', fontWeight: 700 }}>
-                  Serveur DSI Actif
+              {/* Pied de carte : "Pas encore membre ?" & "Créer un compte" */}
+              <Box sx={{ textAlign: 'center', mt: 3 }}>
+                <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.84rem' }}>
+                  Pas encore membre ?
                 </Typography>
+                <Button
+                  variant="text"
+                  onClick={() => setRegisterInfoOpen(true)}
+                  sx={{
+                    p: 0,
+                    mt: 0.4,
+                    minWidth: 'auto',
+                    color: '#E31E24',
+                    fontSize: '0.84rem',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    '&:hover': {
+                      background: 'transparent',
+                      textDecoration: 'underline',
+                      color: '#FF3B42',
+                    },
+                  }}
+                >
+                  Créer un compte
+                </Button>
               </Box>
             </Box>
-
-            {/* Bouton de Connexion Se connecter */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              disabled={isLoading}
-              sx={{
-                mt: 1,
-                py: 1.45,
-                borderRadius: '14px',
-                background: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
-                color: '#FFFFFF',
-                textTransform: 'none',
-                fontSize: '0.98rem',
-                fontWeight: 800,
-                letterSpacing: '0.02em',
-                boxShadow: '0 8px 24px rgba(227, 30, 36, 0.4)',
-                position: 'relative',
-                overflow: 'hidden',
-                transition: 'all 0.25s ease',
-                '&:hover': {
-                  background: 'linear-gradient(90deg, #FF333A 0%, #E31E24 100%)',
-                  boxShadow: '0 10px 30px rgba(227, 30, 36, 0.55)',
-                  transform: 'translateY(-1px)',
-                },
-                '&:active': {
-                  transform: 'translateY(1px) scale(0.99)',
-                },
-                '&.Mui-disabled': {
-                  background: 'rgba(255, 255, 255, 0.12)',
-                  color: 'rgba(255, 255, 255, 0.35)',
-                },
-              }}
-            >
-              {isLoading ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <CircularProgress size={20} color="inherit" />
-                  <span>Vérification des accès...</span>
-                </Box>
-              ) : (
-                'Se connecter'
-              )}
-            </Button>
           </Box>
-
-          {/* Pied de Page Sécurisé & Certification */}
-          <Box sx={{
-            mt: 4,
-            pt: 2.5,
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 1.5,
-          }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-              <ShieldOutlinedIcon sx={{ color: '#10B981', fontSize: 16 }} />
-              <Typography sx={{ color: 'rgba(255, 255, 255, 0.55)', fontSize: '0.74rem', fontWeight: 600 }}>
-                Chiffrement SSL 256-bit
-              </Typography>
-            </Box>
-
-            <Typography sx={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.72rem', fontWeight: 600 }}>
-              DSI Cathedis • v2.4
-            </Typography>
-          </Box>
-
         </Box>
-      </Box>
 
-      {/* Modale d'Assistance Mot de Passe Oublié */}
+        {/* Espace bas pour équilibrer le layout */}
+        <Box sx={{ pb: { xs: 1, md: 2 } }} />
+      </Container>
+
+      {/* MODAL 1 : Mot de passe oublié */}
       <Dialog
         open={forgotPasswordOpen}
         onClose={() => setForgotPasswordOpen(false)}
         maxWidth="xs"
         fullWidth
-        slotProps={{ paper: { sx: { borderRadius: '22px', bgcolor: '#0F172A', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.15)', p: 1 } } }}
+        slotProps={{
+          paper: {
+            sx: {
+              bgcolor: '#131B2E',
+              color: '#FFFFFF',
+              borderRadius: '20px',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              p: 1.5,
+              backdropFilter: 'blur(20px)',
+            },
+          },
+        }}
       >
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-            <KeyOutlinedIcon sx={{ color: '#E31E24' }} />
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: '1.15rem' }}>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <SupportAgentIcon sx={{ color: '#E31E24', fontSize: 26 }} />
+            <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.15rem' }}>
               Réinitialisation DSI
             </Typography>
           </Box>
-          <IconButton onClick={() => setForgotPasswordOpen(false)} size="small" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+          <IconButton onClick={() => setForgotPasswordOpen(false)} size="small" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </DialogTitle>
 
         <DialogContent sx={{ pt: 1 }}>
-          <Typography sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.88rem', lineHeight: 1.6 }}>
-            Pour des raisons de sécurité liées à la politique de l&apos;infrastructure Cathedis, la réinitialisation de votre mot de passe nécessite une validation par l&apos;administrateur IT.
+          <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.9rem', mb: 2 }}>
+            Pour des motifs de sécurité interne, la réinitialisation de mot de passe est gérée directement par le Support Informatique Cathedis.
           </Typography>
 
-          <Box sx={{ p: 2, borderRadius: '14px', bgcolor: 'rgba(227, 30, 36, 0.1)', border: '1px solid rgba(227, 30, 36, 0.3)', mt: 2 }}>
-            <Typography sx={{ color: '#FF7075', fontSize: '0.8rem', fontWeight: 700 }}>
-              Contact Assistance Informatique :
+          <Box
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.05)',
+              p: 2,
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)', display: 'block', mb: 0.5 }}>
+              Contact DSI Support :
             </Typography>
-            <Typography sx={{ color: '#FFFFFF', fontSize: '0.85rem', fontWeight: 600, mt: 0.3 }}>
+            <Typography sx={{ color: '#E31E24', fontWeight: 600, fontSize: '0.95rem' }}>
               support.it@cathedis.com
             </Typography>
-            <Typography sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem', mt: 0.5 }}>
-              Interne : Poste 104 • Disponible du Lundi au Vendredi
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)', display: 'block', mt: 1 }}>
+              Disponibilité : Lun - Ven (08h00 - 18h30)
             </Typography>
           </Box>
         </DialogContent>
 
         <DialogActions sx={{ p: 2, pt: 1 }}>
           <Button
-            onClick={() => setForgotPasswordOpen(false)}
-            variant="contained"
             fullWidth
+            onClick={() => setForgotPasswordOpen(false)}
             sx={{
-              borderRadius: '12px',
-              bgcolor: '#E31E24',
+              bgcolor: 'rgba(255, 255, 255, 0.1)',
               color: '#FFFFFF',
-              fontWeight: 700,
+              borderRadius: '10px',
               textTransform: 'none',
-              '&:hover': { bgcolor: '#C41018' },
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.18)' },
             }}
           >
-            Compris
+            Fermer
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Animations CSS fluides */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes cardSlideUp {
-          from { opacity: 0; transform: translateY(28px) scale(0.97); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes floatGlow {
-          0% { transform: translate(0, 0) scale(1); }
-          100% { transform: translate(40px, 30px) scale(1.15); }
-        }
-        @keyframes floatGlowReverse {
-          0% { transform: translate(0, 0) scale(1); }
-          100% { transform: translate(-35px, -25px) scale(1.1); }
-        }
-      `}} />
+      {/* MODAL 2 : Créer un compte */}
+      <Dialog
+        open={registerInfoOpen}
+        onClose={() => setRegisterInfoOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              bgcolor: '#131B2E',
+              color: '#FFFFFF',
+              borderRadius: '20px',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              p: 1.5,
+              backdropFilter: 'blur(20px)',
+            },
+          },
+        }}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <PersonAddOutlinedIcon sx={{ color: '#E31E24', fontSize: 26 }} />
+            <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.15rem' }}>
+              Création de Compte
+            </Typography>
+          </Box>
+          <IconButton onClick={() => setRegisterInfoOpen(false)} size="small" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ pt: 1 }}>
+          <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.9rem', mb: 2 }}>
+            Les accès au portail de gestion du parc informatique Cathedis sont strictement réservés aux collaborateurs et administrateurs habilités.
+          </Typography>
+
+          <Box
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.05)',
+              p: 2,
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)', display: 'block', mb: 0.5 }}>
+              Pour toute demande d&apos;ouverture d&apos;accès :
+            </Typography>
+            <Typography sx={{ color: '#E31E24', fontWeight: 600, fontSize: '0.95rem' }}>
+              support.it@cathedis.com
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)', display: 'block', mt: 1 }}>
+              Veuillez indiquer votre matricule et votre département.
+            </Typography>
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, pt: 1 }}>
+          <Button
+            fullWidth
+            onClick={() => setRegisterInfoOpen(false)}
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.1)',
+              color: '#FFFFFF',
+              borderRadius: '10px',
+              textTransform: 'none',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.18)' },
+            }}
+          >
+            Fermer
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
