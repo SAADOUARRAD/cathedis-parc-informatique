@@ -89,15 +89,17 @@ export default function LoginPage() {
     <Box
       sx={{
         position: 'relative',
-        minHeight: '100vh',
-        width: '100%',
+        height: '100vh',
+        maxHeight: '100vh',
+        width: '100vw',
+        maxWidth: '100vw',
         display: 'flex',
-        alignItems: 'center',
+        flexDirection: 'column',
         overflow: 'hidden',
         bgcolor: '#0B1120',
       }}
     >
-      {/* 1. Image de fond haute définition (fond.png) */}
+      {/* 1. Image de fond haute définition plein écran sans rognage gênant (fond.png) */}
       <Box
         component="img"
         src="/images/fond.png"
@@ -110,7 +112,7 @@ export default function LoginPage() {
           objectFit: 'cover',
           objectPosition: 'center',
           zIndex: 0,
-          filter: 'brightness(0.92) contrast(1.04)',
+          filter: 'brightness(0.93) contrast(1.04)',
         }}
       />
 
@@ -119,63 +121,64 @@ export default function LoginPage() {
         sx={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(90deg, rgba(7, 10, 19, 0.45) 0%, rgba(7, 10, 19, 0.25) 50%, rgba(7, 10, 19, 0.5) 100%)',
+          background: 'linear-gradient(90deg, rgba(7, 10, 19, 0.42) 0%, rgba(7, 10, 19, 0.18) 50%, rgba(7, 10, 19, 0.45) 100%)',
           zIndex: 1,
         }}
       />
 
-      {/* 3. Contenu principal structuré en 2 colonnes */}
+      {/* 3. Contenu principal structuré en 2 colonnes (calibré pour 0 défilement) */}
       <Container
         maxWidth="xl"
         sx={{
           position: 'relative',
           zIndex: 2,
-          py: { xs: 4, md: 6 },
-          px: { xs: 2.5, sm: 4, md: 6, lg: 8 },
-          minHeight: '100vh',
+          height: '100vh',
+          maxHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
+          py: { xs: 2, md: 3 },
+          px: { xs: 2.5, sm: 4, md: 6, lg: 8 },
+          overflow: 'hidden',
         }}
       >
         {/* En-tête : Logo Cathedis en haut à gauche */}
-        <Box sx={{ pt: { xs: 1.5, md: 3 }, pl: { xs: 0.5, md: 1 } }}>
+        <Box sx={{ pt: { xs: 0.5, md: 1.5 }, pl: { xs: 0.5, md: 1 } }}>
           <Box
             component="img"
             src="/images/logo1.png"
             alt="Cathedis Logo"
             sx={{
-              height: { xs: 52, sm: 66, md: 80, lg: 90 },
+              height: { xs: 48, sm: 62, md: 74, lg: 84 },
               width: 'auto',
-              maxWidth: { xs: 250, sm: 330, md: 400, lg: 460 },
+              maxWidth: { xs: 240, sm: 310, md: 380, lg: 440 },
               objectFit: 'contain',
               filter: 'drop-shadow(0 6px 20px rgba(0, 0, 0, 0.65))',
             }}
           />
         </Box>
 
-        {/* Corps central : Textes à gauche & Formulaire Glassmorphism à droite */}
+        {/* Corps central : Textes à gauche & Formulaire Glassmorphism à droite (Remontés ensemble) */}
         <Box
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
-            alignItems: { xs: 'center', md: 'center' },
+            alignItems: 'center',
             justifyContent: 'space-between',
-            gap: { xs: 4, md: 6 },
+            gap: { xs: 3, md: 5, lg: 7 },
             my: 'auto',
-            py: { xs: 2, md: 3 },
+            transform: { md: 'translateY(-30px)', lg: 'translateY(-42px)' },
+            transition: 'transform 0.3s ease',
           }}
         >
-          {/* Colonne Gauche : Espace Collaboratif & Titre (Remonté pour ne pas chevaucher le mug) */}
+          {/* Colonne Gauche : Espace Collaboratif & Titre */}
           <Box
             sx={{
-              maxWidth: { xs: '100%', md: 500 },
+              maxWidth: { xs: '100%', md: 480, lg: 520 },
               textAlign: { xs: 'center', md: 'left' },
               display: 'flex',
               flexDirection: 'column',
               alignItems: { xs: 'center', md: 'flex-start' },
-              transform: { md: 'translateY(-55px)', lg: 'translateY(-75px)' },
-              transition: 'transform 0.3s ease',
             }}
           >
             {/* Barre décorative rouge */}
@@ -185,7 +188,7 @@ export default function LoginPage() {
                 height: 3.5,
                 bgcolor: '#E31E24',
                 borderRadius: '2px',
-                mb: 1.8,
+                mb: 1.5,
               }}
             />
 
@@ -196,9 +199,9 @@ export default function LoginPage() {
                 color: 'rgba(255, 255, 255, 0.8)',
                 fontWeight: 600,
                 letterSpacing: '2.5px',
-                fontSize: { xs: '0.78rem', sm: '0.85rem' },
+                fontSize: { xs: '0.75rem', sm: '0.82rem' },
                 textTransform: 'uppercase',
-                mb: 1.5,
+                mb: 1.2,
               }}
             >
               ESPACE COLLABORATIF
@@ -209,7 +212,7 @@ export default function LoginPage() {
               component="h1"
               sx={{
                 color: '#FFFFFF',
-                fontSize: { xs: '2.1rem', sm: '2.7rem', lg: '3.3rem' },
+                fontSize: { xs: '2rem', sm: '2.5rem', lg: '3.1rem' },
                 lineHeight: 1.15,
                 fontWeight: 700,
                 letterSpacing: '-0.5px',
@@ -223,12 +226,12 @@ export default function LoginPage() {
               component="h2"
               sx={{
                 color: '#FFFFFF',
-                fontSize: { xs: '2.1rem', sm: '2.7rem', lg: '3.3rem' },
+                fontSize: { xs: '2rem', sm: '2.5rem', lg: '3.1rem' },
                 lineHeight: 1.15,
                 fontWeight: 300,
                 letterSpacing: '-0.5px',
                 textShadow: '0 4px 20px rgba(0, 0, 0, 0.75)',
-                mb: 2.5,
+                mb: 2,
               }}
             >
               à votre espace
@@ -238,9 +241,9 @@ export default function LoginPage() {
             <Typography
               sx={{
                 color: 'rgba(255, 255, 255, 0.75)',
-                fontSize: { xs: '0.95rem', sm: '1.05rem' },
+                fontSize: { xs: '0.92rem', sm: '1rem' },
                 lineHeight: 1.6,
-                maxWidth: 440,
+                maxWidth: 420,
                 textShadow: '0 2px 10px rgba(0, 0, 0, 0.7)',
               }}
             >
@@ -248,20 +251,18 @@ export default function LoginPage() {
             </Typography>
           </Box>
 
-          {/* Colonne Droite : Carte Frosted Glass Formulaire (Remontée et plus transparente) */}
+          {/* Colonne Droite : Carte Frosted Glass Formulaire (Remontée et même couleur que les champs) */}
           <Box
             sx={{
               width: '100%',
-              maxWidth: { xs: 400, sm: 440, md: 460 },
+              maxWidth: { xs: 380, sm: 420, md: 440 },
               backdropFilter: 'blur(16px) saturate(160%)',
               WebkitBackdropFilter: 'blur(16px) saturate(160%)',
-              backgroundColor: 'rgba(14, 22, 38, 0.26)',
-              border: '1px solid rgba(255, 255, 255, 0.24)',
+              backgroundColor: 'rgba(14, 22, 38, 0.22)',
+              border: '1px solid rgba(255, 255, 255, 0.22)',
               borderRadius: '24px',
-              p: { xs: 3, sm: 4.5 },
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.12) inset',
-              transform: { md: 'translateY(-35px)', lg: 'translateY(-50px)' },
-              transition: 'transform 0.3s ease, background-color 0.3s ease',
+              p: { xs: 2.5, sm: 3.5, md: 4 },
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
             }}
           >
             {/* Titre Connexion */}
@@ -269,10 +270,10 @@ export default function LoginPage() {
               component="h3"
               sx={{
                 color: '#FFFFFF',
-                fontSize: { xs: '1.75rem', sm: '2rem' },
+                fontSize: { xs: '1.65rem', sm: '1.9rem' },
                 fontWeight: 700,
                 letterSpacing: '-0.5px',
-                mb: 0.8,
+                mb: 0.6,
               }}
             >
               Connexion
@@ -280,8 +281,8 @@ export default function LoginPage() {
             <Typography
               sx={{
                 color: 'rgba(255, 255, 255, 0.65)',
-                fontSize: '0.92rem',
-                mb: 3,
+                fontSize: '0.88rem',
+                mb: 2.5,
               }}
             >
               Accédez à votre espace de gestion.
@@ -294,12 +295,12 @@ export default function LoginPage() {
                   severity="error"
                   onClose={() => setError(null)}
                   sx={{
-                    mb: 2.5,
+                    mb: 2,
                     bgcolor: 'rgba(239, 68, 68, 0.15)',
                     color: '#FCA5A5',
                     border: '1px solid rgba(239, 68, 68, 0.35)',
                     borderRadius: '12px',
-                    fontSize: '0.84rem',
+                    fontSize: '0.82rem',
                     '& .MuiAlert-icon': { color: '#EF4444' },
                   }}
                 >
@@ -310,8 +311,8 @@ export default function LoginPage() {
 
             {/* Formulaire */}
             <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-              {/* Champ Email */}
-              <Box sx={{ mb: 2.2 }}>
+              {/* Champ Email (Même couleur de fond que le formulaire) */}
+              <Box sx={{ mb: 2 }}>
                 <TextField
                   fullWidth
                   id="email"
@@ -332,16 +333,16 @@ export default function LoginPage() {
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      height: 50,
+                      height: 48,
                       borderRadius: '12px',
                       color: '#FFFFFF',
-                      bgcolor: 'rgba(255, 255, 255, 0.07)',
+                      bgcolor: 'rgba(14, 22, 38, 0.22)',
                       transition: 'all 0.2s ease',
                       '& fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.16)',
+                        borderColor: 'rgba(255, 255, 255, 0.18)',
                       },
                       '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.35)',
+                        borderColor: 'rgba(255, 255, 255, 0.38)',
                       },
                       '&.Mui-focused fieldset': {
                         borderColor: '#E31E24',
@@ -350,10 +351,10 @@ export default function LoginPage() {
                     },
                     '& .MuiInputBase-input': {
                       color: '#FFFFFF !important',
-                      fontSize: '0.94rem',
+                      fontSize: '0.92rem',
                     },
                     '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active': {
-                      WebkitBoxShadow: '0 0 0 1000px #1A253A inset !important',
+                      WebkitBoxShadow: '0 0 0 1000px rgba(14, 22, 38, 0.85) inset !important',
                       WebkitTextFillColor: '#FFFFFF !important',
                       caretColor: '#FFFFFF !important',
                       borderRadius: 'inherit',
@@ -362,19 +363,19 @@ export default function LoginPage() {
                     '& .MuiInputBase-input::placeholder': {
                       color: 'rgba(255, 255, 255, 0.45)',
                       opacity: 1,
-                      fontSize: '0.92rem',
+                      fontSize: '0.9rem',
                     },
                     '& .MuiFormHelperText-root': {
                       color: '#FCA5A5',
-                      fontSize: '0.78rem',
+                      fontSize: '0.75rem',
                       mt: 0.5,
                     },
                   }}
                 />
               </Box>
 
-              {/* Champ Mot de passe */}
-              <Box sx={{ mb: 1.8 }}>
+              {/* Champ Mot de passe (Même couleur de fond que le formulaire) */}
+              <Box sx={{ mb: 1.6 }}>
                 <TextField
                   fullWidth
                   id="password"
@@ -400,7 +401,7 @@ export default function LoginPage() {
                             size="small"
                             sx={{ color: 'rgba(255, 255, 255, 0.5)', '&:hover': { color: '#FFFFFF' } }}
                           >
-                            {showPassword ? <VisibilityOff sx={{ fontSize: 20 }} /> : <Visibility sx={{ fontSize: 20 }} />}
+                            {showPassword ? <VisibilityOff sx={{ fontSize: 19 }} /> : <Visibility sx={{ fontSize: 19 }} />}
                           </IconButton>
                         </InputAdornment>
                       ),
@@ -408,16 +409,16 @@ export default function LoginPage() {
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      height: 50,
+                      height: 48,
                       borderRadius: '12px',
                       color: '#FFFFFF',
-                      bgcolor: 'rgba(255, 255, 255, 0.07)',
+                      bgcolor: 'rgba(14, 22, 38, 0.22)',
                       transition: 'all 0.2s ease',
                       '& fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.16)',
+                        borderColor: 'rgba(255, 255, 255, 0.18)',
                       },
                       '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.35)',
+                        borderColor: 'rgba(255, 255, 255, 0.38)',
                       },
                       '&.Mui-focused fieldset': {
                         borderColor: '#E31E24',
@@ -426,10 +427,10 @@ export default function LoginPage() {
                     },
                     '& .MuiInputBase-input': {
                       color: '#FFFFFF !important',
-                      fontSize: '0.94rem',
+                      fontSize: '0.92rem',
                     },
                     '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active': {
-                      WebkitBoxShadow: '0 0 0 1000px #1A253A inset !important',
+                      WebkitBoxShadow: '0 0 0 1000px rgba(14, 22, 38, 0.85) inset !important',
                       WebkitTextFillColor: '#FFFFFF !important',
                       caretColor: '#FFFFFF !important',
                       borderRadius: 'inherit',
@@ -438,11 +439,11 @@ export default function LoginPage() {
                     '& .MuiInputBase-input::placeholder': {
                       color: 'rgba(255, 255, 255, 0.45)',
                       opacity: 1,
-                      fontSize: '0.92rem',
+                      fontSize: '0.9rem',
                     },
                     '& .MuiFormHelperText-root': {
                       color: '#FCA5A5',
-                      fontSize: '0.78rem',
+                      fontSize: '0.75rem',
                       mt: 0.5,
                     },
                   }}
@@ -451,9 +452,9 @@ export default function LoginPage() {
 
               {/* Avertissement Caps Lock */}
               {isCapsLockOn && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 1.5, px: 0.5 }}>
-                  <WarningAmberOutlinedIcon sx={{ color: '#FBBF24', fontSize: 16 }} />
-                  <Typography sx={{ color: '#FBBF24', fontSize: '0.76rem' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 1.2, px: 0.5 }}>
+                  <WarningAmberOutlinedIcon sx={{ color: '#FBBF24', fontSize: 15 }} />
+                  <Typography sx={{ color: '#FBBF24', fontSize: '0.74rem' }}>
                     Touche Verr. Maj (Caps Lock) activée
                   </Typography>
                 </Box>
@@ -465,7 +466,7 @@ export default function LoginPage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  mb: 3,
+                  mb: 2.5,
                   flexWrap: 'wrap',
                   gap: 1,
                 }}
@@ -486,7 +487,7 @@ export default function LoginPage() {
                     />
                   }
                   label={
-                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.84rem' }}>
+                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.82rem' }}>
                       Se souvenir de moi
                     </Typography>
                   }
@@ -500,7 +501,7 @@ export default function LoginPage() {
                     p: 0,
                     minWidth: 'auto',
                     color: '#E31E24',
-                    fontSize: '0.84rem',
+                    fontSize: '0.82rem',
                     textTransform: 'none',
                     fontWeight: 500,
                     '&:hover': {
@@ -520,12 +521,12 @@ export default function LoginPage() {
                 fullWidth
                 disabled={isLoading}
                 sx={{
-                  height: 50,
-                  borderRadius: '14px',
+                  height: 48,
+                  borderRadius: '13px',
                   background: 'linear-gradient(135deg, #E31E24 0%, #C4141A 100%)',
                   color: '#FFFFFF',
                   fontWeight: 600,
-                  fontSize: '0.98rem',
+                  fontSize: '0.95rem',
                   textTransform: 'none',
                   letterSpacing: '0.2px',
                   boxShadow: '0 8px 24px rgba(227, 30, 36, 0.42)',
@@ -549,14 +550,14 @@ export default function LoginPage() {
                 ) : (
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
                     <span>Se connecter</span>
-                    <ArrowForwardIcon sx={{ fontSize: 19 }} />
+                    <ArrowForwardIcon sx={{ fontSize: 18 }} />
                   </Box>
                 )}
               </Button>
 
               {/* Pied de carte : "Pas encore membre ?" & "Créer un compte" */}
-              <Box sx={{ textAlign: 'center', mt: 3 }}>
-                <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.84rem' }}>
+              <Box sx={{ textAlign: 'center', mt: 2.5 }}>
+                <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.82rem' }}>
                   Pas encore membre ?
                 </Typography>
                 <Button
@@ -564,10 +565,10 @@ export default function LoginPage() {
                   onClick={() => setRegisterInfoOpen(true)}
                   sx={{
                     p: 0,
-                    mt: 0.4,
+                    mt: 0.3,
                     minWidth: 'auto',
                     color: '#E31E24',
-                    fontSize: '0.84rem',
+                    fontSize: '0.82rem',
                     fontWeight: 600,
                     textTransform: 'none',
                     '&:hover': {
@@ -585,7 +586,7 @@ export default function LoginPage() {
         </Box>
 
         {/* Espace bas pour équilibrer le layout */}
-        <Box sx={{ pb: { xs: 1, md: 2 } }} />
+        <Box sx={{ pb: { xs: 0.5, md: 1 } }} />
       </Container>
 
       {/* MODAL 1 : Mot de passe oublié */}
