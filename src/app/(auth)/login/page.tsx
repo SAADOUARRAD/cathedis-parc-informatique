@@ -336,7 +336,7 @@ export default function LoginPage() {
                       height: 48,
                       borderRadius: '12px',
                       color: '#FFFFFF',
-                      bgcolor: 'rgba(14, 22, 38, 0.22)',
+                      bgcolor: 'rgba(255, 255, 255, 0.03)',
                       transition: 'all 0.2s ease',
                       '& fieldset': {
                         borderColor: 'rgba(255, 255, 255, 0.18)',
@@ -352,13 +352,16 @@ export default function LoginPage() {
                     '& .MuiInputBase-input': {
                       color: '#FFFFFF !important',
                       fontSize: '0.92rem',
+                      bgcolor: 'transparent !important',
                     },
                     '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active': {
-                      WebkitBoxShadow: '0 0 0 1000px rgba(14, 22, 38, 0.85) inset !important',
+                      WebkitBackgroundClip: 'text !important',
                       WebkitTextFillColor: '#FFFFFF !important',
                       caretColor: '#FFFFFF !important',
-                      borderRadius: 'inherit',
-                      transition: 'background-color 5000s ease-in-out 0s',
+                      transition: 'background-color 5000000s ease-in-out 0s',
+                      boxShadow: 'none !important',
+                      WebkitBoxShadow: 'none !important',
+                      backgroundColor: 'transparent !important',
                     },
                     '& .MuiInputBase-input::placeholder': {
                       color: 'rgba(255, 255, 255, 0.45)',
@@ -412,7 +415,7 @@ export default function LoginPage() {
                       height: 48,
                       borderRadius: '12px',
                       color: '#FFFFFF',
-                      bgcolor: 'rgba(14, 22, 38, 0.22)',
+                      bgcolor: 'rgba(255, 255, 255, 0.03)',
                       transition: 'all 0.2s ease',
                       '& fieldset': {
                         borderColor: 'rgba(255, 255, 255, 0.18)',
@@ -428,13 +431,16 @@ export default function LoginPage() {
                     '& .MuiInputBase-input': {
                       color: '#FFFFFF !important',
                       fontSize: '0.92rem',
+                      bgcolor: 'transparent !important',
                     },
                     '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active': {
-                      WebkitBoxShadow: '0 0 0 1000px rgba(14, 22, 38, 0.85) inset !important',
+                      WebkitBackgroundClip: 'text !important',
                       WebkitTextFillColor: '#FFFFFF !important',
                       caretColor: '#FFFFFF !important',
-                      borderRadius: 'inherit',
-                      transition: 'background-color 5000s ease-in-out 0s',
+                      transition: 'background-color 5000000s ease-in-out 0s',
+                      boxShadow: 'none !important',
+                      WebkitBoxShadow: 'none !important',
+                      backgroundColor: 'transparent !important',
                     },
                     '& .MuiInputBase-input::placeholder': {
                       color: 'rgba(255, 255, 255, 0.45)',
