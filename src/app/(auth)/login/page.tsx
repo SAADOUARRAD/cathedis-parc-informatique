@@ -248,18 +248,20 @@ export default function LoginPage() {
             </Typography>
           </Box>
 
-          {/* Colonne Droite : Carte Frosted Glass Formulaire */}
+          {/* Colonne Droite : Carte Frosted Glass Formulaire (Remontée et plus transparente) */}
           <Box
             sx={{
               width: '100%',
               maxWidth: { xs: 400, sm: 440, md: 460 },
-              backdropFilter: 'blur(24px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-              backgroundColor: 'rgba(18, 26, 43, 0.48)',
-              border: '1px solid rgba(255, 255, 255, 0.18)',
+              backdropFilter: 'blur(16px) saturate(160%)',
+              WebkitBackdropFilter: 'blur(16px) saturate(160%)',
+              backgroundColor: 'rgba(14, 22, 38, 0.26)',
+              border: '1px solid rgba(255, 255, 255, 0.24)',
               borderRadius: '24px',
               p: { xs: 3, sm: 4.5 },
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06) inset',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.12) inset',
+              transform: { md: 'translateY(-35px)', lg: 'translateY(-50px)' },
+              transition: 'transform 0.3s ease, background-color 0.3s ease',
             }}
           >
             {/* Titre Connexion */}
