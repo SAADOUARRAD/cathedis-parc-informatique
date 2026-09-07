@@ -139,17 +139,17 @@ export default function LoginPage() {
         }}
       >
         {/* En-tête : Logo Cathedis en haut à gauche */}
-        <Box sx={{ pt: { xs: 1, md: 2 } }}>
+        <Box sx={{ pt: { xs: 1.5, md: 3 }, pl: { xs: 0.5, md: 1 } }}>
           <Box
             component="img"
             src="/images/logo1.png"
             alt="Cathedis Logo"
             sx={{
-              height: { xs: 44, sm: 54, md: 62 },
+              height: { xs: 52, sm: 66, md: 80, lg: 90 },
               width: 'auto',
-              maxWidth: { xs: 220, md: 300 },
+              maxWidth: { xs: 250, sm: 330, md: 400, lg: 460 },
               objectFit: 'contain',
-              filter: 'drop-shadow(0 4px 16px rgba(0, 0, 0, 0.6))',
+              filter: 'drop-shadow(0 6px 20px rgba(0, 0, 0, 0.65))',
             }}
           />
         </Box>
@@ -163,27 +163,29 @@ export default function LoginPage() {
             justifyContent: 'space-between',
             gap: { xs: 4, md: 6 },
             my: 'auto',
-            py: { xs: 2, md: 4 },
+            py: { xs: 2, md: 3 },
           }}
         >
-          {/* Colonne Gauche : Espace Collaboratif & Titre */}
+          {/* Colonne Gauche : Espace Collaboratif & Titre (Remonté pour ne pas chevaucher le mug) */}
           <Box
             sx={{
-              maxWidth: { xs: '100%', md: 480 },
+              maxWidth: { xs: '100%', md: 500 },
               textAlign: { xs: 'center', md: 'left' },
               display: 'flex',
               flexDirection: 'column',
               alignItems: { xs: 'center', md: 'flex-start' },
+              transform: { md: 'translateY(-55px)', lg: 'translateY(-75px)' },
+              transition: 'transform 0.3s ease',
             }}
           >
             {/* Barre décorative rouge */}
             <Box
               sx={{
-                width: 36,
-                height: 3,
+                width: 38,
+                height: 3.5,
                 bgcolor: '#E31E24',
                 borderRadius: '2px',
-                mb: 1.5,
+                mb: 1.8,
               }}
             />
 
@@ -191,10 +193,10 @@ export default function LoginPage() {
             <Typography
               variant="overline"
               sx={{
-                color: 'rgba(255, 255, 255, 0.75)',
+                color: 'rgba(255, 255, 255, 0.8)',
                 fontWeight: 600,
                 letterSpacing: '2.5px',
-                fontSize: { xs: '0.75rem', sm: '0.82rem' },
+                fontSize: { xs: '0.78rem', sm: '0.85rem' },
                 textTransform: 'uppercase',
                 mb: 1.5,
               }}
@@ -207,12 +209,12 @@ export default function LoginPage() {
               component="h1"
               sx={{
                 color: '#FFFFFF',
-                fontSize: { xs: '2rem', sm: '2.5rem', lg: '3.1rem' },
+                fontSize: { xs: '2.1rem', sm: '2.7rem', lg: '3.3rem' },
                 lineHeight: 1.15,
                 fontWeight: 700,
                 letterSpacing: '-0.5px',
-                textShadow: '0 4px 18px rgba(0, 0, 0, 0.7)',
-                mb: 1,
+                textShadow: '0 4px 20px rgba(0, 0, 0, 0.75)',
+                mb: 0.8,
               }}
             >
               Connectez-vous
@@ -221,11 +223,11 @@ export default function LoginPage() {
               component="h2"
               sx={{
                 color: '#FFFFFF',
-                fontSize: { xs: '2rem', sm: '2.5rem', lg: '3.1rem' },
+                fontSize: { xs: '2.1rem', sm: '2.7rem', lg: '3.3rem' },
                 lineHeight: 1.15,
                 fontWeight: 300,
                 letterSpacing: '-0.5px',
-                textShadow: '0 4px 18px rgba(0, 0, 0, 0.7)',
+                textShadow: '0 4px 20px rgba(0, 0, 0, 0.75)',
                 mb: 2.5,
               }}
             >
@@ -235,11 +237,11 @@ export default function LoginPage() {
             {/* Sous-titre descriptif */}
             <Typography
               sx={{
-                color: 'rgba(255, 255, 255, 0.7)',
-                fontSize: { xs: '0.92rem', sm: '1.02rem' },
+                color: 'rgba(255, 255, 255, 0.75)',
+                fontSize: { xs: '0.95rem', sm: '1.05rem' },
                 lineHeight: 1.6,
-                maxWidth: 420,
-                textShadow: '0 2px 8px rgba(0, 0, 0, 0.6)',
+                maxWidth: 440,
+                textShadow: '0 2px 10px rgba(0, 0, 0, 0.7)',
               }}
             >
               Gérez vos équipements informatiques en toute simplicité.
@@ -331,7 +333,7 @@ export default function LoginPage() {
                       height: 50,
                       borderRadius: '12px',
                       color: '#FFFFFF',
-                      bgcolor: 'rgba(255, 255, 255, 0.06)',
+                      bgcolor: 'rgba(255, 255, 255, 0.07)',
                       transition: 'all 0.2s ease',
                       '& fieldset': {
                         borderColor: 'rgba(255, 255, 255, 0.16)',
@@ -343,6 +345,17 @@ export default function LoginPage() {
                         borderColor: '#E31E24',
                         borderWidth: 1.5,
                       },
+                    },
+                    '& .MuiInputBase-input': {
+                      color: '#FFFFFF !important',
+                      fontSize: '0.94rem',
+                    },
+                    '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active': {
+                      WebkitBoxShadow: '0 0 0 1000px #1A253A inset !important',
+                      WebkitTextFillColor: '#FFFFFF !important',
+                      caretColor: '#FFFFFF !important',
+                      borderRadius: 'inherit',
+                      transition: 'background-color 5000s ease-in-out 0s',
                     },
                     '& .MuiInputBase-input::placeholder': {
                       color: 'rgba(255, 255, 255, 0.45)',
@@ -396,7 +409,7 @@ export default function LoginPage() {
                       height: 50,
                       borderRadius: '12px',
                       color: '#FFFFFF',
-                      bgcolor: 'rgba(255, 255, 255, 0.06)',
+                      bgcolor: 'rgba(255, 255, 255, 0.07)',
                       transition: 'all 0.2s ease',
                       '& fieldset': {
                         borderColor: 'rgba(255, 255, 255, 0.16)',
@@ -408,6 +421,17 @@ export default function LoginPage() {
                         borderColor: '#E31E24',
                         borderWidth: 1.5,
                       },
+                    },
+                    '& .MuiInputBase-input': {
+                      color: '#FFFFFF !important',
+                      fontSize: '0.94rem',
+                    },
+                    '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active': {
+                      WebkitBoxShadow: '0 0 0 1000px #1A253A inset !important',
+                      WebkitTextFillColor: '#FFFFFF !important',
+                      caretColor: '#FFFFFF !important',
+                      borderRadius: 'inherit',
+                      transition: 'background-color 5000s ease-in-out 0s',
                     },
                     '& .MuiInputBase-input::placeholder': {
                       color: 'rgba(255, 255, 255, 0.45)',
