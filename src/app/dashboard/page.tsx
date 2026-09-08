@@ -200,17 +200,17 @@ export default function DashboardPage() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3.5, p: { xs: 1.5, md: 3 } }}>
       
-      {/* 🌟 1. BANNIÈRE EXÉCUTIVE PREMIUM & ÉLÉGANTE 🌟 */}
+      {/* 🌟 1. BANNIÈRE EXÉCUTIVE CADRÉE EN BLEU MARINE 🌟 */}
       <Paper
         elevation={0}
         sx={{
           borderRadius: 3.5,
           p: { xs: 2.5, sm: 3, md: 3.5 },
           bgcolor: '#FFFFFF',
-          border: '1px solid #E2E8F0',
+          border: '2px solid #0F172A', // Cadre bleu marine foncé net et élégant
           position: 'relative',
           overflow: 'hidden',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)',
+          boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -218,20 +218,8 @@ export default function DashboardPage() {
           gap: 3,
         }}
       >
-        {/* Subtle decorative accent border */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            bottom: 0,
-            width: 4,
-            background: 'linear-gradient(180deg, #0F172A 0%, #1E293B 60%, #E31E24 100%)',
-          }}
-        />
-
         {/* Left: Greeting & System Status */}
-        <Box sx={{ pl: { xs: 1, md: 1.5 }, maxWidth: 680 }}>
+        <Box sx={{ maxWidth: 720 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1, flexWrap: 'wrap' }}>
             <Box
               sx={{
@@ -254,7 +242,7 @@ export default function DashboardPage() {
                   boxShadow: '0 0 6px #10B981',
                 }}
               />
-              <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#0F172A', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
                 Système Opérationnel
               </Typography>
             </Box>
@@ -282,61 +270,35 @@ export default function DashboardPage() {
           </Typography>
         </Box>
 
-        {/* Right: Quick Action Button & Live Stat Badges */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              p: 1,
-              px: 2,
-              borderRadius: 2.5,
-              bgcolor: '#F8FAFC',
-              border: '1px solid #E2E8F0',
-            }}
-          >
-            <Box sx={{ textAlign: 'center', pr: 2.5, borderRight: '1px solid #E2E8F0' }}>
-              <Typography sx={{ fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.1 }}>
-                {kpis.totalEquipments || 0}
-              </Typography>
-              <Typography sx={{ fontSize: '0.68rem', fontWeight: 600, color: '#64748B', mt: 0.2 }}>
-                Équipements
-              </Typography>
-            </Box>
-
-            <Box sx={{ textAlign: 'center', pl: 2.5 }}>
-              <Typography sx={{ fontSize: '1.35rem', fontWeight: 800, color: '#10B981', lineHeight: 1.1 }}>
-                {availPercent}%
-              </Typography>
-              <Typography sx={{ fontSize: '0.68rem', fontWeight: 600, color: '#64748B', mt: 0.2 }}>
-                Disponibilité
-              </Typography>
-            </Box>
+        {/* Right: Live Stat Badges */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            p: 1.2,
+            px: 2.5,
+            borderRadius: 2.5,
+            bgcolor: '#F8FAFC',
+            border: '1px solid #E2E8F0',
+          }}
+        >
+          <Box sx={{ textAlign: 'center', pr: 2.5, borderRight: '1px solid #E2E8F0' }}>
+            <Typography sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.1 }}>
+              {kpis.totalEquipments || 0}
+            </Typography>
+            <Typography sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748B', mt: 0.3 }}>
+              Équipements
+            </Typography>
           </Box>
 
-          <Button
-            component={Link}
-            href="/dashboard/equipments"
-            variant="contained"
-            startIcon={<AddIcon />}
-            sx={{
-              bgcolor: '#0F172A',
-              color: '#FFFFFF',
-              fontWeight: 700,
-              fontSize: '0.84rem',
-              textTransform: 'none',
-              borderRadius: 2.5,
-              px: 2.2,
-              py: 1.1,
-              boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
-              '&:hover': {
-                bgcolor: '#1E293B',
-                boxShadow: '0 6px 16px rgba(15, 23, 42, 0.25)',
-              },
-            }}
-          >
-            Nouvel équipement
-          </Button>
+          <Box sx={{ textAlign: 'center', pl: 2.5 }}>
+            <Typography sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#10B981', lineHeight: 1.1 }}>
+              {availPercent}%
+            </Typography>
+            <Typography sx={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748B', mt: 0.3 }}>
+              Disponibilité
+            </Typography>
+          </Box>
         </Box>
       </Paper>
 
