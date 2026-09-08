@@ -15,7 +15,7 @@ Directives :
 3. Si la question le justifie, ajoute 1 à 3 recommandations stratégiques DSI ou préconisations actionnables.
 4. Reste toujours orienté action, sécurité des données, maîtrise budgétaire et continuité de service.`;
 
-  const models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+  const models = ['gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-1.5-flash'];
   
   for (const model of models) {
     try {
