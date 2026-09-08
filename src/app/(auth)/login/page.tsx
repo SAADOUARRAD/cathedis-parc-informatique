@@ -151,8 +151,7 @@ export default function LoginPage() {
             justifyContent: 'space-between',
             width: '100%',
             gap: { xs: 3, md: 5, lg: 7 },
-            transform: { md: 'translateY(-20px)', lg: 'translateY(-28px)' },
-            transition: 'transform 0.3s ease',
+            my: 'auto',
           }}
         >
           {/* Colonne Gauche : Espace Collaboratif & Titre */}
@@ -235,7 +234,7 @@ export default function LoginPage() {
             </Typography>
           </Box>
 
-          {/* Colonne Droite : Carte Frosted Glass Formulaire (Remontée et même couleur que les champs) */}
+          {/* Colonne Droite : Carte Frosted Glass Formulaire (Abaissée pour être alignée avec le texte) */}
           <Box
             sx={{
               width: '100%',
@@ -247,6 +246,8 @@ export default function LoginPage() {
               borderRadius: '24px',
               p: { xs: 2.5, sm: 3.5, md: 4 },
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+              transform: { md: 'translateY(24px)', lg: 'translateY(32px)' },
+              transition: 'transform 0.3s ease',
             }}
           >
             {/* Titre Connexion */}
