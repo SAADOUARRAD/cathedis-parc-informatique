@@ -48,10 +48,9 @@ import MenuIcon from '@mui/icons-material/Menu';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import CathedisLogo from '@/components/CathedisLogo';
 import FloatingChatWidget from '@/components/shared/FloatingChatWidget';
 
-const drawerWidth = 280;
+const drawerWidth = 260;
 
 const adminMenuSections = [
   {
@@ -127,78 +126,6 @@ const technicianMenuSections = [
   },
 ];
 
-interface RoleTheme {
-  sidebarBg: string;
-  activeItemBg: string;
-  activeItemColor: string;
-  inactiveItemColor: string;
-  hoverBg: string;
-  categoryLabelColor: string;
-  avatarBg: string;
-  avatarColor: string;
-  roleBadgeBg: string;
-  roleBadgeColor: string;
-  roleLabel: string;
-  appBarAccent: string;
-  borderColor: string;
-  userNameColor: string;
-  logoutIconColor: string;
-}
-
-const roleThemes: Record<string, RoleTheme> = {
-  EMPLOYEE: {
-    sidebarBg: 'linear-gradient(180deg, #1A1A2E 0%, #2A1B28 45%, #7B0000 100%)', // Same dark & red gradient as the banner!
-    activeItemBg: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
-    activeItemColor: '#FFFFFF',
-    inactiveItemColor: 'rgba(255, 255, 255, 0.85)',
-    hoverBg: 'rgba(255, 255, 255, 0.08)',
-    categoryLabelColor: 'rgba(255, 205, 210, 0.75)',
-    avatarBg: '#E31E24',
-    avatarColor: '#FFFFFF',
-    roleBadgeBg: 'rgba(227, 30, 36, 0.35)',
-    roleBadgeColor: '#FFCDD2',
-    roleLabel: 'EMPLOYÉ',
-    appBarAccent: '#E31E24',
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-    userNameColor: '#FFFFFF',
-    logoutIconColor: 'rgba(255, 255, 255, 0.8)',
-  },
-  TECHNICIAN: {
-    sidebarBg: 'linear-gradient(180deg, #FFFFFF 0%, #FFF5F5 45%, #FFE5E5 100%)', // White with subtle red gradient
-    activeItemBg: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
-    activeItemColor: '#FFFFFF',
-    inactiveItemColor: '#1E293B',
-    hoverBg: 'rgba(227, 30, 36, 0.08)',
-    categoryLabelColor: '#C41018',
-    avatarBg: '#E31E24',
-    avatarColor: '#FFFFFF',
-    roleBadgeBg: 'rgba(227, 30, 36, 0.12)',
-    roleBadgeColor: '#E31E24',
-    roleLabel: 'TECHNICIEN',
-    appBarAccent: '#E31E24',
-    borderColor: 'rgba(227, 30, 36, 0.18)',
-    userNameColor: '#0F172A',
-    logoutIconColor: '#64748B',
-  },
-  ADMIN: {
-    sidebarBg: 'linear-gradient(180deg, #1A1A2E 0%, #2A1B28 45%, #7B0000 100%)', // Same dark & red gradient as the banner!
-    activeItemBg: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
-    activeItemColor: '#FFFFFF',
-    inactiveItemColor: 'rgba(255, 255, 255, 0.85)',
-    hoverBg: 'rgba(255, 255, 255, 0.08)',
-    categoryLabelColor: 'rgba(255, 205, 210, 0.75)',
-    avatarBg: '#E31E24',
-    avatarColor: '#FFFFFF',
-    roleBadgeBg: 'rgba(227, 30, 36, 0.35)',
-    roleBadgeColor: '#FFCDD2',
-    roleLabel: 'ADMINISTRATEUR',
-    appBarAccent: '#E31E24',
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-    userNameColor: '#FFFFFF',
-    logoutIconColor: 'rgba(255, 255, 255, 0.8)',
-  },
-};
-
 export default function DashboardLayout({
   children,
 }: {
@@ -259,7 +186,7 @@ export default function DashboardLayout({
     }
   };
 
-  const currentDrawerWidth = isCollapsed ? 80 : drawerWidth;
+  const currentDrawerWidth = isCollapsed ? 76 : drawerWidth;
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -279,9 +206,9 @@ export default function DashboardLayout({
     router.push('/login');
   };
 
-  // Determine user role & theme
+  // Determine user role
   const userRole = session?.user?.role || 'ADMIN';
-  const roleTheme = roleThemes[userRole] || roleThemes.ADMIN;
+  const roleLabel = userRole === 'ADMIN' ? 'ADMINISTRATEUR' : userRole === 'TECHNICIAN' ? 'TECHNICIEN' : 'EMPLOYÉ';
 
   // Select menu based on role
   const isEmployee = userRole === 'EMPLOYEE';
@@ -302,100 +229,60 @@ export default function DashboardLayout({
     });
   });
 
+  // Vertical White Sidebar Component (Placed strictly underneath the Top Navy Bar)
   const drawer = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', background: roleTheme.sidebarBg, color: 'white', transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)' }}>
-      {/* 🏢 Logo Header & Collapse Toggle 🏢 */}
-      {!isCollapsed ? (
-        <Box sx={{ p: 2.5, display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', borderBottom: `1px solid ${roleTheme.borderColor}` }}>
-          <Box
-            component="img"
-            src={isTechnician ? "/images/logo2.png" : "/images/logo1.png"}
-            alt="Cathedis"
-            sx={{ maxWidth: '170px', height: 'auto', display: 'block' }}
-          />
-          <Tooltip title="Réduire la barre (Mode Compact)" placement="bottom" arrow>
-            <IconButton
-              size="small"
-              onClick={() => setIsCollapsed(true)}
-              sx={{
-                position: 'absolute',
-                right: 12,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: isTechnician ? '#475569' : 'rgba(255, 255, 255, 0.7)',
-                bgcolor: isTechnician ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)',
-                '&:hover': { bgcolor: isTechnician ? 'rgba(227, 30, 36, 0.1)' : 'rgba(255, 255, 255, 0.15)', color: '#E31E24' }
-              }}
-            >
-              <ChevronLeftIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ) : (
-        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5, borderBottom: `1px solid ${roleTheme.borderColor}` }}>
-          <Avatar
-            sx={{
-              bgcolor: '#E31E24',
-              color: '#FFFFFF',
-              fontWeight: 900,
-              width: 40,
-              height: 40,
-              fontSize: '1.2rem',
-              boxShadow: '0 4px 12px rgba(227, 30, 36, 0.4)'
-            }}
-          >
-            C
-          </Avatar>
-          <Tooltip title="Agrandir la barre latérale" placement="right" arrow>
-            <IconButton
-              size="small"
-              onClick={() => setIsCollapsed(false)}
-              sx={{
-                color: isTechnician ? '#475569' : 'rgba(255, 255, 255, 0.85)',
-                bgcolor: isTechnician ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.08)',
-                '&:hover': { bgcolor: '#E31E24', color: '#FFFFFF' }
-              }}
-            >
-              <ChevronRightIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      )}
-      
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: '#FFFFFF',
+        color: '#1E293B',
+        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+      }}
+    >
       {/* 📋 Navigation List with Tooltips in Compact Mode 📋 */}
-      <Box sx={{ overflowY: 'auto', flexGrow: 1, py: 1.5, '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: '4px' } }}>
-        <List sx={{ pt: 0, pb: 3 }}>
+      <Box
+        sx={{
+          overflowY: 'auto',
+          flexGrow: 1,
+          py: 1.5,
+          '&::-webkit-scrollbar': { width: '4px' },
+          '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: '4px' },
+        }}
+      >
+        <List sx={{ pt: 0.5, pb: 2 }}>
           {menuSections.map((section, index) => (
             <React.Fragment key={index}>
               {!isCollapsed ? (
-                <Typography 
-                  sx={{ 
-                    px: 3, 
-                    py: 1.2, 
-                    fontSize: '0.72rem', 
-                    color: roleTheme.categoryLabelColor, 
+                <Typography
+                  sx={{
+                    px: 3,
+                    py: 1,
+                    fontSize: '0.7rem',
+                    color: '#64748B',
                     fontWeight: 800,
-                    letterSpacing: '0.12em',
+                    letterSpacing: '0.1em',
                     textTransform: 'uppercase',
-                    mt: index === 0 ? 0.5 : 2 
+                    mt: index === 0 ? 0.5 : 1.8,
                   }}
                 >
                   {section.label}
                 </Typography>
               ) : (
-                index > 0 && <Divider sx={{ my: 1.5, borderColor: isTechnician ? 'rgba(227,30,36,0.15)' : 'rgba(255,255,255,0.08)', mx: 1.5 }} />
+                index > 0 && <Divider sx={{ my: 1.2, borderColor: '#E2E8F0', mx: 1.5 }} />
               )}
 
               {section.items.map((item) => {
                 const isActive = pathname === item.path;
-                
+
                 const itemButton = (
                   <ListItemButton
                     component={Link}
                     href={item.path}
                     sx={{
                       borderRadius: 2.5,
-                      py: 1.1,
+                      py: 1,
                       px: isCollapsed ? 1 : 2,
                       justifyContent: isCollapsed ? 'center' : 'flex-start',
                       position: 'relative',
@@ -403,58 +290,55 @@ export default function DashboardLayout({
                       background: isActive
                         ? 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)'
                         : 'transparent',
-                      color: isActive ? '#FFFFFF !important' : roleTheme.inactiveItemColor,
-                      border: isActive ? '1px solid #E31E24' : '1px solid transparent',
-                      borderLeft: isActive ? '4px solid #991B1B' : '4px solid transparent',
+                      color: isActive ? '#FFFFFF !important' : '#334155',
                       boxShadow: isActive
-                        ? '0 6px 18px rgba(227, 30, 36, 0.45)'
+                        ? '0 4px 14px rgba(227, 30, 36, 0.35)'
                         : 'none',
-                      transition: 'all 0.22s cubic-bezier(0.4, 0, 0.2, 1)',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                       '&:hover': {
-                        transform: isCollapsed ? 'scale(1.08)' : 'translateX(4px)',
+                        transform: isCollapsed ? 'scale(1.06)' : 'translateX(3px)',
                         background: isActive
                           ? 'linear-gradient(90deg, #C41018 0%, #991B1B 100%)'
-                          : isTechnician ? 'rgba(227, 30, 36, 0.08)' : 'rgba(255, 255, 255, 0.08)',
-                        borderColor: isActive ? '#991B1B' : isTechnician ? 'rgba(227, 30, 36, 0.2)' : 'rgba(255, 255, 255, 0.06)',
-                        color: isActive ? '#FFFFFF !important' : isTechnician ? '#E31E24' : '#FFFFFF',
+                          : 'rgba(227, 30, 36, 0.08)',
+                        color: isActive ? '#FFFFFF !important' : '#E31E24',
                         '& .MuiListItemIcon-root': {
                           color: isActive ? '#FFFFFF !important' : '#E31E24',
-                          transform: 'scale(1.1)',
-                        }
+                          transform: 'scale(1.08)',
+                        },
                       },
                     }}
                   >
                     <ListItemIcon
                       sx={{
-                        color: isActive ? '#FFFFFF !important' : isTechnician ? '#334155' : 'inherit',
-                        minWidth: isCollapsed ? 0 : 38,
+                        color: isActive ? '#FFFFFF !important' : '#64748B',
+                        minWidth: isCollapsed ? 0 : 36,
                         justifyContent: 'center',
                         transition: 'all 0.2s',
-                        filter: isActive ? 'drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))' : 'none'
+                        '& svg': { fontSize: 21 },
                       }}
                     >
                       {item.icon}
                     </ListItemIcon>
                     {!isCollapsed && (
-                      <ListItemText 
-                        primary={item.text} 
+                      <ListItemText
+                        primary={item.text}
                         slotProps={{
                           primary: {
                             sx: {
-                              fontSize: '0.92rem',
-                              fontWeight: isActive ? 800 : 600,
-                              letterSpacing: isActive ? '0.02em' : 'normal',
-                              color: isActive ? '#FFFFFF !important' : 'inherit',
-                            }
-                          }
-                        }} 
+                              fontSize: '0.88rem',
+                              fontWeight: isActive ? 700 : 600,
+                              letterSpacing: isActive ? '0.01em' : 'normal',
+                              color: isActive ? '#FFFFFF !important' : '#334155',
+                            },
+                          },
+                        }}
                       />
                     )}
                   </ListItemButton>
                 );
 
                 return (
-                  <ListItem key={item.path} disablePadding sx={{ px: isCollapsed ? 1 : 1.8, mb: 0.8 }}>
+                  <ListItem key={item.path} disablePadding sx={{ px: isCollapsed ? 1 : 1.5, mb: 0.5 }}>
                     {isCollapsed ? (
                       <Tooltip
                         title={item.text}
@@ -465,15 +349,14 @@ export default function DashboardLayout({
                             sx: {
                               bgcolor: '#0F172A',
                               color: '#FFFFFF',
-                              fontWeight: 800,
-                              fontSize: '0.82rem',
-                              py: 0.8,
-                              px: 1.5,
+                              fontWeight: 700,
+                              fontSize: '0.8rem',
+                              py: 0.6,
+                              px: 1.2,
                               borderRadius: 2,
-                              border: '1px solid rgba(255,255,255,0.15)',
-                              boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
-                            }
-                          }
+                              boxShadow: '0 6px 18px rgba(0,0,0,0.3)',
+                            },
+                          },
                         }}
                       >
                         {itemButton}
@@ -489,25 +372,24 @@ export default function DashboardLayout({
         </List>
       </Box>
 
-      {/* 👤 User Profile Footer (Adaptive Collapsed & Expanded) 👤 */}
-      <Box sx={{ p: isCollapsed ? 1.5 : 2, borderTop: `1px solid ${roleTheme.borderColor}` }}>
+      {/* 👤 User Profile Footer inside White Sidebar 👤 */}
+      <Box sx={{ p: isCollapsed ? 1.2 : 1.8, borderTop: '1px solid #E2E8F0', backgroundColor: '#FAFAFA' }}>
         {!isCollapsed ? (
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: 1.8,
-              p: 1.5,
-              borderRadius: 3,
-              bgcolor: isTechnician ? 'rgba(227, 30, 36, 0.06)' : 'rgba(255, 255, 255, 0.06)',
-              backdropFilter: 'blur(10px)',
-              border: isTechnician ? '1px solid rgba(227, 30, 36, 0.15)' : '1px solid rgba(255, 255, 255, 0.1)',
-              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
+              gap: 1.5,
+              p: 1.2,
+              borderRadius: 2.5,
+              bgcolor: '#FFFFFF',
+              border: '1px solid #E2E8F0',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
               transition: 'all 0.2s',
               '&:hover': {
-                bgcolor: isTechnician ? 'rgba(227, 30, 36, 0.1)' : 'rgba(255, 255, 255, 0.1)',
-                borderColor: 'rgba(227, 30, 36, 0.3)'
-              }
+                borderColor: '#CBD5E1',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+              },
             }}
           >
             <Avatar
@@ -515,29 +397,29 @@ export default function DashboardLayout({
                 bgcolor: '#E31E24',
                 color: '#FFFFFF',
                 fontWeight: 800,
-                width: 40,
-                height: 40,
-                boxShadow: '0 4px 12px rgba(227, 30, 36, 0.4)',
-                border: '1.5px solid rgba(255, 255, 255, 0.2)'
+                width: 36,
+                height: 36,
+                fontSize: '0.92rem',
+                boxShadow: '0 2px 8px rgba(227, 30, 36, 0.35)',
               }}
             >
-              {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'U'}
+              {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'A'}
             </Avatar>
             <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-              <Typography noWrap sx={{ fontSize: '0.92rem', color: isTechnician ? '#0F172A' : '#FFFFFF', fontWeight: 800 }}>
-                {session?.user?.name || 'Utilisateur'}
+              <Typography noWrap sx={{ fontSize: '0.86rem', color: '#0F172A', fontWeight: 700 }}>
+                {session?.user?.name || 'Ahmed Benali'}
               </Typography>
               <Chip
-                label={roleTheme.roleLabel}
+                label={roleLabel}
                 size="small"
                 sx={{
-                  height: 20,
-                  fontSize: '0.65rem',
+                  height: 18,
+                  fontSize: '0.62rem',
                   fontWeight: 800,
-                  bgcolor: isTechnician ? 'rgba(227, 30, 36, 0.15)' : 'rgba(227, 30, 36, 0.35)',
-                  color: isTechnician ? '#E31E24' : '#FFCDD2',
-                  border: isTechnician ? '1px solid rgba(227, 30, 36, 0.3)' : '1px solid rgba(255, 205, 210, 0.3)',
-                  mt: 0.3,
+                  bgcolor: 'rgba(227, 30, 36, 0.1)',
+                  color: '#E31E24',
+                  border: '1px solid rgba(227, 30, 36, 0.25)',
+                  mt: 0.2,
                 }}
               />
             </Box>
@@ -546,8 +428,8 @@ export default function DashboardLayout({
                 size="small"
                 onClick={handleLogout}
                 sx={{
-                  color: isTechnician ? '#E31E24' : 'rgba(255, 255, 255, 0.7)',
-                  '&:hover': { color: '#E31E24', bgcolor: isTechnician ? 'rgba(227, 30, 36, 0.12)' : 'rgba(255, 255, 255, 0.1)' }
+                  color: '#64748B',
+                  '&:hover': { color: '#E31E24', bgcolor: 'rgba(227, 30, 36, 0.08)' },
                 }}
               >
                 <LogoutIcon fontSize="small" />
@@ -556,18 +438,19 @@ export default function DashboardLayout({
           </Box>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-            <Tooltip title={`${session?.user?.name || 'Utilisateur'} (${roleTheme.roleLabel})`} placement="right" arrow>
+            <Tooltip title={`${session?.user?.name || 'Ahmed Benali'} (${roleLabel})`} placement="right" arrow>
               <Avatar
                 sx={{
                   bgcolor: '#E31E24',
                   color: '#FFFFFF',
                   fontWeight: 800,
-                  width: 40,
-                  height: 40,
-                  boxShadow: '0 4px 12px rgba(227, 30, 36, 0.4)'
+                  width: 36,
+                  height: 36,
+                  fontSize: '0.92rem',
+                  boxShadow: '0 2px 8px rgba(227, 30, 36, 0.35)',
                 }}
               >
-                {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'U'}
+                {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'A'}
               </Avatar>
             </Tooltip>
             <Tooltip title="Déconnexion" placement="right" arrow>
@@ -575,8 +458,8 @@ export default function DashboardLayout({
                 size="small"
                 onClick={handleLogout}
                 sx={{
-                  color: isTechnician ? '#E31E24' : 'rgba(255, 255, 255, 0.7)',
-                  '&:hover': { color: '#E31E24', bgcolor: isTechnician ? 'rgba(227, 30, 36, 0.12)' : 'rgba(255, 255, 255, 0.1)' }
+                  color: '#64748B',
+                  '&:hover': { color: '#E31E24', bgcolor: 'rgba(227, 30, 36, 0.08)' },
                 }}
               >
                 <LogoutIcon fontSize="small" />
@@ -589,62 +472,158 @@ export default function DashboardLayout({
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F8F9FC' }}>
-      {/* App Bar */}
+    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
+      {/* 🌟 1. Barre Horizontale Supérieure Bleu Marine Foncé (Pleine Largeur 100%) 🌟 */}
       <AppBar
         position="fixed"
         elevation={0}
         sx={{
-          width: { md: `calc(100% - ${currentDrawerWidth}px)` },
-          ml: { md: `${currentDrawerWidth}px` },
-          backgroundColor: 'white',
-          borderBottom: '1px solid #E5E7EB',
-          color: '#1A1A2E',
-          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+          width: '100%',
+          left: 0,
+          top: 0,
+          zIndex: (theme) => theme.zIndex.drawer + 1, // Au-dessus de la barre latérale
+          backgroundColor: '#0F172A', // Bleu marine très foncé élégant
+          backgroundImage: 'linear-gradient(90deg, #0A1128 0%, #0F172A 40%, #151F38 100%)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          color: '#FFFFFF',
+          height: 64,
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
         }}
       >
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Toolbar sx={{ height: 64, px: { xs: 2, sm: 3 }, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {/* Gauche : Logo Cathedis + Bouton Menu + Titre de la page */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2.5 } }}>
+            {/* Logo Cathedis */}
+            <Box
+              component="img"
+              src="/images/logo1.png"
+              alt="Cathedis"
+              sx={{
+                height: { xs: 30, sm: 36, md: 40 },
+                width: 'auto',
+                maxWidth: { xs: 140, sm: 170, md: 200 },
+                display: 'block',
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5))',
+                cursor: 'pointer',
+              }}
+              onClick={() => router.push('/dashboard')}
+            />
+
+            {/* Bouton Menu / Réduire sidebar */}
             <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2, display: { md: 'none' } }}
+              onClick={() => {
+                if (typeof window !== 'undefined' && window.innerWidth < 900) {
+                  setMobileOpen(!mobileOpen);
+                } else {
+                  setIsCollapsed(!isCollapsed);
+                }
+              }}
+              size="small"
+              sx={{
+                color: 'rgba(255, 255, 255, 0.8)',
+                bgcolor: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                p: 0.8,
+                borderRadius: 2,
+                transition: 'all 0.2s',
+                '&:hover': { bgcolor: 'rgba(227, 30, 36, 0.25)', color: '#FFFFFF', borderColor: '#E31E24' },
+              }}
             >
-              <MenuIcon />
+              <MenuIcon fontSize="small" />
             </IconButton>
-            <Typography sx={{ fontSize: '1.25rem', color: '#1A1A2E', display: { xs: 'none', sm: 'block' } }}>
+
+            {/* Séparateur vertical */}
+            <Divider
+              orientation="vertical"
+              flexItem
+              sx={{
+                height: 24,
+                my: 'auto',
+                borderColor: 'rgba(255, 255, 255, 0.15)',
+                display: { xs: 'none', sm: 'block' },
+              }}
+            />
+
+            {/* Titre : "Tableau de bord", "Équipements", etc. */}
+            <Typography
+              sx={{
+                fontSize: { xs: '0.95rem', sm: '1.12rem' },
+                fontWeight: 700,
+                color: '#FFFFFF',
+                letterSpacing: '-0.2px',
+                display: { xs: 'none', md: 'block' },
+              }}
+            >
               {currentTitle}
             </Typography>
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Droite : Barre de recherche + Notifications + Profil Utilisateur "A" */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.2, sm: 2 } }}>
+            {/* Barre de Recherche */}
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                backgroundColor: '#F3F4F6',
-                borderRadius: 8,
-                px: 2,
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: 6,
+                px: 1.8,
                 py: 0.5,
-                width: { xs: '150px', sm: '250px', md: '300px' },
+                width: { xs: '120px', sm: '220px', md: '280px' },
+                transition: 'all 0.2s ease',
+                '&:hover, &:focus-within': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                  borderColor: 'rgba(227, 30, 36, 0.6)',
+                  boxShadow: '0 0 10px rgba(227, 30, 36, 0.25)',
+                },
               }}
             >
-              <SearchIcon sx={{ color: '#9CA3AF', mr: 1 }} />
+              <SearchIcon sx={{ color: 'rgba(255, 255, 255, 0.55)', mr: 1, fontSize: 18 }} />
               <InputBase
                 placeholder="Rechercher..."
-                sx={{ width: '100%', fontSize: '0.875rem' }}
+                sx={{
+                  width: '100%',
+                  fontSize: '0.84rem',
+                  color: '#FFFFFF',
+                  '& input::placeholder': { color: 'rgba(255, 255, 255, 0.5)', opacity: 1 },
+                }}
               />
             </Box>
 
-            {/* 🔔 Dynamic Notifications Bell & Dropdown Menu 🔔 */}
-            <IconButton size="large" onClick={handleNotifOpen} sx={{ color: '#4B5563', '&:hover': { bgcolor: 'rgba(227, 30, 36, 0.08)', color: '#E31E24' } }}>
-              <Badge badgeContent={unreadCount} sx={{ '& .MuiBadge-badge': { backgroundColor: '#E31E24', color: 'white', fontWeight: 800 } }}>
-                <NotificationsIcon />
+            {/* 🔔 Notifications 🔔 */}
+            <IconButton
+              size="small"
+              onClick={handleNotifOpen}
+              sx={{
+                color: 'rgba(255, 255, 255, 0.85)',
+                bgcolor: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                p: 0.8,
+                borderRadius: 2,
+                transition: 'all 0.2s',
+                '&:hover': { bgcolor: 'rgba(227, 30, 36, 0.2)', color: '#FFFFFF', borderColor: '#E31E24' },
+              }}
+            >
+              <Badge
+                badgeContent={unreadCount}
+                sx={{
+                  '& .MuiBadge-badge': {
+                    backgroundColor: '#E31E24',
+                    color: 'white',
+                    fontWeight: 800,
+                    fontSize: '0.65rem',
+                    height: 18,
+                    minWidth: 18,
+                  },
+                }}
+              >
+                <NotificationsIcon sx={{ fontSize: 20 }} />
               </Badge>
             </IconButton>
 
+            {/* Menu Notifications */}
             <Menu
               anchorEl={notifAnchorEl}
               open={Boolean(notifAnchorEl)}
@@ -660,13 +639,12 @@ export default function DashboardLayout({
                     maxWidth: '90vw',
                     borderRadius: 3.5,
                     overflow: 'hidden',
-                    boxShadow: '0 16px 40px rgba(0,0,0,0.18)'
-                  }
-                }
+                    boxShadow: '0 16px 40px rgba(0,0,0,0.18)',
+                  },
+                },
               }}
             >
-              {/* Notifications Header */}
-              <Box sx={{ p: 2, px: 2.5, bgcolor: '#1A1A2E', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box sx={{ p: 2, px: 2.5, bgcolor: '#0F172A', color: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Typography sx={{ fontWeight: 800, fontSize: '0.95rem' }}>
                     Notifications
@@ -690,7 +668,6 @@ export default function DashboardLayout({
                 )}
               </Box>
 
-              {/* Notifications List */}
               <Box sx={{ maxHeight: 380, overflowY: 'auto' }}>
                 {notifications.length === 0 ? (
                   <Box sx={{ p: 4, textAlign: 'center', color: '#64748B' }}>
@@ -716,7 +693,7 @@ export default function DashboardLayout({
                         display: 'flex',
                         alignItems: 'flex-start',
                         gap: 1.5,
-                        '&:hover': { bgcolor: '#F8FAFC' }
+                        '&:hover': { bgcolor: '#F8FAFC' },
                       }}
                     >
                       <Box
@@ -726,7 +703,7 @@ export default function DashboardLayout({
                           borderRadius: '50%',
                           bgcolor: notif.read ? '#CBD5E1' : '#E31E24',
                           mt: 0.6,
-                          flexShrink: 0
+                          flexShrink: 0,
                         }}
                       />
                       <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -743,11 +720,32 @@ export default function DashboardLayout({
               </Box>
             </Menu>
 
-            <IconButton onClick={handleMenuOpen} sx={{ p: 0 }}>
-              <Avatar sx={{ bgcolor: roleTheme.appBarAccent, color: 'white', fontWeight: 700, width: 36, height: 36 }}>
-                {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'U'}
+            {/* 👤 Profil Utilisateur "A" 👤 */}
+            <IconButton
+              onClick={handleMenuOpen}
+              sx={{
+                p: 0.3,
+                transition: 'transform 0.2s',
+                '&:hover': { transform: 'scale(1.05)' },
+              }}
+            >
+              <Avatar
+                sx={{
+                  bgcolor: '#E31E24',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  width: 38,
+                  height: 38,
+                  fontSize: '1rem',
+                  boxShadow: '0 2px 10px rgba(227, 30, 36, 0.45)',
+                  border: '2px solid rgba(255, 255, 255, 0.2)',
+                }}
+              >
+                {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'A'}
               </Avatar>
             </IconButton>
+
+            {/* Menu Déroulant Profil */}
             <Menu
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
@@ -756,31 +754,51 @@ export default function DashboardLayout({
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               slotProps={{
                 paper: {
-                  elevation: 3,
-                  sx: { mt: 1, minWidth: 200, borderRadius: 2 }
-                }
+                  elevation: 4,
+                  sx: { mt: 1.5, minWidth: 210, borderRadius: 3, p: 0.5, boxShadow: '0 10px 30px rgba(0,0,0,0.15)' },
+                },
               }}
             >
-              <MenuItem onClick={() => { handleMenuClose(); router.push(isEmployee ? '/dashboard/employee/profil' : '/dashboard/profile'); }}>
-                <ListItemIcon sx={{ minWidth: 36 }}>
-                  <PeopleIcon fontSize="small" />
+              <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid #F1F5F9' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0F172A' }}>
+                  {session?.user?.name || 'Ahmed Benali'}
+                </Typography>
+                <Typography sx={{ fontSize: '0.75rem', color: '#64748B' }}>
+                  {session?.user?.email || 'admin@cathedis.com'}
+                </Typography>
+              </Box>
+
+              <MenuItem onClick={() => { handleMenuClose(); router.push(isEmployee ? '/dashboard/employee/profil' : '/dashboard/profile'); }} sx={{ borderRadius: 2, my: 0.3, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <PeopleIcon fontSize="small" sx={{ color: '#64748B' }} />
                 </ListItemIcon>
-                Mon Profil
+                <Typography sx={{ fontSize: '0.86rem', fontWeight: 600, color: '#334155' }}>
+                  Mon Profil
+                </Typography>
               </MenuItem>
-              <Divider />
-              <MenuItem onClick={handleLogout} sx={{ color: '#E31E24' }}>
-                <ListItemIcon sx={{ color: '#E31E24', minWidth: 36 }}>
+              <Divider sx={{ my: 0.5 }} />
+              <MenuItem onClick={handleLogout} sx={{ borderRadius: 2, color: '#E31E24', py: 1 }}>
+                <ListItemIcon sx={{ color: '#E31E24', minWidth: 32 }}>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
-                Déconnexion
+                <Typography sx={{ fontSize: '0.86rem', fontWeight: 700, color: '#E31E24' }}>
+                  Déconnexion
+                </Typography>
               </MenuItem>
             </Menu>
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Sidebar Navigation */}
-      <Box component="nav" sx={{ width: { md: currentDrawerWidth }, flexShrink: { md: 0 }, transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+      {/* 🧭 2. Barre Latérale Verticale Blanche (Placée UNIQUEMENT sous la barre supérieure) 🧭 */}
+      <Box
+        component="nav"
+        sx={{
+          width: { md: currentDrawerWidth },
+          flexShrink: { md: 0 },
+          transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
         {/* Mobile Drawer */}
         <Drawer
           variant="temporary"
@@ -789,13 +807,20 @@ export default function DashboardLayout({
           ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, borderRight: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+              top: '64px',
+              height: 'calc(100vh - 64px)',
+              backgroundColor: '#FFFFFF',
+              borderRight: '1px solid #E2E8F0',
+            },
           }}
         >
           {drawer}
         </Drawer>
         
-        {/* Desktop Drawer */}
+        {/* Desktop Permanent Drawer */}
         <Drawer
           variant="permanent"
           sx={{
@@ -803,9 +828,13 @@ export default function DashboardLayout({
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: currentDrawerWidth,
-              borderRight: 'none',
+              top: '64px',
+              height: 'calc(100vh - 64px)',
+              backgroundColor: '#FFFFFF',
+              borderRight: '1px solid #E2E8F0',
               overflowX: 'hidden',
-              transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
+              transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '2px 0 10px rgba(0, 0, 0, 0.02)',
             },
           }}
           open
@@ -814,22 +843,23 @@ export default function DashboardLayout({
         </Drawer>
       </Box>
 
-      {/* Main Content */}
+      {/* 🖥️ 3. Contenu Principal 🖥️ */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 2, sm: 3 },
           width: { md: `calc(100% - ${currentDrawerWidth}px)` },
-          mt: '64px', // AppBar height
-          animation: 'fadeIn 0.5s ease-out',
-          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
+          mt: '64px', // Hauteur de la barre supérieure
+          backgroundColor: '#F8FAFC',
+          minHeight: 'calc(100vh - 64px)',
+          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
         {children}
       </Box>
 
-      {/* 💬 Floating Messaging Widget (Bottom-Right Corner) 💬 */}
+      {/* 💬 Widget Messagerie Flottant (En bas à droite) 💬 */}
       <FloatingChatWidget />
     </Box>
   );
