@@ -135,39 +135,23 @@ export default function LoginPage() {
           height: '100vh',
           maxHeight: '100vh',
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
+          alignItems: 'center',
+          justifyContent: 'center',
           py: { xs: 2, md: 3 },
           px: { xs: 2.5, sm: 4, md: 6, lg: 8 },
           overflow: 'hidden',
         }}
       >
-        {/* En-tête : Logo Cathedis en haut à gauche */}
-        <Box sx={{ pt: { xs: 0.5, md: 1.5 }, pl: { xs: 0.5, md: 1 } }}>
-          <Box
-            component="img"
-            src="/images/logo1.png"
-            alt="Cathedis Logo"
-            sx={{
-              height: { xs: 48, sm: 62, md: 74, lg: 84 },
-              width: 'auto',
-              maxWidth: { xs: 240, sm: 310, md: 380, lg: 440 },
-              objectFit: 'contain',
-              filter: 'drop-shadow(0 6px 20px rgba(0, 0, 0, 0.65))',
-            }}
-          />
-        </Box>
-
-        {/* Corps central : Textes à gauche & Formulaire Glassmorphism à droite (Remontés ensemble) */}
+        {/* Corps central : Textes à gauche & Formulaire Glassmorphism à droite */}
         <Box
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
             alignItems: 'center',
             justifyContent: 'space-between',
+            width: '100%',
             gap: { xs: 3, md: 5, lg: 7 },
-            my: 'auto',
-            transform: { md: 'translateY(-30px)', lg: 'translateY(-42px)' },
+            transform: { md: 'translateY(-20px)', lg: 'translateY(-28px)' },
             transition: 'transform 0.3s ease',
           }}
         >
@@ -590,9 +574,6 @@ export default function LoginPage() {
             </Box>
           </Box>
         </Box>
-
-        {/* Espace bas pour équilibrer le layout */}
-        <Box sx={{ pb: { xs: 0.5, md: 1 } }} />
       </Container>
 
       {/* MODAL 1 : Mot de passe oublié */}
