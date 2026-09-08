@@ -473,14 +473,16 @@ export default function DashboardLayout({
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
-      {/* 🌟 1. Barre Horizontale Supérieure Bleu Marine Foncé (Pleine Largeur 100%) 🌟 */}
+      {/* 🌟 1. Barre Horizontale Supérieure Bleu Marine Foncé (Pleine Largeur 100%, Bords Carrés) 🌟 */}
       <AppBar
         position="fixed"
         elevation={0}
         sx={{
           width: '100%',
           left: 0,
+          right: 0,
           top: 0,
+          borderRadius: 0, // Bords carrés et nets
           zIndex: (theme) => theme.zIndex.drawer + 1, // Au-dessus de la barre latérale
           backgroundColor: '#0F172A', // Bleu marine très foncé élégant
           backgroundImage: 'linear-gradient(90deg, #0A1128 0%, #0F172A 40%, #151F38 100%)',
@@ -490,25 +492,36 @@ export default function DashboardLayout({
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
         }}
       >
-        <Toolbar sx={{ height: 64, px: { xs: 2, sm: 3 }, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {/* Gauche : Logo Cathedis + Bouton Menu + Titre de la page */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2.5 } }}>
-            {/* Logo Cathedis */}
+        <Toolbar sx={{ height: 64, px: { xs: 2, sm: 3 }, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: 0 }}>
+          {/* Gauche : Zone Logo Centré + Bouton Menu + Titre décalé à droite */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+            {/* Zone Logo centré (aligné au milieu de la colonne latérale) */}
             <Box
-              component="img"
-              src="/images/logo1.png"
-              alt="Cathedis"
               sx={{
-                height: { xs: 30, sm: 36, md: 40 },
-                width: 'auto',
-                maxWidth: { xs: 140, sm: 170, md: 200 },
-                display: 'block',
-                objectFit: 'contain',
-                filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5))',
-                cursor: 'pointer',
+                width: { xs: 'auto', md: currentDrawerWidth - 48 },
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: { xs: 'flex-start', md: 'center' },
+                transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
-              onClick={() => router.push('/dashboard')}
-            />
+            >
+              <Box
+                component="img"
+                src="/images/logo1.png"
+                alt="Cathedis"
+                sx={{
+                  height: { xs: 28, sm: 34, md: 38 },
+                  width: 'auto',
+                  maxWidth: { xs: 130, sm: 160, md: 190 },
+                  display: 'block',
+                  objectFit: 'contain',
+                  filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5))',
+                  cursor: 'pointer',
+                  mx: 'auto',
+                }}
+                onClick={() => router.push('/dashboard')}
+              />
+            </Box>
 
             {/* Bouton Menu / Réduire sidebar */}
             <IconButton
@@ -525,7 +538,7 @@ export default function DashboardLayout({
                 bgcolor: 'rgba(255, 255, 255, 0.08)',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
                 p: 0.8,
-                borderRadius: 2,
+                borderRadius: 1.5,
                 transition: 'all 0.2s',
                 '&:hover': { bgcolor: 'rgba(227, 30, 36, 0.25)', color: '#FFFFFF', borderColor: '#E31E24' },
               }}
@@ -540,19 +553,21 @@ export default function DashboardLayout({
               sx={{
                 height: 24,
                 my: 'auto',
+                mx: { xs: 0.5, md: 1.5 },
                 borderColor: 'rgba(255, 255, 255, 0.15)',
                 display: { xs: 'none', sm: 'block' },
               }}
             />
 
-            {/* Titre : "Tableau de bord", "Équipements", etc. */}
+            {/* Titre : "Tableau de bord", "Équipements", etc. (décalé à droite) */}
             <Typography
               sx={{
-                fontSize: { xs: '0.95rem', sm: '1.12rem' },
+                fontSize: { xs: '0.95rem', sm: '1.15rem' },
                 fontWeight: 700,
                 color: '#FFFFFF',
                 letterSpacing: '-0.2px',
                 display: { xs: 'none', md: 'block' },
+                ml: { md: 2.5 }, // Décalage vers la droite
               }}
             >
               {currentTitle}
