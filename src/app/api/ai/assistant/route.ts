@@ -2,6 +2,55 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 
+async function generateWithGemini(apiKey: string, userQuery: string, contextData: any) {
+  const systemPrompt = `Tu es l'Assistant IA DSI de Cathedis, expert en gestion de parc informatique et direction des systèmes d'information.
+Tu réponds en français de manière très professionnelle, élégante, précise et concise, en te basant STRICTEMENT sur les données réelles en temps réel de la flotte informatique Cathedis fournies ci-dessous.
+
+Données en direct du parc informatique Cathedis :
+${JSON.stringify(contextData, null, 2)}
+
+Directives :
+1. Réponds avec exactitude à la question posée en exploitant les chiffres et détails du contexte.
+2. Utilise un formatage Markdown soigné (listes à puces, texte en gras pour les chiffres clés, sections claires).
+3. Si la question le justifie, ajoute 1 à 3 recommandations stratégiques DSI ou préconisations actionnables.
+4. Reste toujours orienté action, sécurité des données, maîtrise budgétaire et continuité de service.`;
+
+  const models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+  
+  for (const model of models) {
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: `${systemPrompt}\n\nQuestion de l'administrateur : "${userQuery}"` }]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 2000,
+          }
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return text.trim();
+      } else {
+        const errText = await res.text();
+        console.warn(`Gemini model ${model} HTTP ${res.status}:`, errText);
+      }
+    } catch (e) {
+      console.warn(`Gemini model ${model} error:`, e);
+    }
+  }
+  return null;
+}
+
 export async function POST(request: Request) {
   try {
     const session = await auth();
@@ -106,7 +155,82 @@ export async function POST(request: Request) {
     threeYearsAgo.setFullYear(now.getFullYear() - 3);
     const obsoleteEquipments = equipments.filter(e => e.purchaseDate && new Date(e.purchaseDate) < threeYearsAgo);
 
-    // 2. Intelligent Response Builder based on NLP Analysis
+    // Check for Google Gemini API Key
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    if (geminiApiKey) {
+      const contextData = {
+        kpis: {
+          totalUsers: users.length,
+          totalEquipments,
+          availableCount,
+          assignedCount,
+          maintenanceCount,
+          decommissionedCount,
+          totalPurchaseValueMAD: totalPurchaseValue,
+          totalRepairCostMAD: totalRepairCost,
+          unsignedPVCount: unsignedAssignments.length,
+          expiringWarrantiesCount: expiringWarranties.length,
+          obsoleteEquipmentsCount: obsoleteEquipments.length,
+        },
+        users: users.map(u => ({
+          id: u.id,
+          name: `${u.firstName} ${u.lastName}`,
+          email: u.email,
+          role: u.role,
+          department: u.department?.name || 'Non rattaché',
+          activeEquipments: u.assignmentsReceived.map(a => a.equipment?.name)
+        })),
+        equipments: equipments.map(e => ({
+          id: e.id,
+          name: e.name,
+          serialNumber: e.serialNumber,
+          category: e.category?.name,
+          status: e.status,
+          department: e.department?.name || 'Général',
+          priceMAD: e.purchasePrice,
+          purchaseDate: e.purchaseDate,
+          assignedTo: e.assignments?.[0]?.assignedTo ? `${e.assignments[0].assignedTo.firstName} ${e.assignments[0].assignedTo.lastName}` : null
+        })),
+        departments: departments.map(d => ({
+          name: d.name,
+          userCount: d.users?.length || 0,
+          equipmentCount: d.equipments?.length || 0
+        })),
+        recentMaintenances: maintenances.slice(0, 10).map(m => ({
+          equipment: m.equipment?.name,
+          priority: m.priority,
+          status: m.status,
+          costMAD: m.cost,
+          description: m.description,
+          reportedBy: m.reportedBy ? `${m.reportedBy.firstName} ${m.reportedBy.lastName}` : null
+        })),
+        warrantiesExpiringSoon: expiringWarranties.map(w => ({
+          equipment: w.equipment?.name,
+          provider: w.provider,
+          endDate: w.endDate
+        }))
+      };
+
+      const geminiAnswer = await generateWithGemini(geminiApiKey, query, contextData);
+      if (geminiAnswer) {
+        return NextResponse.json({
+          success: true,
+          query,
+          answer: geminiAnswer,
+          category: 'GEMINI_AI',
+          source: 'Google Gemini',
+          suggestedActions: [
+            'Voir les Équipements',
+            'Gérer les Affectations',
+            'Consulter les Maintenances',
+            'Visual Fleet Map'
+          ],
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+
+    // 2. Intelligent Response Builder based on NLP Analysis (Local Engine Fallback)
     let answer = '';
     let category = 'GENERAL';
     let dataSummary: any = null;
