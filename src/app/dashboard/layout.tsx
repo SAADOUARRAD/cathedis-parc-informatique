@@ -288,21 +288,21 @@ export default function DashboardLayout({
                       position: 'relative',
                       overflow: 'hidden',
                       background: isActive
-                        ? 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)'
+                        ? 'linear-gradient(90deg, #0F172A 0%, #1E293B 100%)'
                         : 'transparent',
                       color: isActive ? '#FFFFFF !important' : '#334155',
                       boxShadow: isActive
-                        ? '0 4px 14px rgba(227, 30, 36, 0.35)'
+                        ? '0 4px 14px rgba(15, 23, 42, 0.25)'
                         : 'none',
                       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                       '&:hover': {
                         transform: isCollapsed ? 'scale(1.06)' : 'translateX(3px)',
                         background: isActive
-                          ? 'linear-gradient(90deg, #C41018 0%, #991B1B 100%)'
-                          : 'rgba(227, 30, 36, 0.08)',
-                        color: isActive ? '#FFFFFF !important' : '#E31E24',
+                          ? 'linear-gradient(90deg, #0A1128 0%, #0F172A 100%)'
+                          : 'rgba(15, 23, 42, 0.06)',
+                        color: isActive ? '#FFFFFF !important' : '#0F172A',
                         '& .MuiListItemIcon-root': {
-                          color: isActive ? '#FFFFFF !important' : '#E31E24',
+                          color: isActive ? '#FFFFFF !important' : '#0F172A',
                           transform: 'scale(1.08)',
                         },
                       },
@@ -498,7 +498,7 @@ export default function DashboardLayout({
             {/* Zone Logo centré (aligné au milieu de la colonne latérale) */}
             <Box
               sx={{
-                width: { xs: 'auto', md: currentDrawerWidth - 48 },
+                width: { xs: 'auto', md: currentDrawerWidth - 36 },
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: { xs: 'flex-start', md: 'center' },
@@ -510,9 +510,9 @@ export default function DashboardLayout({
                 src="/images/logo1.png"
                 alt="Cathedis"
                 sx={{
-                  height: { xs: 28, sm: 34, md: 38 },
+                  height: { xs: 34, sm: 40, md: 46 },
                   width: 'auto',
-                  maxWidth: { xs: 130, sm: 160, md: 190 },
+                  maxWidth: { xs: 155, sm: 185, md: 215 },
                   display: 'block',
                   objectFit: 'contain',
                   filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5))',
