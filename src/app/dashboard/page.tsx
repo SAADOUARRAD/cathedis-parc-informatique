@@ -200,62 +200,143 @@ export default function DashboardPage() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3.5, p: { xs: 1.5, md: 3 } }}>
       
-      {/* 🌟 1. GRAND MASTER HERO BANNER DSI 🌟 */}
+      {/* 🌟 1. BANNIÈRE EXÉCUTIVE PREMIUM & ÉLÉGANTE 🌟 */}
       <Paper
         elevation={0}
         sx={{
-          borderRadius: 4,
-          p: { xs: 3, md: 4 },
-          background: 'linear-gradient(135deg, #0D0F1D 0%, #1A1A2E 40%, #7B0000 100%)',
-          color: '#FFFFFF',
+          borderRadius: 3.5,
+          p: { xs: 2.5, sm: 3, md: 3.5 },
+          bgcolor: '#FFFFFF',
+          border: '1px solid #E2E8F0',
           position: 'relative',
           overflow: 'hidden',
-          boxShadow: '0 20px 45px rgba(26, 26, 46, 0.35)',
-          border: '1px solid rgba(255, 255, 255, 0.12)'
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 3,
         }}
       >
-        {/* Glow Spheres */}
-        <Box sx={{ position: 'absolute', top: -50, right: -40, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(227,30,36,0.35) 0%, rgba(227,30,36,0) 70%)', pointerEvents: 'none' }} />
-        <Box sx={{ position: 'absolute', bottom: -60, right: 260, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,99,235,0.2) 0%, rgba(37,99,235,0) 70%)', pointerEvents: 'none' }} />
+        {/* Subtle decorative accent border */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            width: 4,
+            background: 'linear-gradient(180deg, #0F172A 0%, #1E293B 60%, #E31E24 100%)',
+          }}
+        />
 
-        <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 3 }}>
-          <Box sx={{ maxWidth: 720 }}>
-            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, px: 1.8, py: 0.6, borderRadius: 10, bgcolor: 'rgba(227, 30, 36, 0.25)', border: '1px solid rgba(227, 30, 36, 0.5)', mb: 1.5 }}>
-              <ShieldIcon sx={{ fontSize: 16, color: '#FF8A80' }} />
-              <Typography sx={{ fontSize: '0.75rem', fontWeight: 800, color: '#FFCDD2', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                Centre de Commandement DSI • Cathedis IT Fleet
+        {/* Left: Greeting & System Status */}
+        <Box sx={{ pl: { xs: 1, md: 1.5 }, maxWidth: 680 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1, flexWrap: 'wrap' }}>
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.8,
+                px: 1.2,
+                py: 0.35,
+                borderRadius: 1.5,
+                bgcolor: '#F1F5F9',
+                border: '1px solid #E2E8F0',
+              }}
+            >
+              <Box
+                sx={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  bgcolor: '#10B981',
+                  boxShadow: '0 0 6px #10B981',
+                }}
+              />
+              <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Système Opérationnel
               </Typography>
             </Box>
 
-            <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', fontSize: { xs: '1.7rem', md: '2.3rem' }, letterSpacing: '-0.02em', mb: 1 }}>
-              Bonjour, {session?.user?.name || 'Administrateur'} 👑
-            </Typography>
-
-            <Typography sx={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.95rem', lineHeight: 1.6 }}>
-              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} — Bienvenue sur le tableau de bord exécutif du parc informatique. Supervision globale, arbitrages et alertes en direct.
+            <Typography sx={{ fontSize: '0.82rem', color: '#64748B', fontWeight: 500 }}>
+              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </Typography>
           </Box>
 
-          {/* Telemetry HUD Mini Cards */}
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Paper elevation={0} sx={{ px: 3, py: 2, borderRadius: 3.5, bgcolor: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.18)', textAlign: 'center' }}>
-              <Typography sx={{ fontSize: '2rem', fontWeight: 900, color: '#FFFFFF', lineHeight: 1 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 800,
+              color: '#0F172A',
+              fontSize: { xs: '1.45rem', sm: '1.75rem', md: '1.95rem' },
+              letterSpacing: '-0.02em',
+              mb: 0.6,
+            }}
+          >
+            Bonjour, {session?.user?.name || 'Administrateur'}
+          </Typography>
+
+          <Typography sx={{ color: '#64748B', fontSize: '0.88rem', lineHeight: 1.55 }}>
+            Supervision globale, gestion du cycle de vie et suivi en temps réel du parc informatique Cathedis.
+          </Typography>
+        </Box>
+
+        {/* Right: Quick Action Button & Live Stat Badges */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              p: 1,
+              px: 2,
+              borderRadius: 2.5,
+              bgcolor: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+            }}
+          >
+            <Box sx={{ textAlign: 'center', pr: 2.5, borderRight: '1px solid #E2E8F0' }}>
+              <Typography sx={{ fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.1 }}>
                 {kpis.totalEquipments || 0}
               </Typography>
-              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.75)', fontWeight: 700, mt: 0.5, display: 'block' }}>
-                Machines Actives
+              <Typography sx={{ fontSize: '0.68rem', fontWeight: 600, color: '#64748B', mt: 0.2 }}>
+                Équipements
               </Typography>
-            </Paper>
+            </Box>
 
-            <Paper elevation={0} sx={{ px: 3, py: 2, borderRadius: 3.5, bgcolor: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.18)', textAlign: 'center' }}>
-              <Typography sx={{ fontSize: '2rem', fontWeight: 900, color: '#4ADE80', lineHeight: 1 }}>
+            <Box sx={{ textAlign: 'center', pl: 2.5 }}>
+              <Typography sx={{ fontSize: '1.35rem', fontWeight: 800, color: '#10B981', lineHeight: 1.1 }}>
                 {availPercent}%
               </Typography>
-              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.75)', fontWeight: 700, mt: 0.5, display: 'block' }}>
+              <Typography sx={{ fontSize: '0.68rem', fontWeight: 600, color: '#64748B', mt: 0.2 }}>
                 Disponibilité
               </Typography>
-            </Paper>
+            </Box>
           </Box>
+
+          <Button
+            component={Link}
+            href="/dashboard/equipments"
+            variant="contained"
+            startIcon={<AddIcon />}
+            sx={{
+              bgcolor: '#0F172A',
+              color: '#FFFFFF',
+              fontWeight: 700,
+              fontSize: '0.84rem',
+              textTransform: 'none',
+              borderRadius: 2.5,
+              px: 2.2,
+              py: 1.1,
+              boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
+              '&:hover': {
+                bgcolor: '#1E293B',
+                boxShadow: '0 6px 16px rgba(15, 23, 42, 0.25)',
+              },
+            }}
+          >
+            Nouvel équipement
+          </Button>
         </Box>
       </Paper>
 
