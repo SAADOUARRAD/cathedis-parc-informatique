@@ -99,10 +99,10 @@ export default function LoginPage() {
         bgcolor: '#0B1120',
       }}
     >
-      {/* 1. Image de fond haute définition plein écran sans rognage gênant (fond.png) */}
+      {/* 1. Image de fond haute définition plein écran avec cadrage optimisé vers la gauche */}
       <Box
         component="img"
-        src="/images/fond.png"
+        src="/images/fd.png"
         alt="Cathedis Workplace"
         sx={{
           position: 'absolute',
@@ -110,25 +110,24 @@ export default function LoginPage() {
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          objectPosition: 'center',
+          objectPosition: { xs: 'center', md: '25% center', lg: '15% center' },
           zIndex: 0,
-          filter: 'brightness(0.93) contrast(1.04)',
         }}
       />
 
-      {/* 2. Léger voile sombre pour rehausser le contraste et le texte */}
+      {/* 2. Léger gradient d'assombrissement subtil pour le contraste */}
       <Box
         sx={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(90deg, rgba(7, 10, 19, 0.42) 0%, rgba(7, 10, 19, 0.18) 50%, rgba(7, 10, 19, 0.45) 100%)',
+          background: 'linear-gradient(90deg, rgba(5, 10, 20, 0.4) 0%, rgba(5, 10, 20, 0.05) 35%, rgba(5, 10, 20, 0.4) 100%)',
           zIndex: 1,
         }}
       />
 
-      {/* 3. Contenu principal structuré en 2 colonnes (calibré pour 0 défilement) */}
+      {/* 3. Contenu principal structuré en 2 colonnes */}
       <Container
-        maxWidth="xl"
+        maxWidth={false}
         sx={{
           position: 'relative',
           zIndex: 2,
@@ -138,11 +137,11 @@ export default function LoginPage() {
           alignItems: 'center',
           justifyContent: 'center',
           py: { xs: 2, md: 3 },
-          px: { xs: 2.5, sm: 4, md: 6, lg: 8 },
+          px: { xs: 2.5, sm: 4, md: 6, lg: 8, xl: 10 },
           overflow: 'hidden',
         }}
       >
-        {/* Corps central : Textes à gauche & Formulaire Glassmorphism à droite */}
+        {/* Corps central : Textes à gauche & Formulaire à droite */}
         <Box
           sx={{
             display: 'flex',
@@ -150,14 +149,14 @@ export default function LoginPage() {
             alignItems: 'center',
             justifyContent: 'space-between',
             width: '100%',
-            gap: { xs: 3, md: 5, lg: 7 },
+            gap: { xs: 3, md: 4 },
             my: 'auto',
           }}
         >
           {/* Colonne Gauche : Espace Collaboratif & Titre */}
           <Box
             sx={{
-              maxWidth: { xs: '100%', md: 480, lg: 520 },
+              maxWidth: { xs: '100%', md: 440, lg: 480 },
               textAlign: { xs: 'center', md: 'left' },
               display: 'flex',
               flexDirection: 'column',
@@ -179,7 +178,7 @@ export default function LoginPage() {
             <Typography
               variant="overline"
               sx={{
-                color: 'rgba(255, 255, 255, 0.8)',
+                color: 'rgba(255, 255, 255, 0.85)',
                 fontWeight: 600,
                 letterSpacing: '2.5px',
                 fontSize: { xs: '0.75rem', sm: '0.82rem' },
@@ -195,7 +194,7 @@ export default function LoginPage() {
               component="h1"
               sx={{
                 color: '#FFFFFF',
-                fontSize: { xs: '2rem', sm: '2.5rem', lg: '3.1rem' },
+                fontSize: { xs: '2rem', sm: '2.4rem', lg: '2.9rem' },
                 lineHeight: 1.15,
                 fontWeight: 700,
                 letterSpacing: '-0.5px',
@@ -209,7 +208,7 @@ export default function LoginPage() {
               component="h2"
               sx={{
                 color: '#FFFFFF',
-                fontSize: { xs: '2rem', sm: '2.5rem', lg: '3.1rem' },
+                fontSize: { xs: '2rem', sm: '2.4rem', lg: '2.9rem' },
                 lineHeight: 1.15,
                 fontWeight: 300,
                 letterSpacing: '-0.5px',
@@ -223,31 +222,29 @@ export default function LoginPage() {
             {/* Sous-titre descriptif */}
             <Typography
               sx={{
-                color: 'rgba(255, 255, 255, 0.75)',
-                fontSize: { xs: '0.92rem', sm: '1rem' },
+                color: 'rgba(255, 255, 255, 0.8)',
+                fontSize: { xs: '0.9rem', sm: '0.96rem' },
                 lineHeight: 1.6,
-                maxWidth: 420,
+                maxWidth: 400,
                 textShadow: '0 2px 10px rgba(0, 0, 0, 0.7)',
               }}
             >
-              Gérez vos équipements informatiques en toute simplicité.
+              Gérez vos projets, suivez vos activités et restez connecté avec votre équipe, où que vous soyez.
             </Typography>
           </Box>
 
-          {/* Colonne Droite : Carte Frosted Glass Formulaire (Abaissée pour être alignée avec le texte) */}
+          {/* Colonne Droite : Carte Formulaire Semi-Transparente Frosted Glass (Laisse voir la personne derrière) */}
           <Box
             sx={{
               width: '100%',
-              maxWidth: { xs: 380, sm: 420, md: 440 },
-              backdropFilter: 'blur(16px) saturate(160%)',
-              WebkitBackdropFilter: 'blur(16px) saturate(160%)',
-              backgroundColor: 'rgba(14, 22, 38, 0.22)',
-              border: '1px solid rgba(255, 255, 255, 0.22)',
+              maxWidth: { xs: 360, sm: 390, md: 390, lg: 410 },
+              backdropFilter: 'blur(10px) saturate(140%)',
+              WebkitBackdropFilter: 'blur(10px) saturate(140%)',
+              backgroundColor: 'rgba(10, 18, 34, 0.45)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
               borderRadius: '24px',
               p: { xs: 2.5, sm: 3.5, md: 4 },
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-              transform: { md: 'translateY(24px)', lg: 'translateY(32px)' },
-              transition: 'transform 0.3s ease',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08) inset',
             }}
           >
             {/* Titre Connexion */}
@@ -255,9 +252,10 @@ export default function LoginPage() {
               component="h3"
               sx={{
                 color: '#FFFFFF',
-                fontSize: { xs: '1.65rem', sm: '1.9rem' },
+                fontSize: { xs: '1.75rem', sm: '2rem' },
                 fontWeight: 700,
                 letterSpacing: '-0.5px',
+                textShadow: '0 2px 10px rgba(0, 0, 0, 0.6)',
                 mb: 0.6,
               }}
             >
@@ -265,9 +263,10 @@ export default function LoginPage() {
             </Typography>
             <Typography
               sx={{
-                color: 'rgba(255, 255, 255, 0.65)',
+                color: 'rgba(255, 255, 255, 0.75)',
                 fontSize: '0.88rem',
-                mb: 2.5,
+                textShadow: '0 1px 6px rgba(0, 0, 0, 0.5)',
+                mb: 3,
               }}
             >
               Accédez à votre espace de gestion.
@@ -280,7 +279,7 @@ export default function LoginPage() {
                   severity="error"
                   onClose={() => setError(null)}
                   sx={{
-                    mb: 2,
+                    mb: 2.5,
                     bgcolor: 'rgba(239, 68, 68, 0.15)',
                     color: '#FCA5A5',
                     border: '1px solid rgba(239, 68, 68, 0.35)',
@@ -296,14 +295,14 @@ export default function LoginPage() {
 
             {/* Formulaire */}
             <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-              {/* Champ Email (Même couleur de fond que le formulaire) */}
+              {/* Champ Email */}
               <Box sx={{ mb: 2 }}>
                 <TextField
                   fullWidth
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="Entrez votre email"
+                  placeholder="Adresse e-mail"
                   error={Boolean(errors.email)}
                   helperText={errors.email?.message}
                   {...register('email')}
@@ -311,23 +310,24 @@ export default function LoginPage() {
                     input: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <EmailOutlinedIcon sx={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: 20 }} />
+                          <EmailOutlinedIcon sx={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: 20 }} />
                         </InputAdornment>
                       ),
                     },
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      height: 48,
-                      borderRadius: '12px',
+                      height: 50,
+                      borderRadius: '14px',
                       color: '#FFFFFF',
-                      bgcolor: 'rgba(255, 255, 255, 0.03)',
+                      bgcolor: 'rgba(255, 255, 255, 0.08)',
+                      backdropFilter: 'blur(8px)',
                       transition: 'all 0.2s ease',
                       '& fieldset': {
                         borderColor: 'rgba(255, 255, 255, 0.18)',
                       },
                       '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.38)',
+                        borderColor: 'rgba(255, 255, 255, 0.35)',
                       },
                       '&.Mui-focused fieldset': {
                         borderColor: '#E31E24',
@@ -349,7 +349,7 @@ export default function LoginPage() {
                       backgroundColor: 'transparent !important',
                     },
                     '& .MuiInputBase-input::placeholder': {
-                      color: 'rgba(255, 255, 255, 0.45)',
+                      color: 'rgba(255, 255, 255, 0.55)',
                       opacity: 1,
                       fontSize: '0.9rem',
                     },
@@ -362,14 +362,14 @@ export default function LoginPage() {
                 />
               </Box>
 
-              {/* Champ Mot de passe (Même couleur de fond que le formulaire) */}
+              {/* Champ Mot de passe */}
               <Box sx={{ mb: 1.6 }}>
                 <TextField
                   fullWidth
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  placeholder="Entrez votre mot de passe"
+                  placeholder="Mot de passe"
                   onKeyUp={handleKeyUp}
                   error={Boolean(errors.password)}
                   helperText={errors.password?.message}
@@ -378,7 +378,7 @@ export default function LoginPage() {
                     input: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <LockOutlinedIcon sx={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: 20 }} />
+                          <LockOutlinedIcon sx={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: 20 }} />
                         </InputAdornment>
                       ),
                       endAdornment: (
@@ -397,16 +397,17 @@ export default function LoginPage() {
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      height: 48,
-                      borderRadius: '12px',
+                      height: 50,
+                      borderRadius: '14px',
                       color: '#FFFFFF',
-                      bgcolor: 'rgba(255, 255, 255, 0.03)',
+                      bgcolor: 'rgba(255, 255, 255, 0.08)',
+                      backdropFilter: 'blur(8px)',
                       transition: 'all 0.2s ease',
                       '& fieldset': {
                         borderColor: 'rgba(255, 255, 255, 0.18)',
                       },
                       '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.38)',
+                        borderColor: 'rgba(255, 255, 255, 0.35)',
                       },
                       '&.Mui-focused fieldset': {
                         borderColor: '#E31E24',
