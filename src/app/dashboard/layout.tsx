@@ -509,20 +509,23 @@ export default function DashboardLayout({
               {isCollapsed ? (
                 <Tooltip title="Cathedis Parc Informatique" placement="right" arrow>
                   <Box
-                    component="img"
-                    src="/images/logo_icon.svg"
-                    alt="Cathedis"
+                    component="svg"
+                    viewBox="0 0 100 100"
                     sx={{
                       height: 34,
                       width: 34,
-                      objectFit: 'contain',
-                      filter: 'drop-shadow(0 2px 6px rgba(227, 30, 36, 0.5))',
+                      filter: 'drop-shadow(0 2px 8px rgba(227, 30, 36, 0.6))',
                       cursor: 'pointer',
                       transition: 'transform 0.2s ease',
-                      '&:hover': { transform: 'scale(1.1)' },
+                      '&:hover': { transform: 'scale(1.12)' },
                     }}
                     onClick={() => router.push('/dashboard')}
-                  />
+                  >
+                    <polygon points="15,18 85,18 95,48 65,48 85,85 38,85 22,54 52,54" fill="#E31E24" />
+                    <polygon points="15,18 52,54 22,54" fill="#B91C1C" />
+                    <polygon points="85,18 95,48 65,48" fill="#FF383E" />
+                    <polygon points="65,48 85,85 52,65" fill="#991B1B" />
+                  </Box>
                 </Tooltip>
               ) : (
                 <Box
