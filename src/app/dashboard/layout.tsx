@@ -498,29 +498,51 @@ export default function DashboardLayout({
             {/* Zone Logo centré (aligné au milieu de la colonne latérale) */}
             <Box
               sx={{
-                width: { xs: 'auto', md: currentDrawerWidth - 36 },
+                width: { xs: 'auto', md: isCollapsed ? 42 : currentDrawerWidth - 36 },
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: { xs: 'flex-start', md: 'center' },
-                transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                justifyContent: 'center',
+                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                overflow: 'hidden',
               }}
             >
-              <Box
-                component="img"
-                src="/images/logo1.png"
-                alt="Cathedis"
-                sx={{
-                  height: { xs: 34, sm: 40, md: 46 },
-                  width: 'auto',
-                  maxWidth: { xs: 155, sm: 185, md: 215 },
-                  display: 'block',
-                  objectFit: 'contain',
-                  filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5))',
-                  cursor: 'pointer',
-                  mx: 'auto',
-                }}
-                onClick={() => router.push('/dashboard')}
-              />
+              {isCollapsed ? (
+                <Tooltip title="Cathedis Parc Informatique" placement="right" arrow>
+                  <Box
+                    component="img"
+                    src="/images/logo_icon.svg"
+                    alt="Cathedis"
+                    sx={{
+                      height: 34,
+                      width: 34,
+                      objectFit: 'contain',
+                      filter: 'drop-shadow(0 2px 6px rgba(227, 30, 36, 0.5))',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s ease',
+                      '&:hover': { transform: 'scale(1.1)' },
+                    }}
+                    onClick={() => router.push('/dashboard')}
+                  />
+                </Tooltip>
+              ) : (
+                <Box
+                  component="img"
+                  src="/images/logo1.png"
+                  alt="Cathedis"
+                  sx={{
+                    height: { xs: 34, sm: 38, md: 42 },
+                    width: 'auto',
+                    maxWidth: { xs: 150, sm: 180, md: 200 },
+                    display: 'block',
+                    objectFit: 'contain',
+                    filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5))',
+                    cursor: 'pointer',
+                    mx: 'auto',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onClick={() => router.push('/dashboard')}
+                />
+              )}
             </Box>
 
             {/* Bouton Menu / Réduire sidebar */}
