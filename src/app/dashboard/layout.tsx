@@ -245,11 +245,12 @@ export default function DashboardLayout({
       {/* 🏷️ Sidebar Header: Logo Centered & Enlarged + Collapse Button 🏷️ */}
       <Box
         sx={{
-          height: 74,
+          height: 86,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           px: isCollapsed ? 1 : 2,
+          pt: isCollapsed ? 0 : 1,
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           position: 'relative',
         }}
@@ -262,11 +263,9 @@ export default function DashboardLayout({
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: '100%',
-                pr: 4, // Leave space for the toggle button so logo remains centered in the visual area
-                pl: 1,
                 cursor: 'pointer',
                 transition: 'transform 0.2s ease',
-                '&:hover': { transform: 'scale(1.02)' },
+                '&:hover': { transform: 'scale(1.03)' },
               }}
               onClick={() => router.push('/dashboard')}
             >
@@ -275,11 +274,11 @@ export default function DashboardLayout({
                 src="/images/logo_cathedis.png"
                 alt="Cathedis"
                 sx={{
-                  height: 46,
-                  maxWidth: 185,
+                  height: 54,
+                  maxWidth: 210,
                   width: 'auto',
                   objectFit: 'contain',
-                  filter: 'drop-shadow(0 3px 10px rgba(0, 0, 0, 0.6))',
+                  filter: 'drop-shadow(0 3px 12px rgba(0, 0, 0, 0.7))',
                   display: 'block',
                 }}
               />
@@ -289,7 +288,7 @@ export default function DashboardLayout({
               size="small"
               sx={{
                 position: 'absolute',
-                right: 12,
+                right: 10,
                 top: '50%',
                 transform: 'translateY(-50%)',
                 color: 'rgba(255, 255, 255, 0.75)',
