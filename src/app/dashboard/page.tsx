@@ -200,179 +200,86 @@ export default function DashboardPage() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3.5, p: { xs: 1.5, md: 3 } }}>
       
-      {/* 🌟 1. BANNIÈRE EXÉCUTIVE PREMIUM CADRÉE EN BLEU MARINE 🌟 */}
+      {/* 🌟 1. ULTRA-PREMIUM HERO BANNER 🌟 */}
       <Paper
         elevation={0}
         sx={{
-          borderRadius: 3,
-          p: { xs: 2.5, sm: 3, md: 3.5 },
-          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
-          border: '1.5px solid #0F172A', // Cadre bleu marine foncé élégant
+          borderRadius: 4,
+          p: { xs: 2.5, md: 3.5 },
+          background: 'linear-gradient(135deg, #1A1A2E 0%, #2A1B28 50%, #7B0000 100%)',
+          color: '#FFFFFF',
           position: 'relative',
           overflow: 'hidden',
-          boxShadow: '0 4px 20px rgba(15, 23, 42, 0.05)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 3,
+          boxShadow: '0 20px 45px rgba(26, 26, 46, 0.25)',
+          border: '1px solid rgba(255, 255, 255, 0.12)'
         }}
       >
-        {/* Left: Greeting, Meta Badges & Description */}
-        <Box sx={{ maxWidth: 700 }}>
-          {/* Top Meta Badges */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.5, flexWrap: 'wrap' }}>
-            <Box
-              sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 0.8,
-                px: 1.3,
-                py: 0.4,
-                borderRadius: 2,
-                bgcolor: '#FFFFFF',
-                border: '1px solid #E2E8F0',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-              }}
-            >
-              <Box
-                sx={{
-                  width: 7,
-                  height: 7,
-                  borderRadius: '50%',
-                  bgcolor: '#10B981',
-                  boxShadow: '0 0 6px #10B981',
-                }}
-              />
-              <Typography sx={{ fontSize: '0.72rem', fontWeight: 800, color: '#0F172A', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                Système Opérationnel
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                px: 1.2,
-                py: 0.4,
-                borderRadius: 2,
-                bgcolor: '#FFFFFF',
-                border: '1px solid #E2E8F0',
-              }}
-            >
-              <Typography sx={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>
-                {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+        <Box sx={{ position: 'absolute', top: -30, right: -30, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(227,30,36,0.3) 0%, rgba(227,30,36,0) 70%)', pointerEvents: 'none' }} />
+        
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, flexWrap: 'wrap', gap: 2.5, position: 'relative', zIndex: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+            <Avatar sx={{ width: 62, height: 62, bgcolor: 'rgba(227,30,36,0.3)', border: '2px solid rgba(227,30,36,0.8)', color: '#FFFFFF', boxShadow: '0 8px 24px rgba(227,30,36,0.45)' }}>
+              <ComputerIcon sx={{ fontSize: 34, color: '#FFFFFF' }} />
+            </Avatar>
+            <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+                <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.5px', fontSize: { xs: '1.4rem', sm: '1.75rem', md: '2rem' } }}>
+                  Bonjour, {session?.user?.name || 'Administrateur'}
+                </Typography>
+                <Chip
+                  icon={<CheckCircleIcon sx={{ fontSize: 16, color: '#A7F3D0 !important' }} />}
+                  label="Système Opérationnel"
+                  size="small"
+                  sx={{ bgcolor: 'rgba(5, 150, 105, 0.25)', color: '#A7F3D0', border: '1px solid rgba(167, 243, 208, 0.4)', fontWeight: 800 }}
+                />
+              </Box>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', mt: 0.6, maxWidth: 680 }}>
+                Supervision globale, gestion du cycle de vie et suivi en temps réel du parc informatique Cathedis.
               </Typography>
             </Box>
           </Box>
 
-          {/* User Name Greeting */}
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: 800,
-              color: '#0F172A',
-              fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2.05rem' },
-              letterSpacing: '-0.025em',
-              mb: 0.6,
-            }}
-          >
-            Bonjour, {session?.user?.name || 'Administrateur'}
-          </Typography>
-
-          {/* Subtitle */}
-          <Typography sx={{ color: '#64748B', fontSize: '0.9rem', lineHeight: 1.55 }}>
-            Supervision globale, gestion du cycle de vie et suivi en temps réel du parc informatique Cathedis.
-          </Typography>
-        </Box>
-
-        {/* Right: Dual Executive Telemetry KPI Tiles */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-          {/* Tile 1: Total Equipments */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 1.8,
-              px: 2.2,
-              borderRadius: 2.5,
-              bgcolor: '#FFFFFF',
-              border: '1px solid #E2E8F0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1.5,
-              minWidth: 155,
-              transition: 'transform 0.2s, box-shadow 0.2s',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 16px rgba(15, 23, 42, 0.06)',
-                borderColor: '#CBD5E1',
-              },
-            }}
-          >
-            <Avatar
+          {/* Action Buttons */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+            <Button
+              variant="outlined"
+              component={Link}
+              href="/dashboard/assignments"
+              startIcon={<AssignmentIcon />}
               sx={{
-                width: 38,
-                height: 38,
-                bgcolor: '#F1F5F9',
-                color: '#0F172A',
-                border: '1px solid #E2E8F0',
+                color: '#FFFFFF',
+                borderColor: 'rgba(255,255,255,0.3)',
+                borderRadius: 2.5,
+                fontWeight: 800,
+                textTransform: 'none',
+                px: 2,
+                backdropFilter: 'blur(10px)',
+                bgcolor: 'rgba(255,255,255,0.06)',
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.15)', borderColor: '#FFFFFF' }
               }}
             >
-              <ComputerIcon sx={{ fontSize: 20 }} />
-            </Avatar>
-            <Box>
-              <Typography sx={{ fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.1 }}>
-                {kpis.totalEquipments || 0}
-              </Typography>
-              <Typography sx={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748B', mt: 0.2 }}>
-                Équipements
-              </Typography>
-            </Box>
-          </Paper>
+              Affectations
+            </Button>
 
-          {/* Tile 2: Availability Rate */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 1.8,
-              px: 2.2,
-              borderRadius: 2.5,
-              bgcolor: '#FFFFFF',
-              border: '1px solid #E2E8F0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1.5,
-              minWidth: 155,
-              transition: 'transform 0.2s, box-shadow 0.2s',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 16px rgba(15, 23, 42, 0.06)',
-                borderColor: '#CBD5E1',
-              },
-            }}
-          >
-            <Avatar
+            <Button
+              variant="contained"
+              component={Link}
+              href="/dashboard/equipments"
+              startIcon={<AddIcon />}
               sx={{
-                width: 38,
-                height: 38,
-                bgcolor: '#ECFDF5',
-                color: '#10B981',
-                border: '1px solid #A7F3D0',
+                background: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
+                color: '#FFFFFF',
+                borderRadius: 2.5,
+                fontWeight: 800,
+                textTransform: 'none',
+                px: 2.8,
+                boxShadow: '0 4px 14px rgba(227, 30, 36, 0.45)',
+                '&:hover': { background: 'linear-gradient(90deg, #C41018 0%, #E31E24 100%)' }
               }}
             >
-              <CheckCircleIcon sx={{ fontSize: 20 }} />
-            </Avatar>
-            <Box>
-              <Typography sx={{ fontSize: '1.35rem', fontWeight: 800, color: '#10B981', lineHeight: 1.1 }}>
-                {availPercent}%
-              </Typography>
-              <Typography sx={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748B', mt: 0.2 }}>
-                Disponibilité
-              </Typography>
-            </Box>
-          </Paper>
+              Gérer le Parc
+            </Button>
+          </Box>
         </Box>
       </Paper>
 

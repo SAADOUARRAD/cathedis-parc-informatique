@@ -507,38 +507,40 @@ export default function EquipmentsPage() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3.5, p: { xs: 1.5, md: 3 } }}>
       
-      {/* 🌟 1. BANNIÈRE EXÉCUTIVE SUR FOND BLANC 🌟 */}
+      {/* 🌟 1. ULTRA-PREMIUM HERO BANNER 🌟 */}
       <Paper
         elevation={0}
         sx={{
-          borderRadius: 3,
+          borderRadius: 4,
           p: { xs: 2.5, md: 3.5 },
-          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
-          border: '1.5px solid #0F172A', // Cadre bleu marine élégant
-          color: '#0F172A',
+          background: 'linear-gradient(135deg, #1A1A2E 0%, #2A1B28 50%, #7B0000 100%)',
+          color: '#FFFFFF',
           position: 'relative',
           overflow: 'hidden',
-          boxShadow: '0 4px 20px rgba(15, 23, 42, 0.05)',
+          boxShadow: '0 20px 45px rgba(26, 26, 46, 0.25)',
+          border: '1px solid rgba(255, 255, 255, 0.12)'
         }}
       >
+        <Box sx={{ position: 'absolute', top: -30, right: -30, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(227,30,36,0.3) 0%, rgba(227,30,36,0) 70%)', pointerEvents: 'none' }} />
+        
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, flexWrap: 'wrap', gap: 2.5, position: 'relative', zIndex: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-            <Avatar sx={{ width: 56, height: 56, bgcolor: '#F1F5F9', border: '1.5px solid #E2E8F0', color: '#0F172A', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-              <DevicesIcon sx={{ fontSize: 30, color: '#0F172A' }} />
+            <Avatar sx={{ width: 62, height: 62, bgcolor: 'rgba(227,30,36,0.3)', border: '2px solid rgba(227,30,36,0.8)', color: '#FFFFFF', boxShadow: '0 8px 24px rgba(227,30,36,0.45)' }}>
+              <DevicesIcon sx={{ fontSize: 34, color: '#FFFFFF' }} />
             </Avatar>
             <Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-                <Typography variant="h4" sx={{ fontWeight: 800, color: '#0F172A', letterSpacing: '-0.5px', fontSize: { xs: '1.4rem', sm: '1.75rem', md: '1.95rem' } }}>
+                <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.5px', fontSize: { xs: '1.4rem', sm: '1.75rem', md: '1.95rem' } }}>
                   Parc & Équipements Informatiques
                 </Typography>
                 <Chip
-                  icon={<FlashIcon sx={{ fontSize: 16, color: '#0F172A !important' }} />}
+                  icon={<FlashIcon sx={{ fontSize: 16, color: '#A7F3D0 !important' }} />}
                   label="Inventaire Intelligent & QR Tags"
                   size="small"
-                  sx={{ bgcolor: '#F1F5F9', color: '#0F172A', border: '1px solid #E2E8F0', fontWeight: 700 }}
+                  sx={{ bgcolor: 'rgba(5, 150, 105, 0.25)', color: '#A7F3D0', border: '1px solid rgba(167, 243, 208, 0.4)', fontWeight: 800 }}
                 />
               </Box>
-              <Typography variant="body2" sx={{ color: '#64748B', mt: 0.6, maxWidth: 680 }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', mt: 0.6, maxWidth: 680 }}>
                 Gestion complète du cycle de vie du matériel, fiches techniques configurables, QR codes imprimables et traçabilité des affectations.
               </Typography>
             </Box>
@@ -551,15 +553,15 @@ export default function EquipmentsPage() {
               onClick={handleExportCSV}
               startIcon={<ExportIcon />}
               sx={{
-                color: '#0F172A',
-                borderColor: '#E2E8F0',
+                color: '#FFFFFF',
+                borderColor: 'rgba(255,255,255,0.3)',
                 borderRadius: 2.5,
-                fontWeight: 700,
+                fontWeight: 800,
                 textTransform: 'none',
                 px: 2,
-                bgcolor: '#FFFFFF',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-                '&:hover': { bgcolor: '#F8FAFC', borderColor: '#0F172A' }
+                backdropFilter: 'blur(10px)',
+                bgcolor: 'rgba(255,255,255,0.06)',
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.15)', borderColor: '#FFFFFF' }
               }}
             >
               Exporter CSV
@@ -570,15 +572,15 @@ export default function EquipmentsPage() {
               onClick={openScanner}
               startIcon={<CameraIcon />}
               sx={{
-                color: '#0F172A',
-                borderColor: '#E2E8F0',
+                color: '#FFFFFF',
+                borderColor: 'rgba(255,255,255,0.3)',
                 borderRadius: 2.5,
-                fontWeight: 700,
+                fontWeight: 800,
                 textTransform: 'none',
                 px: 2.2,
-                bgcolor: '#FFFFFF',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-                '&:hover': { bgcolor: '#F8FAFC', borderColor: '#0F172A' }
+                backdropFilter: 'blur(10px)',
+                bgcolor: 'rgba(255,255,255,0.06)',
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.15)', borderColor: '#FFFFFF' }
               }}
             >
               Scanner Caméra
@@ -589,15 +591,14 @@ export default function EquipmentsPage() {
               onClick={() => openForm()}
               startIcon={<AddIcon />}
               sx={{
-                bgcolor: '#0F172A',
+                background: 'linear-gradient(90deg, #E31E24 0%, #C41018 100%)',
                 color: '#FFFFFF',
                 borderRadius: 2.5,
                 fontWeight: 800,
                 textTransform: 'none',
-                px: 2.5,
-                py: 1,
-                boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
-                '&:hover': { bgcolor: '#1E293B', boxShadow: '0 6px 16px rgba(15, 23, 42, 0.25)' }
+                px: 2.8,
+                boxShadow: '0 4px 14px rgba(227, 30, 36, 0.45)',
+                '&:hover': { background: 'linear-gradient(90deg, #C41018 0%, #E31E24 100%)' }
               }}
             >
               + Nouvel Équipement
