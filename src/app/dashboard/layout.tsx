@@ -229,26 +229,105 @@ export default function DashboardLayout({
     });
   });
 
-  // Vertical White Sidebar Component (Placed strictly underneath the Top Navy Bar)
+  // Dark Sidebar Drawer Component (Executive Dark Theme matching reference)
   const drawer = (
     <Box
       sx={{
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#FFFFFF',
-        color: '#1E293B',
+        backgroundColor: '#0B1120',
+        backgroundImage: 'linear-gradient(180deg, #0B1120 0%, #0F172A 50%, #170F1C 100%)',
+        color: '#FFFFFF',
         transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
     >
-      {/* 📋 Navigation List with Tooltips in Compact Mode 📋 */}
+      {/* 🏷️ Sidebar Header: Logo + Collapse Button 🏷️ */}
+      <Box
+        sx={{
+          height: 64,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: isCollapsed ? 'center' : 'space-between',
+          px: isCollapsed ? 1 : 2.5,
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          position: 'relative',
+        }}
+      >
+        {!isCollapsed ? (
+          <>
+            <Box
+              component="img"
+              src="/images/logo_cathedis.png"
+              alt="Cathedis"
+              sx={{
+                height: 38,
+                maxWidth: 160,
+                objectFit: 'contain',
+                cursor: 'pointer',
+                filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5))',
+                transition: 'opacity 0.2s',
+                '&:hover': { opacity: 0.9 },
+              }}
+              onClick={() => router.push('/dashboard')}
+            />
+            <IconButton
+              onClick={() => setIsCollapsed(true)}
+              size="small"
+              sx={{
+                color: 'rgba(255, 255, 255, 0.75)',
+                bgcolor: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                p: 0.6,
+                borderRadius: '50%',
+                transition: 'all 0.2s',
+                '&:hover': {
+                  bgcolor: 'rgba(227, 30, 36, 0.25)',
+                  color: '#FFFFFF',
+                  borderColor: '#E31E24',
+                  transform: 'scale(1.05)',
+                },
+              }}
+            >
+              <ChevronLeftIcon sx={{ fontSize: 18 }} />
+            </IconButton>
+          </>
+        ) : (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+            <Tooltip title="Agrandir le menu" placement="right" arrow>
+              <IconButton
+                onClick={() => setIsCollapsed(false)}
+                size="small"
+                sx={{
+                  color: 'rgba(255, 255, 255, 0.85)',
+                  bgcolor: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  p: 0.8,
+                  borderRadius: '50%',
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    bgcolor: 'rgba(227, 30, 36, 0.3)',
+                    color: '#FFFFFF',
+                    borderColor: '#E31E24',
+                    transform: 'scale(1.1)',
+                  },
+                }}
+              >
+                <ChevronRightIcon sx={{ fontSize: 20 }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
+      </Box>
+
+      {/* 📋 Navigation List 📋 */}
       <Box
         sx={{
           overflowY: 'auto',
           flexGrow: 1,
           py: 1.5,
           '&::-webkit-scrollbar': { width: '4px' },
-          '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: '4px' },
+          '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: '4px' },
         }}
       >
         <List sx={{ pt: 0.5, pb: 2 }}>
@@ -258,11 +337,11 @@ export default function DashboardLayout({
                 <Typography
                   sx={{
                     px: 3,
-                    py: 1,
-                    fontSize: '0.7rem',
+                    py: 0.8,
+                    fontSize: '0.68rem',
                     color: '#64748B',
                     fontWeight: 800,
-                    letterSpacing: '0.1em',
+                    letterSpacing: '0.08em',
                     textTransform: 'uppercase',
                     mt: index === 0 ? 0.5 : 1.8,
                   }}
@@ -270,7 +349,7 @@ export default function DashboardLayout({
                   {section.label}
                 </Typography>
               ) : (
-                index > 0 && <Divider sx={{ my: 1.2, borderColor: '#E2E8F0', mx: 1.5 }} />
+                index > 0 && <Divider sx={{ my: 1.2, borderColor: 'rgba(255, 255, 255, 0.08)', mx: 1.5 }} />
               )}
 
               {section.items.map((item) => {
@@ -282,27 +361,27 @@ export default function DashboardLayout({
                     href={item.path}
                     sx={{
                       borderRadius: 2.5,
-                      py: 1,
+                      py: 1.1,
                       px: isCollapsed ? 1 : 2,
                       justifyContent: isCollapsed ? 'center' : 'flex-start',
                       position: 'relative',
                       overflow: 'hidden',
                       background: isActive
-                        ? 'linear-gradient(90deg, #0F172A 0%, #1E293B 100%)'
+                        ? 'linear-gradient(135deg, #E31E24 0%, #B91C1C 100%)'
                         : 'transparent',
-                      color: isActive ? '#FFFFFF !important' : '#334155',
+                      color: isActive ? '#FFFFFF !important' : '#94A3B8',
                       boxShadow: isActive
-                        ? '0 4px 14px rgba(15, 23, 42, 0.25)'
+                        ? '0 6px 20px rgba(227, 30, 36, 0.45)'
                         : 'none',
                       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                       '&:hover': {
                         transform: isCollapsed ? 'scale(1.06)' : 'translateX(3px)',
                         background: isActive
-                          ? 'linear-gradient(90deg, #0A1128 0%, #0F172A 100%)'
-                          : 'rgba(15, 23, 42, 0.06)',
-                        color: isActive ? '#FFFFFF !important' : '#0F172A',
+                          ? 'linear-gradient(135deg, #E31E24 0%, #991B1B 100%)'
+                          : 'rgba(255, 255, 255, 0.06)',
+                        color: '#FFFFFF !important',
                         '& .MuiListItemIcon-root': {
-                          color: isActive ? '#FFFFFF !important' : '#0F172A',
+                          color: '#FFFFFF !important',
                           transform: 'scale(1.08)',
                         },
                       },
@@ -310,7 +389,7 @@ export default function DashboardLayout({
                   >
                     <ListItemIcon
                       sx={{
-                        color: isActive ? '#FFFFFF !important' : '#64748B',
+                        color: isActive ? '#FFFFFF !important' : '#94A3B8',
                         minWidth: isCollapsed ? 0 : 36,
                         justifyContent: 'center',
                         transition: 'all 0.2s',
@@ -326,9 +405,9 @@ export default function DashboardLayout({
                           primary: {
                             sx: {
                               fontSize: '0.88rem',
-                              fontWeight: isActive ? 700 : 600,
+                              fontWeight: isActive ? 700 : 500,
                               letterSpacing: isActive ? '0.01em' : 'normal',
-                              color: isActive ? '#FFFFFF !important' : '#334155',
+                              color: isActive ? '#FFFFFF !important' : '#94A3B8',
                             },
                           },
                         }}
@@ -338,7 +417,7 @@ export default function DashboardLayout({
                 );
 
                 return (
-                  <ListItem key={item.path} disablePadding sx={{ px: isCollapsed ? 1 : 1.5, mb: 0.5 }}>
+                  <ListItem key={item.path} disablePadding sx={{ px: isCollapsed ? 1 : 1.5, mb: 0.6 }}>
                     {isCollapsed ? (
                       <Tooltip
                         title={item.text}
@@ -354,7 +433,8 @@ export default function DashboardLayout({
                               py: 0.6,
                               px: 1.2,
                               borderRadius: 2,
-                              boxShadow: '0 6px 18px rgba(0,0,0,0.3)',
+                              border: '1px solid rgba(255,255,255,0.15)',
+                              boxShadow: '0 6px 18px rgba(0,0,0,0.5)',
                             },
                           },
                         }}
@@ -372,8 +452,8 @@ export default function DashboardLayout({
         </List>
       </Box>
 
-      {/* 👤 User Profile Footer inside White Sidebar 👤 */}
-      <Box sx={{ p: isCollapsed ? 1.2 : 1.8, borderTop: '1px solid #E2E8F0', backgroundColor: '#FAFAFA' }}>
+      {/* 👤 User Profile Footer inside Sidebar 👤 */}
+      <Box sx={{ p: isCollapsed ? 1.2 : 1.8, borderTop: '1px solid rgba(255, 255, 255, 0.08)', backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
         {!isCollapsed ? (
           <Box
             sx={{
@@ -382,13 +462,13 @@ export default function DashboardLayout({
               gap: 1.5,
               p: 1.2,
               borderRadius: 2.5,
-              bgcolor: '#FFFFFF',
-              border: '1px solid #E2E8F0',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+              bgcolor: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
               transition: 'all 0.2s',
               '&:hover': {
-                borderColor: '#CBD5E1',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+                borderColor: 'rgba(255, 255, 255, 0.18)',
+                bgcolor: 'rgba(255, 255, 255, 0.08)',
               },
             }}
           >
@@ -397,16 +477,16 @@ export default function DashboardLayout({
                 bgcolor: '#E31E24',
                 color: '#FFFFFF',
                 fontWeight: 800,
-                width: 36,
-                height: 36,
-                fontSize: '0.92rem',
-                boxShadow: '0 2px 8px rgba(227, 30, 36, 0.35)',
+                width: 38,
+                height: 38,
+                fontSize: '0.95rem',
+                boxShadow: '0 2px 10px rgba(227, 30, 36, 0.45)',
               }}
             >
               {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'A'}
             </Avatar>
             <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-              <Typography noWrap sx={{ fontSize: '0.86rem', color: '#0F172A', fontWeight: 700 }}>
+              <Typography noWrap sx={{ fontSize: '0.86rem', color: '#FFFFFF', fontWeight: 700 }}>
                 {session?.user?.name || 'Ahmed Benali'}
               </Typography>
               <Chip
@@ -416,9 +496,9 @@ export default function DashboardLayout({
                   height: 18,
                   fontSize: '0.62rem',
                   fontWeight: 800,
-                  bgcolor: 'rgba(227, 30, 36, 0.1)',
-                  color: '#E31E24',
-                  border: '1px solid rgba(227, 30, 36, 0.25)',
+                  bgcolor: 'rgba(227, 30, 36, 0.2)',
+                  color: '#FF6B6B',
+                  border: '1px solid rgba(227, 30, 36, 0.35)',
                   mt: 0.2,
                 }}
               />
@@ -428,8 +508,8 @@ export default function DashboardLayout({
                 size="small"
                 onClick={handleLogout}
                 sx={{
-                  color: '#64748B',
-                  '&:hover': { color: '#E31E24', bgcolor: 'rgba(227, 30, 36, 0.08)' },
+                  color: '#94A3B8',
+                  '&:hover': { color: '#E31E24', bgcolor: 'rgba(227, 30, 36, 0.15)' },
                 }}
               >
                 <LogoutIcon fontSize="small" />
@@ -447,7 +527,7 @@ export default function DashboardLayout({
                   width: 36,
                   height: 36,
                   fontSize: '0.92rem',
-                  boxShadow: '0 2px 8px rgba(227, 30, 36, 0.35)',
+                  boxShadow: '0 2px 8px rgba(227, 30, 36, 0.45)',
                 }}
               >
                 {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'A'}
@@ -458,8 +538,8 @@ export default function DashboardLayout({
                 size="small"
                 onClick={handleLogout}
                 sx={{
-                  color: '#64748B',
-                  '&:hover': { color: '#E31E24', bgcolor: 'rgba(227, 30, 36, 0.08)' },
+                  color: '#94A3B8',
+                  '&:hover': { color: '#E31E24', bgcolor: 'rgba(227, 30, 36, 0.15)' },
                 }}
               >
                 <LogoutIcon fontSize="small" />
@@ -473,161 +553,137 @@ export default function DashboardLayout({
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
-      {/* 🌟 1. Barre Horizontale Supérieure Bleu Marine Foncé (Pleine Largeur 100%, Bords Carrés) 🌟 */}
+      {/* 🧭 1. Barre Latérale Gauche (Full Height, Thème Sombre Gradient) 🧭 */}
+      <Box
+        component="nav"
+        sx={{
+          width: { md: currentDrawerWidth },
+          flexShrink: { md: 0 },
+          transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
+        {/* Mobile Drawer */}
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: 'block', md: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+              top: 0,
+              height: '100vh',
+              backgroundColor: '#0B1120',
+              borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+        
+        {/* Desktop Permanent Drawer */}
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', md: 'block' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: currentDrawerWidth,
+              top: 0,
+              height: '100vh',
+              backgroundColor: '#0B1120',
+              borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+              overflowX: 'hidden',
+              transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '4px 0 24px rgba(0, 0, 0, 0.25)',
+              zIndex: (theme) => theme.zIndex.appBar + 1,
+            },
+          }}
+          open
+        >
+          {drawer}
+        </Drawer>
+      </Box>
+
+      {/* 🌟 2. Barre Supérieure Blanche Épurée (App Bar) 🌟 */}
       <AppBar
         position="fixed"
         elevation={0}
         sx={{
-          width: '100%',
-          left: 0,
-          right: 0,
+          width: { xs: '100%', md: `calc(100% - ${currentDrawerWidth}px)` },
+          left: { xs: 0, md: `${currentDrawerWidth}px` },
           top: 0,
-          borderRadius: 0, // Bords carrés et nets
-          zIndex: (theme) => theme.zIndex.drawer + 1, // Au-dessus de la barre latérale
-          backgroundColor: '#0F172A', // Bleu marine très foncé élégant
-          backgroundImage: 'linear-gradient(90deg, #0A1128 0%, #0F172A 40%, #151F38 100%)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          color: '#FFFFFF',
+          backgroundColor: '#FFFFFF',
+          borderBottom: '1px solid #E2E8F0',
+          color: '#0F172A',
           height: 64,
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
+          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
-        <Toolbar sx={{ height: 64, px: { xs: 2, sm: 3 }, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: 0 }}>
-          {/* Gauche : Zone Logo Centré + Bouton Menu + Titre décalé à droite */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
-            {/* Zone Logo centré (aligné au milieu de la colonne latérale) */}
-            <Box
-              sx={{
-                width: { xs: 'auto', md: isCollapsed ? 42 : currentDrawerWidth - 36 },
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                overflow: 'hidden',
-              }}
-            >
-              {isCollapsed ? (
-                <Tooltip title="Cathedis Parc Informatique" placement="right" arrow>
-                  <Box
-                    component="svg"
-                    viewBox="0 0 100 100"
-                    sx={{
-                      height: 34,
-                      width: 34,
-                      filter: 'drop-shadow(0 2px 8px rgba(227, 30, 36, 0.6))',
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s ease',
-                      '&:hover': { transform: 'scale(1.12)' },
-                    }}
-                    onClick={() => router.push('/dashboard')}
-                  >
-                    <polygon points="15,18 85,18 95,48 65,48 85,85 38,85 22,54 52,54" fill="#E31E24" />
-                    <polygon points="15,18 52,54 22,54" fill="#B91C1C" />
-                    <polygon points="85,18 95,48 65,48" fill="#FF383E" />
-                    <polygon points="65,48 85,85 52,65" fill="#991B1B" />
-                  </Box>
-                </Tooltip>
-              ) : (
-                <Box
-                  component="img"
-                  src="/images/logo1.png"
-                  alt="Cathedis"
-                  sx={{
-                    height: { xs: 34, sm: 38, md: 42 },
-                    width: 'auto',
-                    maxWidth: { xs: 150, sm: 180, md: 200 },
-                    display: 'block',
-                    objectFit: 'contain',
-                    filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5))',
-                    cursor: 'pointer',
-                    mx: 'auto',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onClick={() => router.push('/dashboard')}
-                />
-              )}
-            </Box>
-
-            {/* Bouton Menu / Réduire sidebar */}
+        <Toolbar sx={{ height: 64, px: { xs: 2, sm: 3 }, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {/* Gauche : Bouton menu mobile + Titre de la page */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {/* Bouton Menu Mobile */}
             <IconButton
-              onClick={() => {
-                if (typeof window !== 'undefined' && window.innerWidth < 900) {
-                  setMobileOpen(!mobileOpen);
-                } else {
-                  setIsCollapsed(!isCollapsed);
-                }
-              }}
+              onClick={handleDrawerToggle}
               size="small"
               sx={{
-                color: 'rgba(255, 255, 255, 0.8)',
-                bgcolor: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                display: { xs: 'inline-flex', md: 'none' },
+                color: '#0F172A',
+                bgcolor: '#F1F5F9',
+                border: '1px solid #E2E8F0',
                 p: 0.8,
-                borderRadius: 1.5,
-                transition: 'all 0.2s',
-                '&:hover': { bgcolor: 'rgba(227, 30, 36, 0.25)', color: '#FFFFFF', borderColor: '#E31E24' },
+                borderRadius: 2,
               }}
             >
               <MenuIcon fontSize="small" />
             </IconButton>
 
-            {/* Séparateur vertical */}
-            <Divider
-              orientation="vertical"
-              flexItem
-              sx={{
-                height: 24,
-                my: 'auto',
-                mx: { xs: 0.5, md: 1.5 },
-                borderColor: 'rgba(255, 255, 255, 0.15)',
-                display: { xs: 'none', sm: 'block' },
-              }}
-            />
-
-            {/* Titre : "Tableau de bord", "Équipements", etc. (décalé à droite) */}
+            {/* Titre : "Tableau de bord", "Équipements", etc. */}
             <Typography
               sx={{
-                fontSize: { xs: '0.95rem', sm: '1.15rem' },
-                fontWeight: 700,
-                color: '#FFFFFF',
-                letterSpacing: '-0.2px',
-                display: { xs: 'none', md: 'block' },
-                ml: { md: 2.5 }, // Décalage vers la droite
+                fontSize: { xs: '1.05rem', sm: '1.25rem' },
+                fontWeight: 800,
+                color: '#0F172A',
+                letterSpacing: '-0.3px',
               }}
             >
               {currentTitle}
             </Typography>
           </Box>
 
-          {/* Droite : Barre de recherche + Notifications + Profil Utilisateur "A" */}
+          {/* Droite : Barre de recherche + Notifications + Avatar utilisateur */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.2, sm: 2 } }}>
             {/* Barre de Recherche */}
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                backgroundColor: '#F1F5F9',
+                border: '1px solid #E2E8F0',
                 borderRadius: 6,
                 px: 1.8,
-                py: 0.5,
-                width: { xs: '120px', sm: '220px', md: '280px' },
+                py: 0.45,
+                width: { xs: '120px', sm: '200px', md: '260px' },
                 transition: 'all 0.2s ease',
                 '&:hover, &:focus-within': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
-                  borderColor: 'rgba(227, 30, 36, 0.6)',
-                  boxShadow: '0 0 10px rgba(227, 30, 36, 0.25)',
+                  backgroundColor: '#FFFFFF',
+                  borderColor: '#CBD5E1',
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
                 },
               }}
             >
-              <SearchIcon sx={{ color: 'rgba(255, 255, 255, 0.55)', mr: 1, fontSize: 18 }} />
+              <SearchIcon sx={{ color: '#64748B', mr: 1, fontSize: 18 }} />
               <InputBase
                 placeholder="Rechercher..."
                 sx={{
                   width: '100%',
                   fontSize: '0.84rem',
-                  color: '#FFFFFF',
-                  '& input::placeholder': { color: 'rgba(255, 255, 255, 0.5)', opacity: 1 },
+                  color: '#0F172A',
+                  '& input::placeholder': { color: '#94A3B8', opacity: 1 },
                 }}
               />
             </Box>
@@ -637,13 +693,13 @@ export default function DashboardLayout({
               size="small"
               onClick={handleNotifOpen}
               sx={{
-                color: 'rgba(255, 255, 255, 0.85)',
-                bgcolor: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#64748B',
+                bgcolor: '#F8FAFC',
+                border: '1px solid #E2E8F0',
                 p: 0.8,
                 borderRadius: 2,
                 transition: 'all 0.2s',
-                '&:hover': { bgcolor: 'rgba(227, 30, 36, 0.2)', color: '#FFFFFF', borderColor: '#E31E24' },
+                '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A', borderColor: '#CBD5E1' },
               }}
             >
               <Badge
@@ -679,7 +735,8 @@ export default function DashboardLayout({
                     maxWidth: '90vw',
                     borderRadius: 3.5,
                     overflow: 'hidden',
-                    boxShadow: '0 16px 40px rgba(0,0,0,0.18)',
+                    boxShadow: '0 16px 40px rgba(0,0,0,0.12)',
+                    border: '1px solid #E2E8F0',
                   },
                 },
               }}
@@ -777,8 +834,7 @@ export default function DashboardLayout({
                   width: 38,
                   height: 38,
                   fontSize: '1rem',
-                  boxShadow: '0 2px 10px rgba(227, 30, 36, 0.45)',
-                  border: '2px solid rgba(255, 255, 255, 0.2)',
+                  boxShadow: '0 2px 10px rgba(227, 30, 36, 0.35)',
                 }}
               >
                 {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'A'}
@@ -795,7 +851,7 @@ export default function DashboardLayout({
               slotProps={{
                 paper: {
                   elevation: 4,
-                  sx: { mt: 1.5, minWidth: 210, borderRadius: 3, p: 0.5, boxShadow: '0 10px 30px rgba(0,0,0,0.15)' },
+                  sx: { mt: 1.5, minWidth: 210, borderRadius: 3, p: 0.5, boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid #E2E8F0' },
                 },
               }}
             >
@@ -830,67 +886,14 @@ export default function DashboardLayout({
         </Toolbar>
       </AppBar>
 
-      {/* 🧭 2. Barre Latérale Verticale Blanche (Placée UNIQUEMENT sous la barre supérieure) 🧭 */}
-      <Box
-        component="nav"
-        sx={{
-          width: { md: currentDrawerWidth },
-          flexShrink: { md: 0 },
-          transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-        }}
-      >
-        {/* Mobile Drawer */}
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: drawerWidth,
-              top: '64px',
-              height: 'calc(100vh - 64px)',
-              backgroundColor: '#FFFFFF',
-              borderRight: '1px solid #E2E8F0',
-            },
-          }}
-        >
-          {drawer}
-        </Drawer>
-        
-        {/* Desktop Permanent Drawer */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: currentDrawerWidth,
-              top: '64px',
-              height: 'calc(100vh - 64px)',
-              backgroundColor: '#FFFFFF',
-              borderRight: '1px solid #E2E8F0',
-              overflowX: 'hidden',
-              transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: '2px 0 10px rgba(0, 0, 0, 0.02)',
-            },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
-      </Box>
-
       {/* 🖥️ 3. Contenu Principal 🖥️ */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
-          width: { md: `calc(100% - ${currentDrawerWidth}px)` },
-          mt: '64px', // Hauteur de la barre supérieure
+          width: { xs: '100%', md: `calc(100% - ${currentDrawerWidth}px)` },
+          mt: '64px', // Hauteur de l'AppBar
           backgroundColor: '#F8FAFC',
           minHeight: 'calc(100vh - 64px)',
           transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
