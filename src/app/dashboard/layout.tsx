@@ -50,7 +50,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import FloatingChatWidget from '@/components/shared/FloatingChatWidget';
 
-const drawerWidth = 260;
+const drawerWidth = 270;
 
 const adminMenuSections = [
   {
@@ -229,23 +229,24 @@ export default function DashboardLayout({
     });
   });
 
-  // Dark Sidebar Drawer Component (Executive Dark Theme matching reference)
+  // Dark Sidebar Drawer Component with Red Gradient
   const drawer = (
     <Box
       sx={{
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#0B1120',
-        backgroundImage: 'linear-gradient(180deg, #0B1120 0%, #0F172A 50%, #170F1C 100%)',
+        backgroundColor: '#090D16',
+        backgroundImage:
+          'radial-gradient(circle at 100% 0%, rgba(227, 30, 36, 0.22) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(227, 30, 36, 0.28) 0%, transparent 55%), linear-gradient(180deg, #090D16 0%, #0F172A 35%, #180D1A 68%, #2B0A11 100%)',
         color: '#FFFFFF',
         transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
     >
-      {/* 🏷️ Sidebar Header: Logo + Collapse Button 🏷️ */}
+      {/* 🏷️ Sidebar Header: Enlarged Logo + Collapse Button 🏷️ */}
       <Box
         sx={{
-          height: 64,
+          height: 72,
           display: 'flex',
           alignItems: 'center',
           justifyContent: isCollapsed ? 'center' : 'space-between',
@@ -261,13 +262,13 @@ export default function DashboardLayout({
               src="/images/logo_cathedis.png"
               alt="Cathedis"
               sx={{
-                height: 38,
-                maxWidth: 160,
+                height: 48,
+                maxWidth: 185,
                 objectFit: 'contain',
                 cursor: 'pointer',
-                filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5))',
-                transition: 'opacity 0.2s',
-                '&:hover': { opacity: 0.9 },
+                filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6))',
+                transition: 'transform 0.2s, opacity 0.2s',
+                '&:hover': { opacity: 0.95, transform: 'scale(1.02)' },
               }}
               onClick={() => router.push('/dashboard')}
             />
@@ -278,14 +279,14 @@ export default function DashboardLayout({
                 color: 'rgba(255, 255, 255, 0.75)',
                 bgcolor: 'rgba(255, 255, 255, 0.06)',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
-                p: 0.6,
+                p: 0.65,
                 borderRadius: '50%',
                 transition: 'all 0.2s',
                 '&:hover': {
-                  bgcolor: 'rgba(227, 30, 36, 0.25)',
+                  bgcolor: 'rgba(227, 30, 36, 0.3)',
                   color: '#FFFFFF',
                   borderColor: '#E31E24',
-                  transform: 'scale(1.05)',
+                  transform: 'scale(1.08)',
                 },
               }}
             >
@@ -306,7 +307,7 @@ export default function DashboardLayout({
                   borderRadius: '50%',
                   transition: 'all 0.2s',
                   '&:hover': {
-                    bgcolor: 'rgba(227, 30, 36, 0.3)',
+                    bgcolor: 'rgba(227, 30, 36, 0.35)',
                     color: '#FFFFFF',
                     borderColor: '#E31E24',
                     transform: 'scale(1.1)',
@@ -575,7 +576,9 @@ export default function DashboardLayout({
               width: drawerWidth,
               top: 0,
               height: '100vh',
-              backgroundColor: '#0B1120',
+              backgroundColor: '#090D16',
+              backgroundImage:
+                'radial-gradient(circle at 100% 0%, rgba(227, 30, 36, 0.22) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(227, 30, 36, 0.28) 0%, transparent 55%), linear-gradient(180deg, #090D16 0%, #0F172A 35%, #180D1A 68%, #2B0A11 100%)',
               borderRight: '1px solid rgba(255, 255, 255, 0.08)',
             },
           }}
@@ -593,11 +596,13 @@ export default function DashboardLayout({
               width: currentDrawerWidth,
               top: 0,
               height: '100vh',
-              backgroundColor: '#0B1120',
+              backgroundColor: '#090D16',
+              backgroundImage:
+                'radial-gradient(circle at 100% 0%, rgba(227, 30, 36, 0.22) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(227, 30, 36, 0.28) 0%, transparent 55%), linear-gradient(180deg, #090D16 0%, #0F172A 35%, #180D1A 68%, #2B0A11 100%)',
               borderRight: '1px solid rgba(255, 255, 255, 0.08)',
               overflowX: 'hidden',
               transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: '4px 0 24px rgba(0, 0, 0, 0.25)',
+              boxShadow: '4px 0 24px rgba(0, 0, 0, 0.3)',
               zIndex: (theme) => theme.zIndex.appBar + 1,
             },
           }}
