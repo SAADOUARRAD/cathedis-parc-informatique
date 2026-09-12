@@ -50,7 +50,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import FloatingChatWidget from '@/components/shared/FloatingChatWidget';
 
-const drawerWidth = 270;
+const drawerWidth = 260;
 
 const adminMenuSections = [
   {
@@ -229,28 +229,27 @@ export default function DashboardLayout({
     });
   });
 
-  // Dark Sidebar Drawer Component with Red Gradient
+  // Dark Sidebar Drawer Component (Executive Dark Theme matching reference)
   const drawer = (
     <Box
       sx={{
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#090D16',
-        backgroundImage:
-          'radial-gradient(circle at 100% 0%, rgba(227, 30, 36, 0.22) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(227, 30, 36, 0.28) 0%, transparent 55%), linear-gradient(180deg, #090D16 0%, #0F172A 35%, #180D1A 68%, #2B0A11 100%)',
+        backgroundColor: '#0B1120',
+        backgroundImage: 'linear-gradient(180deg, #0B1120 0%, #0F172A 50%, #170F1C 100%)',
         color: '#FFFFFF',
         transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
     >
-      {/* 🏷️ Sidebar Header: Enlarged Logo + Collapse Button 🏷️ */}
+      {/* 🏷️ Sidebar Header: Logo Centered & Enlarged + Collapse Button 🏷️ */}
       <Box
         sx={{
-          height: 72,
+          height: 74,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: isCollapsed ? 'center' : 'space-between',
-          px: isCollapsed ? 1 : 2.5,
+          justifyContent: 'center',
+          px: isCollapsed ? 1 : 2,
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           position: 'relative',
         }}
@@ -258,35 +257,52 @@ export default function DashboardLayout({
         {!isCollapsed ? (
           <>
             <Box
-              component="img"
-              src="/images/logo_cathedis.png"
-              alt="Cathedis"
               sx={{
-                height: 48,
-                maxWidth: 185,
-                objectFit: 'contain',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                pr: 4, // Leave space for the toggle button so logo remains centered in the visual area
+                pl: 1,
                 cursor: 'pointer',
-                filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6))',
-                transition: 'transform 0.2s, opacity 0.2s',
-                '&:hover': { opacity: 0.95, transform: 'scale(1.02)' },
+                transition: 'transform 0.2s ease',
+                '&:hover': { transform: 'scale(1.02)' },
               }}
               onClick={() => router.push('/dashboard')}
-            />
+            >
+              <Box
+                component="img"
+                src="/images/logo_cathedis.png"
+                alt="Cathedis"
+                sx={{
+                  height: 46,
+                  maxWidth: 185,
+                  width: 'auto',
+                  objectFit: 'contain',
+                  filter: 'drop-shadow(0 3px 10px rgba(0, 0, 0, 0.6))',
+                  display: 'block',
+                }}
+              />
+            </Box>
             <IconButton
               onClick={() => setIsCollapsed(true)}
               size="small"
               sx={{
+                position: 'absolute',
+                right: 12,
+                top: '50%',
+                transform: 'translateY(-50%)',
                 color: 'rgba(255, 255, 255, 0.75)',
                 bgcolor: 'rgba(255, 255, 255, 0.06)',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
-                p: 0.65,
+                p: 0.6,
                 borderRadius: '50%',
                 transition: 'all 0.2s',
                 '&:hover': {
-                  bgcolor: 'rgba(227, 30, 36, 0.3)',
+                  bgcolor: 'rgba(227, 30, 36, 0.25)',
                   color: '#FFFFFF',
                   borderColor: '#E31E24',
-                  transform: 'scale(1.08)',
+                  transform: 'translateY(-50%) scale(1.08)',
                 },
               }}
             >
@@ -307,7 +323,7 @@ export default function DashboardLayout({
                   borderRadius: '50%',
                   transition: 'all 0.2s',
                   '&:hover': {
-                    bgcolor: 'rgba(227, 30, 36, 0.35)',
+                    bgcolor: 'rgba(227, 30, 36, 0.3)',
                     color: '#FFFFFF',
                     borderColor: '#E31E24',
                     transform: 'scale(1.1)',
@@ -576,9 +592,7 @@ export default function DashboardLayout({
               width: drawerWidth,
               top: 0,
               height: '100vh',
-              backgroundColor: '#090D16',
-              backgroundImage:
-                'radial-gradient(circle at 100% 0%, rgba(227, 30, 36, 0.22) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(227, 30, 36, 0.28) 0%, transparent 55%), linear-gradient(180deg, #090D16 0%, #0F172A 35%, #180D1A 68%, #2B0A11 100%)',
+              backgroundColor: '#0B1120',
               borderRight: '1px solid rgba(255, 255, 255, 0.08)',
             },
           }}
@@ -596,13 +610,11 @@ export default function DashboardLayout({
               width: currentDrawerWidth,
               top: 0,
               height: '100vh',
-              backgroundColor: '#090D16',
-              backgroundImage:
-                'radial-gradient(circle at 100% 0%, rgba(227, 30, 36, 0.22) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(227, 30, 36, 0.28) 0%, transparent 55%), linear-gradient(180deg, #090D16 0%, #0F172A 35%, #180D1A 68%, #2B0A11 100%)',
+              backgroundColor: '#0B1120',
               borderRight: '1px solid rgba(255, 255, 255, 0.08)',
               overflowX: 'hidden',
               transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: '4px 0 24px rgba(0, 0, 0, 0.3)',
+              boxShadow: '4px 0 24px rgba(0, 0, 0, 0.25)',
               zIndex: (theme) => theme.zIndex.appBar + 1,
             },
           }}
